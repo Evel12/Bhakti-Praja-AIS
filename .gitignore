@@ -4,3 +4,7 @@ node_modules/
 .sites-local/
 playwright-report/
 test-results/
+
+dist/
+coverage/
+.sites-runtime/

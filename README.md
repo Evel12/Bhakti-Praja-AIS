@@ -1,66 +1,71 @@
-# Kulon Assessment — Web UI
+# EXAMNIA — Assessment UI
 
-Implementasi frontend assessment dengan sidebar, panel membulat, dan palet Star White. Dibuat untuk kebutuhan tugas, kuis, ujian pilihan ganda, bank soal, pengerjaan, serta hasil penilaian dari project capstone.
+Frontend assessment berbahasa Indonesia menggunakan **Vue 3, Vite, Tailwind CSS 4, Vue Router, dan Pinia**. Desain Star White `#EFEFE8`, panel membulat, dan logo Tut Wuri Handayani.
 
 ## Menjalankan
 
-Memerlukan Node.js 18 atau lebih baru. Tidak memerlukan instalasi paket.
+Gunakan Node.js **24.15 atau lebih baru** (diuji pada 24.22.1) dan npm. Versi dependensi terkunci di `package-lock.json`.
 
 ```powershell
 cd "D:\Downloads\Project Capstone Ending\assessment-web"
-node server.mjs
+npm ci
+npm run dev
 ```
 
-Buka `http://127.0.0.1:4173`. Situs juga dapat disajikan oleh server statis mana pun dari folder `dist/`.
+Buka **http://127.0.0.1:4173/#/dashboard**. Port dikunci agar preview tidak diam-diam berpindah. Gunakan alamat 127.0.0.1 yang sama agar data browser tetap tersedia.
 
 ```powershell
-node --test tests/model.test.mjs
-node --check dist/app.js
-node --check dist/ui.js
+npm test          # 11 tes domain/persistensi + 6 tes komponen/lifecycle
+npm run build    # produksi di dist/
+npm run preview  # sajikan hasil build di port 4173; hentikan dev dahulu
+npm run check    # tes dan build
 ```
 
-## Alur yang sudah tersedia
+## Navigasi dan fitur
 
-- Dashboard dengan ringkasan yang dihitung dari data assessment, aktivitas, dan agenda.
-- Daftar assessment, filter status, pencarian, serta duplikasi ke draft.
-- Builder empat langkah: identitas, konten, pengaturan, dan pratinjau/publikasi.
-- Soal pilihan ganda manual, kunci, poin, pembahasan, dan penggunaan ulang bank soal.
-- Validasi sebelum terbit; konten terbit dikunci dan revisi dibuat melalui duplikasi.
-- Tampilan peserta, petunjuk, timer, simpan jawaban, navigasi soal, tanda ragu, review, dan pengiriman.
-- Pengumpulan tugas berupa PDF/DOCX/JPG/PNG maksimal 2 MB, penilaian manual, serta umpan balik.
-- Perhitungan nilai pilihan ganda, review jawaban, rilis hasil, dan ekspor CSV.
-- Tampilan responsif dan navigasi keyboard, label input, dialog native, serta pesan gagal penyimpanan.
-
-## Batas implementasi
-
-Ini **UI frontend dengan penyimpanan lokal browser**, bukan sistem ujian produksi. Data contoh dibuat saat pemakaian pertama. Semua perubahan dan unggahan disimpan pada perangkat/browser yang sama; tidak ada sinkronisasi antar perangkat. Penggantian tampilan Pengajar/Peserta adalah alat mencoba UI dan bukan autentikasi atau kontrol akses.
-
-Endpoint Laravel, akun/kelas dari sistem utama, MySQL, storage berkas server, validasi waktu dan nilai di server, dan layanan AI belum dihubungkan. Kunci jawaban tersedia dalam state frontend untuk simulasi UI; produksi wajib menyimpannya di server dan membatasi data endpoint peserta. Timer/simpan/publikasi/grading saat ini berjalan di browser. Tidak digunakan untuk menyelenggarakan ujian nyata sebelum backend dan pengamanannya tersedia.
-
-Menu AI menjelaskan bahwa ia merupakan pratinjau alur. Tombol contoh menggunakan soal bank Jaringan Komputer dan tidak mengklaim menghasilkan soal dari PDF. Berkas PDF tidak dikirim ke layanan eksternal. Berkas pada pengumpulan contoh hanya metadata; pengumpulan sendiri melalui tampilan peserta menyimpan isi berkas lokal agar alur unduh dapat dicoba.
+- Sidebar desktop 248 px / rail 80 px, tooltip keyboard, submenu Assessment, serta preferensi tersimpan.
+- Drawer pada lebar di bawah 1024 px: overlay, fokus keyboard terjaga, Escape dan penutupan setelah pindah halaman.
+- Dashboard, pencarian/filter assessment, duplikasi draft, dan bank soal.
+- Editor empat langkah: identitas, konten, jadwal, pratinjau. Soal manual/bank, kunci, poin, pembahasan, dan pemeriksaan soal AI.
+- Publikasi memvalidasi konten dan tanggal; konten terbit dikunci dan revisi dibuat melalui duplikasi.
+- Petunjuk peserta, timer berdasarkan expiresAt, jawaban tersimpan, tanda ragu, resume, pengiriman idempotent, dan review.
+- Unggah tugas PDF/DOCX/JPG/PNG maksimum 2 MB, penilaian manual, umpan balik, rilis hasil, dan CSV.
+- Jika data browser rusak, layar pemulihan menyediakan unduhan data asli dan impor JSON cadangan. Data rusak tidak ditimpa dengan seed.
 
 ## Struktur
 
+```text
+src/
+  components/    Brand, navigasi, dialog, editor dan preview soal
+  layouts/       AppShell dan ExamLayout
+  views/         Halaman pengajar dan peserta berupa Vue SFC
+  router/        Vue Router dengan hash URL lama
+  stores/        State UI, assessment, attempt (Pinia)
+  domain/        Validasi, waktu, penilaian, dan CSV
+  repositories/  Batas penyimpanan lokal dan integrasi API mendatang
+  composables/   Lifecycle timer
+  fixtures/      Seed contoh, hanya untuk penggunaan pertama
+  styles/        Token, Tailwind, dan aturan komponen/responsif
+public/brand/    Logo lokal
+index.html       Entry Vite dan metadata EXAMNIA
+vite.config.js   Vue, Tailwind, dan Vitest
+ tests/          Tes domain/persistensi dan komponen
+ docs/           Sumber logo dan catatan implementasi
+ dist/           Hasil build (diabaikan Git)
 ```
-dist/
-  index.html       Shell dan metadata
-  styles.css       Token Star White dan layout responsif
-  model.js         Aturan assessment, attempt, scoring, dan CSV
-  seed.js          Data contoh
-  ui.js            View dan komponen UI
-  app.js           Navigasi, interaksi, penyimpanan lokal
-server.mjs         Server statis pengembangan
-tests/             Uji aturan utama
-```
 
-Frontend menggunakan HTML/CSS dan JavaScript modules tanpa dependensi untuk memudahkan peninjauan serta menjalankan UI langsung. Ini adalah perubahan dari usulan Vue pada rencana awal; aturan data dipisahkan di `model.js`, sehingga dapat diadaptasi menjadi komponen Vue atau dihubungkan ke API Laravel pada fase integrasi.
+## Data dan batas backend
 
-## Token desain
+Key legacy **`kulon-assessment-v1`** dan schema v1 sengaja dipertahankan agar assessment, jawaban, deadline, nilai, umpan balik, serta attachment dari versi lama dapat dibaca. Preferensi sidebar memakai key terpisah `examnia.ui.sidebarCollapsed`. Commit baseline: `62da71cca58fee69554fbdc78f50eddd7a8d44fc`.
 
-- Star White: `#EFEFE8` (pendekatan sRGB untuk Pantone 11-4202 TCX).
-- Canvas: `#F4F4EF`; panel: `#FCFCFA`.
-- Teks arang: `#262923`; teks sekunder: `#71766B`.
-- Aksen mint: `#BDE1CD`; teks status hijau: `#2D7053`.
-- Aksen peach: `#FFDBC2` untuk status draft/perlu tindakan.
+Repository lokal mengakui keberhasilan tulis sebelum state dan toast sukses diperbarui. Kegagalan localStorage tidak mengubah state tersimpan. Saat API Laravel ditambahkan, mutasi wajib menunggu acknowledgement server; fungsi penyimpanan lokal sinkron saat ini perlu diganti dengan adapter API asinkron.
 
-Nama warna diverifikasi melalui [Pantone](https://www.pantone.com/na/en-us/color-finder/11-4202-tcx); pendekatan layar `#EFEFE8` dirujuk dari [Swatches](https://swatches.page/pantone-colors/11-4202-tcx).
+Aplikasi saat ini adalah **UI dengan data lokal browser**. Pengajar/Peserta adalah pilihan untuk mencoba antarmuka. Backend Laravel, autentikasi/otorisasi, MySQL, penyimpanan berkas server, sinkronisasi lintas perangkat, dan AI PDF belum dihubungkan. Menu AI menggunakan soal contoh yang wajib ditinjau; PDF tidak dianalisis atau dikirim ke layanan eksternal. Pengumpulan seed hanya berisi metadata berkas; unggahan peserta menyimpan isi berkas di browser.
+
+Pada backend mendatang, server harus memvalidasi hak akses, jadwal, kunci, penilaian, dan pengiriman. Jangan gunakan UI lokal ini sebagai sistem ujian resmi sebelum integrasi tersebut selesai.
+
+## Hosting dan pemulihan rilis
+
+`.openai/hosting.json` mempertahankan Site yang sama dan `static.directory=dist`. Judul tampilan menjadi EXAMNIA; origin/slug tetap agar data browser lama tetap terbaca.
+
+Untuk rollback, gunakan versi Site sebelumnya dan schema v1 yang kompatibel. Jangan menghapus localStorage sebagai langkah rollback. Sumber logo dan cara pengambilannya tersedia di [docs/branding.md](docs/branding.md).
