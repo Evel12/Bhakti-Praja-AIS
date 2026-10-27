@@ -34,6 +34,10 @@ export default createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", redirect: "/dashboard" },
+    {
+      path: "/motion-lab",
+      component: () => import("../views/MotionLabView.vue"),
+    },
     ...routes,
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],

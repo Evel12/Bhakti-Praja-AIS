@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./design-system.css";
 @import "../motion/tokens.css";
+@import "../motion/primitives.css";
 @theme {
   --color-star-white: #efefe8;
   --color-ink: #262923;

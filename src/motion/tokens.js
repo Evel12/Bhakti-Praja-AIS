@@ -124,6 +124,16 @@ export function readMotionTokens(
   const maxConcurrent = number("--motion-max-concurrent", true);
   if (!Number.isInteger(maxConcurrent))
     throw new MotionTokenError("--motion-max-concurrent must be an integer.");
+  const frameStep = time("--motion-frame-step");
+  if (frameStep <= 0)
+    throw new MotionTokenError("--motion-frame-step must be positive.");
+  for (const key of [
+    "--motion-press-opacity",
+    "--motion-ripple-opacity",
+    "--motion-reveal-threshold",
+  ])
+    if (number(key) > 1)
+      throw new MotionTokenError(`${key} must be a ratio from 0 to 1.`);
   const springs = Object.fromEntries(
     SPRING_PRESET_NAMES.map((name) => [
       name,
@@ -177,6 +187,15 @@ export function readMotionTokens(
       restDelta: number("--motion-rest-delta", true),
       restSpeed: number("--motion-rest-speed", true),
       overshootLimit,
+    },
+    effects: {
+      pressOpacity: number("--motion-press-opacity"),
+      rippleOpacity: number("--motion-ripple-opacity"),
+      revealThreshold: number("--motion-reveal-threshold"),
+      gooMultiplier: number("--motion-goo-alpha-multiplier", true),
+      gooOffset: number("--motion-goo-alpha-offset"),
+      gooTravel: length("--motion-goo-travel"),
+      frameStep,
     },
     limits: {
       maxConcurrent,

@@ -23,6 +23,13 @@
   --motion-magnetic-distance: 4px;
   --motion-reveal-distance: 12px;
   --motion-goo-blur: 8px;
+  --motion-press-opacity: 0.88;
+  --motion-ripple-opacity: 0.18;
+  --motion-reveal-threshold: 0.12;
+  --motion-goo-alpha-multiplier: 18;
+  --motion-goo-alpha-offset: 7;
+  --motion-goo-travel: 20px;
+  --motion-frame-step: 16.6667ms;
 
   --motion-spring-snappy-stiffness: 420;
   --motion-spring-snappy-damping: 34;
@@ -109,6 +116,11 @@
   --motion-overshoot-limit: 0;
   --motion-hover-enabled: 0;
   --motion-goo-enabled: 0;
+}
+
+/* Review-only reduction can never override the OS preference back to full. */
+[data-motion="reduced"] {
+  --motion-reduced: 1;
 }
 
 :where(
