@@ -6,6 +6,7 @@ import { STUDENT_ID, statusOf } from "../../domain/assessment.js";
 import { date, time } from "../../utils/format.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import StatusBadge from "../../components/ui/StatusBadge.vue";
+import Icon from "../../components/ui/Icon.vue";
 const store = useAssessmentStore();
 const items = computed(() =>
   store.db.assessments.filter(
@@ -29,34 +30,61 @@ const attempt = (a) =>
       :key="a.id"
       :data-motion-key="a.id"
       class="panel student-card"
+      :aria-labelledby="'assessment-title-' + a.id"
     >
-      <div class="card-top">
-        <span class="course">{{ a.course }} · {{ a.type }}</span
-        ><StatusBadge
-          :status="
-            attempt(a)?.status === 'submitted' ? 'Terkirim' : statusOf(a)
-          "
-        />
-      </div>
-      <h2>{{ a.title }}</h2>
-      <p>{{ a.description }}</p>
-      <div class="section-caption">
-        Tenggat {{ date(a.closeAt) }} · {{ time(a.closeAt) }} WIB<br />{{
-          a.type === "Tugas"
-            ? "Unggah berkas · Maks. 2 MB"
-            : a.questions.length + " soal · " + a.duration + " menit"
-        }}
-      </div>
-      <div class="card-bottom">
-        <span class="section-caption">{{ a.className }}</span
-        ><RouterLink
+      <header class="student-card-header">
+        <span class="student-card-class">{{ a.className }}</span>
+        <span class="student-card-course">{{ a.course }}</span>
+      </header>
+      <div class="student-card-body">
+        <div class="student-card-status">
+          <span class="student-card-type">{{ a.type }}</span>
+          <StatusBadge
+            :status="
+              attempt(a)?.status === 'submitted' ? 'Terkirim' : statusOf(a)
+            "
+          />
+        </div>
+        <h2 :id="'assessment-title-' + a.id">{{ a.title }}</h2>
+        <p v-if="a.description" class="student-card-description">
+          {{ a.description }}
+        </p>
+        <ul class="student-card-meta" aria-label="Informasi assessment">
+          <li>
+            <Icon name="calendar" class="sm" />
+            <span>
+              <span class="sr-only">Tenggat: </span>
+              <time :datetime="a.closeAt"
+                >{{ date(a.closeAt) }}, {{ time(a.closeAt) }} WIB</time
+              >
+            </span>
+          </li>
+          <template v-if="a.type === 'Tugas'">
+            <li>
+              <Icon name="upload" class="sm" /><span>Unggah berkas</span>
+            </li>
+            <li>
+              <Icon name="file" class="sm" /><span>Maks. 2 MB</span>
+            </li>
+          </template>
+          <template v-else>
+            <li>
+              <Icon name="help" class="sm" /><span>{{ a.questions.length }} soal</span>
+            </li>
+            <li>
+              <Icon name="clock" class="sm" /><span>{{ a.duration }} menit</span>
+            </li>
+          </template>
+        </ul>
+        <RouterLink
           v-if="attempt(a)?.status === 'submitted'"
-          class="btn"
+          class="btn student-card-action"
           :to="'/review/' + attempt(a).id"
           >Lihat pengumpulan</RouterLink
-        ><RouterLink
+        >
+        <RouterLink
           v-else
-          class="btn"
+          class="btn student-card-action"
           :class="{ primary: statusOf(a) === 'Aktif' }"
           :to="'/instructions/' + a.id"
           >{{
@@ -64,8 +92,8 @@ const attempt = (a) =>
               ? "Lanjutkan sesi"
               : "Lihat petunjuk"
           }}
-          →</RouterLink
-        >
+          <Icon name="arrow" class="sm" />
+        </RouterLink>
       </div>
     </section>
     <div v-if="!items.length" class="panel empty">

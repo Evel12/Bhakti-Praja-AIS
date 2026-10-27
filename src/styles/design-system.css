@@ -1157,39 +1157,91 @@ input[type="checkbox"] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
-.student-card {
+.student-card.panel {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
 }
-.student-card .card-top {
+.student-card-header {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
+  min-height: 58px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 17px 17px 0 0;
+  background: #eceee6;
+  color: #4f5a43;
+}
+.student-card-class {
+  flex: none;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+}
+.student-card-course {
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+}
+.student-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 18px;
+}
+.student-card-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.student-card-type {
+  color: #656e5a;
+  font-size: 12px;
+  font-weight: 500;
 }
 .student-card h2 {
   font-size: 18px;
+  line-height: 1.4;
+}
+.student-card-description {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.student-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: auto;
+  margin-bottom: 0;
+  padding: 8px 0 0;
+  list-style: none;
+  color: #656e5a;
+  font-size: 12px;
   line-height: 1.5;
 }
-.student-card p {
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.8;
-}
-.student-card .card-bottom {
-  margin-top: auto;
+.student-card-meta li {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  padding-top: 15px;
-  border-top: 1px solid var(--line);
-  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
 }
-.student-card .course {
-  font-size: 10px;
-  color: var(--muted);
+.student-card-meta .icon {
+  flex: none;
+}
+.student-card-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
 }
 .exam-shell .sidebar {
   display: none;
