@@ -1,4 +1,5 @@
 <script setup>
+import MotionList from "../../components/motion/MotionList.vue";
 import { computed } from "vue";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { STUDENT_ID, statusOf } from "../../domain/assessment.js";
@@ -22,8 +23,13 @@ const attempt = (a) =>
     title="Assessment saya"
     description="Satu langkah lebih dekat untuk memahami apa yang Anda pelajari."
   />
-  <div class="student-grid">
-    <section v-for="a in items" :key="a.id" class="panel student-card">
+  <MotionList class="student-grid" :item-keys="items.map((a) => a.id)">
+    <section
+      v-for="a in items"
+      :key="a.id"
+      :data-motion-key="a.id"
+      class="panel student-card"
+    >
       <div class="card-top">
         <span class="course">{{ a.course }} · {{ a.type }}</span
         ><StatusBadge
@@ -65,5 +71,5 @@ const attempt = (a) =>
     <div v-if="!items.length" class="panel empty">
       Belum ada assessment untuk kelas Anda.
     </div>
-  </div>
+  </MotionList>
 </template>

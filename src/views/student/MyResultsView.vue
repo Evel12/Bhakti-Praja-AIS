@@ -1,4 +1,5 @@
 <script setup>
+import MotionList from "../../components/motion/MotionList.vue";
 import { computed } from "vue";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { STUDENT_ID, visibleScore } from "../../domain/assessment.js";
@@ -31,8 +32,8 @@ const rows = computed(() =>
             <th>Aksi</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="{ at, a } in rows" :key="at.id">
+        <MotionList as="tbody" :item-keys="rows.map((x) => x.at.id)">
+          <tr v-for="{ at, a } in rows" :key="at.id" :data-motion-key="at.id">
             <td>
               <strong>{{ a.title }}</strong>
               <p class="table-secondary">{{ a.course }}</p>
@@ -50,7 +51,7 @@ const rows = computed(() =>
               >
             </td>
           </tr>
-        </tbody>
+        </MotionList>
       </table>
     </div>
     <div v-if="!rows.length" class="empty">

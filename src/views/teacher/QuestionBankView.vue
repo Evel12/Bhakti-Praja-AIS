@@ -1,4 +1,5 @@
 <script setup>
+import MotionList from "../../components/motion/MotionList.vue";
 import MotionField from "../../components/motion/MotionField.vue";
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -68,8 +69,13 @@ function use(q) {
           placeholder="Cari pertanyaan atau mata kuliah..." /></MotionField></label
     ><span class="section-caption">{{ questions.length }} soal tersedia</span>
   </div>
-  <div class="bank-grid">
-    <article v-for="q in questions" :key="q.id" class="bank-card">
+  <MotionList class="bank-grid" :item-keys="questions.map((q) => q.id)">
+    <article
+      v-for="q in questions"
+      :key="q.id"
+      :data-motion-key="q.id"
+      class="bank-card"
+    >
       <span class="bank-topic">{{ q.topic }}</span>
       <h3>{{ q.text }}</h3>
       <p>Pilihan ganda · {{ q.points }} poin</p>
@@ -79,7 +85,7 @@ function use(q) {
       </div>
     </article>
     <p v-if="!questions.length" class="empty">Tidak ada soal yang sesuai.</p>
-  </div>
+  </MotionList>
   <AppDialog
     :open="!!editing"
     title="Tambahkan soal ke bank"

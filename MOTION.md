@@ -60,9 +60,9 @@ Satu snapshot melakukan satu panggilan getComputedStyle. Ambil sebelum satu inte
 
 ## Cakupan fase dan pemeriksaan
 
-Fase 2 menambahkan tokens, reader, policy resolver, opt-out, dan tes. Fase 3 menambahkan engine/primitives dan halaman review Motion Lab. Fase 4 menerapkan atoms pada halaman assessment utama. Toast dan aturan sidebar lama menunggu batch overlays/navigasi. Fade reduced-motion pada primitive berjalan lewat JS, sehingga tidak bergantung pada CSS animation yang dimatikan oleh aturan reduced-motion lama.
+Fase 2 menambahkan tokens, reader, policy resolver, opt-out, dan tes. Fase 3 menambahkan engine/primitives dan halaman review Motion Lab. Fase 4 menerapkan atoms dan fase 5 menerapkan containers/daftar pada halaman assessment utama. Toast dan aturan sidebar lama menunggu batch overlays/navigasi. Fade reduced-motion pada primitive berjalan lewat JS, sehingga tidak bergantung pada CSS animation yang dimatikan oleh aturan reduced-motion lama.
 
-Batch berikutnya setelah review fase 4: containers; overlays; navigation; media/loaders; page transitions/backgrounds; performance/accessibility dan tuning dev-only. Setiap fase berhenti untuk review. Peringatan dev/lint untuk hardcoded transitions dan panel tuning global belum dipasang.
+Batch berikutnya setelah review fase 5: overlays; navigation; media/loaders; page transitions/backgrounds; performance/accessibility dan tuning dev-only. Setiap fase berhenti untuk review. Peringatan dev/lint untuk hardcoded transitions dan panel tuning global belum dipasang.
 
 Uji tokens memeriksa sumber CSS, override dinamis, satu style read, immutable presets, fade-only reduced motion, subtree opt-out, mobile flags, stagger cap, nilai invalid, dan import tanpa DOM. Tes ini belum merupakan pengukuran 60 fps atau visual QA seluruh primitive.
 
@@ -189,3 +189,55 @@ Lifecycle mencakup pointerup di luar tombol, pointercancel, blur, kontrol yang d
 Browser build produksi memverifikasi pencarian DNS menghasilkan satu soal dan kembali ke enam; dialog editor menerima textarea, input opsi, radio dan select lalu Batal mengembalikan fokus; builder mempertahankan nilai draft dan label native. Semua input yang diperiksa memiliki transform none, outline fokus 3 px. Tidak ditemukan overflow pada 360/390/768/1024/1440 px. Tidak ada error/warning console pada alur yang diuji. Data soal uji dialog dibatalkan, tidak disimpan.
 
 Belum dilakukan pengukuran 60 fps pada perangkat low-end atau audit aksesibilitas seluruh situs. Reduced/off dan tab hidden diuji melalui fixture/policy; preferensi OS nyata belum diubah. Panel tuning dev-only, guard hardcoded transitions, profiling akhir, dan batch containers berikutnya menunggu review fase ini.
+
+## Penerapan fase 5 · Containers dan daftar
+
+Panel/kartu kini masuk dengan spring `gentle` dan stagger dari token. Scope `createContainerMotionScope` dipasang sekali di app dan menemukan `.panel`, `.bank-card`, `.help-card` baru secara otomatis. IntersectionObserver hanya memulai efek saat elemen terlihat; konten tidak disembunyikan selama menunggu observer. Fokus keyboard langsung menampilkan container dan menghentikan efeknya. Konten tetap terlihat saat API observer tidak tersedia atau gagal.
+
+Scope menghindari container bertumpuk, sidebar, dialog, Motion Lab, dan `.exam-shell`. Panel yang memuat MotionList juga tidak dianimasikan bersamaan dengan barisnya. Hover kartu dan tombol tetap diam. Timer, area soal/jawaban saat ujian, serta upload tugas tidak mendapat motion container.
+
+`MotionList` adalah wrapper Vue untuk daftar berkunci. Wrapper dapat merender `div` atau `tbody`, sehingga struktur tabel tetap `table > tbody > tr`. Daftar bank soal, assessment pengajar/dashboard, assessment peserta, ringkasan hasil, pengumpulan peserta, dan hasil peserta memakainya. Hanya perubahan urutan/isi `itemKeys` yang mengambil snapshot; perubahan teks input, nilai, feedback, dan timer tidak memulai FLIP.
+
+```vue
+<MotionList class="bank-grid" :item-keys="questions.map((q) => q.id)">
+  <article v-for="q in questions" :key="q.id" :data-motion-key="q.id" class="bank-card">
+    <!-- konten dan tombol native -->
+  </article>
+</MotionList>
+```
+
+Gunakan key unik/stabil yang sama untuk Vue, itemKeys, dan data-motion-key. Elemen yang bertahan menggunakan FLIP translate `smooth`; elemen baru masuk melalui observer/stagger. Elemen yang tidak berpindah tidak diberi tween. Opacity asli dipertahankan. Elemen yang sedang memegang fokus tidak dipindahkan oleh FLIP.
+
+Elemen yang terhapus langsung keluar dari DOM/data asli. Exit memakai salinan visual `aria-hidden`, `inert`, pointer-events none, tanpa ID, href, autofocus, atau tab stop. Salinan tidak menahan aksi, form, hitungan hasil, atau navigasi. Tabel mempertahankan bentuk tabel dan lebar kolom hasil snapshot. Salinan di luar viewport atau yang memuat input/media tidak dibuat. Kapasitas exit mengikuti sisa budget global, bukan antrean tanpa batas. Scroll, resize, perubahan policy, update cepat, dan unmount membuang salinan lama; tidak ada salinan yang disimpan sebagai data.
+
+Geometry dan base-style dibaca per batch sebelum transform/opacity ditulis. Posisi/ukuran exit ditempatkan sekali sebagai snapshot, bukan ditween. Efek hanya mengubah transform/opacity; tidak ada animasi width, height, top, left, radius atau grid. Will-change dilepas setelah settle. Parent container tidak ditumpuk dengan motion daftar di dalamnya. Semua job berbagi batas 8 desktop/3 mobile dengan atoms dan primitive yang sudah ada.
+
+Reduced motion (termasuk override per item) memakai opacity saja. `data-motion="off"` melewati efek; daftar tetap berubah seketika. Kontrol yang mendapat fokus membatalkan gerak daftar agar hitbox/fokus kembali stabil. Scope/komponen membersihkan IO, MutationObserver, media/visibility/scroll/resize/focus listener, snapshot, ghost dan RAF miliknya pada unmount. Tidak ada durasi/easing/spring numerik baru di komponen dan tidak ada dependensi baru.
+
+### File yang diubah pada fase 5
+
+| File                                          | Perubahan                                                                                      |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| src/App.vue                                   | Mount/cleanup scope container global.                                                          |
+| src/motion/containers.js                      | Selektor, pengecualian dan reveal bertahap panel/kartu baru.                                   |
+| src/motion/reveal.js                          | Registrasi dinamis/add, filter, stagger, pilihan tidak pre-hide, batch base reads dan cleanup. |
+| src/motion/layout.js                          | animateLayout dari snapshot pre-patch; skip item diam/off dan pertahankan opacity/policy.      |
+| src/motion/lists.js                           | Capture/update daftar, retained FLIP, exit ghost inert, budget dan lifecycle.                  |
+| src/components/motion/MotionList.vue          | Wrapper div/tbody berkunci dengan lifecycle Vue.                                               |
+| src/motion/primitives.css                     | Exit layer tetap di viewport dengan hit testing nonaktif.                                      |
+| src/components/assessment/AssessmentTable.vue | MotionList tbody, termasuk tabel di dashboard.                                                 |
+| src/views/teacher/QuestionBankView.vue        | MotionList bank soal dan filter.                                                               |
+| src/views/teacher/ResultsView.vue             | MotionList ringkasan hasil dan tbody pengumpulan.                                              |
+| src/views/student/StudentAssessmentView.vue   | MotionList kartu peserta.                                                                      |
+| src/views/student/MyResultsView.vue           | MotionList tbody hasil peserta.                                                                |
+| src/views/MotionLabView.vue                   | Label review fase 5; hover tombol tetap diam.                                                  |
+| tests/components/motion-containers.test.js    | Dua belas tes container/FLIP/ghost/semantik/state/policy.                                      |
+| MOTION.md                                     | API, perilaku, file dan batas fase 5.                                                          |
+
+### Verifikasi dan batas fase 5
+
+27 Oktober 2026: 68 tes lulus (56 regresi + 12 baru), build produksi berhasil. Tes mencakup scope dinamis/once/exclusions, budget bersama, konten visible tanpa IO, fokus saat animasi, batch read/write, skip item diam/off, removed DOM langsung, inert/ID-free ghost, rapid update/scroll/policy/unmount, reduced/off/per-item reduced, tabel, dan input state/identity yang bertahan. Tes fase 4 tetap memverifikasi hover tombol tidak membaca geometry atau menggerakkan transform/RAF.
+
+Browser pada build produksi memverifikasi bank soal 6 → DNS 1 → kosong 0 → 6, fokus pencarian tetap, detail soal dapat dibuka dan Escape mengembalikan fokus. Ghost exit tidak masuk accessibility tree, inert dan tanpa ID; sesudah settle ghost/will-change berjumlah 0. Filter assessment SQL menampilkan satu baris nyata dalam tbody, peran peserta menampilkan 7 kartu pada data browser uji dan halaman hasil peserta tetap memakai tabel native. Dashboard/role/route tetap berfungsi. Tidak ada overflow dokumen pada 360/390/768/1024/1440 px; tidak ada error/warning console pada alur yang diuji. Tidak ada data assessment baru atau perubahan nilai yang disimpan saat QA.
+
+Pengujian ini bukan pengukuran 60 fps pada perangkat low-end. Reduced/off, policy dan cleanup diuji melalui fixture; preferensi OS nyata belum diubah. Exit snapshot sengaja dibatasi item terlihat tanpa form/media. Animasi overlays/toast, navigasi, media/loaders, transisi halaman global/background, guard hardcoded transitions dan tuning dev-only menunggu batch berikutnya. Fase 6 (overlays) belum dimulai; berhenti untuk review fase 5.

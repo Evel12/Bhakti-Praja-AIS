@@ -121,7 +121,7 @@ onBeforeUnmount(() => {
   >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 4 · Atoms diterapkan ke EXAMNIA. Primitive lanjutan tetap tersedia untuk review."
+      description="Fase 5 · Panel, kartu, dan daftar kini memakai motion bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle

@@ -1,4 +1,5 @@
 <script setup>
+import MotionList from "../../components/motion/MotionList.vue";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
@@ -33,6 +34,9 @@ const a = computed(() =>
         )
       : "—",
   );
+const assessments = computed(() =>
+  store.db.assessments.filter((x) => x.state !== "draft"),
+);
 function release() {
   const ok = store.run(
     () =>
@@ -75,10 +79,11 @@ function closeAssessment() {
       title="Hasil & penilaian"
       description="Tinjau pengumpulan, beri umpan balik, dan rilis hasil."
     />
-    <div class="student-grid">
+    <MotionList class="student-grid" :item-keys="assessments.map((x) => x.id)">
       <section
-        v-for="item in store.db.assessments.filter((x) => x.state !== 'draft')"
+        v-for="item in assessments"
         :key="item.id"
+        :data-motion-key="item.id"
         class="panel student-card"
       >
         <div class="card-top">
@@ -115,7 +120,7 @@ function closeAssessment() {
           >
         </div>
       </section>
-    </div></template
+    </MotionList></template
   ><template v-else-if="a"
     ><PageTitle :title="a.title" :description="a.course + ' · ' + a.className"
       ><button
@@ -166,8 +171,8 @@ function closeAssessment() {
               <th>Aksi</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="at in attempts" :key="at.id">
+          <MotionList as="tbody" :item-keys="attempts.map((x) => x.id)">
+            <tr v-for="at in attempts" :key="at.id" :data-motion-key="at.id">
               <td>
                 <strong>{{ at.studentName }}</strong>
                 <div class="table-secondary">{{ at.className }}</div>
@@ -204,7 +209,7 @@ function closeAssessment() {
                 </button>
               </td>
             </tr>
-          </tbody>
+          </MotionList>
         </table>
         <div v-if="!attempts.length" class="empty">
           Belum ada pengumpulan peserta.

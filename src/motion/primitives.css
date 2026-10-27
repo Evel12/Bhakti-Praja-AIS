@@ -27,6 +27,18 @@
   flex: 1;
   border-radius: 10px;
 }
+.liquid-exit-ghost {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+}
+.liquid-exit-ghost > :is(.panel, .bank-card, .help-card) {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
 .liquid-focus-ring {
   position: absolute;
   inset: 0;

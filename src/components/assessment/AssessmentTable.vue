@@ -1,4 +1,5 @@
 <script setup>
+import MotionList from "../motion/MotionList.vue";
 import { useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { statusOf } from "../../domain/assessment.js";
@@ -25,8 +26,8 @@ function duplicate(a) {
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="a in items" :key="a.id">
+      <MotionList as="tbody" :item-keys="items.map((a) => a.id)">
+        <tr v-for="a in items" :key="a.id" :data-motion-key="a.id">
           <td class="title-cell">
             <div class="title-with-icon">
               <span class="type-icon"
@@ -78,7 +79,7 @@ function duplicate(a) {
             </div>
           </td>
         </tr>
-      </tbody>
+      </MotionList>
     </table>
     <div v-if="!items.length" class="empty">
       <h3>Belum ada assessment yang sesuai</h3>
