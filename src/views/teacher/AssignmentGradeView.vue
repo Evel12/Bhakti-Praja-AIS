@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
@@ -69,22 +70,25 @@ function save() {
         <h2>Nilai & umpan balik</h2>
         <label class="field mt"
           ><span class="field-label">Nilai (0–100)</span
-          ><input
-            v-model="score"
-            type="number"
-            min="0"
-            max="100"
-            step="1"
-            required
-            class="input grade-score" /></label
+          ><MotionField
+            ><input
+              v-model="score"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              required
+              class="input grade-score" /></MotionField></label
         ><label class="field mt"
           ><span class="field-label">Umpan balik</span
-          ><textarea
-            v-model="feedback"
-            class="input"
-            maxlength="4000"
-            placeholder="Berikan arahan untuk pengembangan berikutnya."
-          />
+          ><MotionField>
+            <textarea
+              v-model="feedback"
+              class="input"
+              maxlength="4000"
+              placeholder="Berikan arahan untuk pengembangan berikutnya."
+            />
+          </MotionField>
         </label>
         <p class="notice">
           {{

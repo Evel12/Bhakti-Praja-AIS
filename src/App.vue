@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted, onBeforeUnmount } from "vue";
+import { createAtomMotionScope } from "./motion/atoms.js";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "./stores/assessmentStore.js";
 import { useUiStore } from "./stores/uiStore.js";
@@ -9,6 +11,11 @@ import { download } from "./utils/format.js";
 const route = useRoute(),
   store = useAssessmentStore(),
   ui = useUiStore();
+let atoms;
+onMounted(() => {
+  atoms = createAtomMotionScope(document.getElementById("app"));
+});
+onBeforeUnmount(() => atoms?.dispose());
 function backup() {
   store.run(() =>
     download(

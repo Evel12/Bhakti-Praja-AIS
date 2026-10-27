@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../components/motion/MotionField.vue";
 import { ref, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "../stores/uiStore.js";
@@ -55,18 +56,22 @@ watch(
         </div>
         <div class="topbar-actions">
           <label class="role-switch"
-            ><Icon name="user" /><select
-              aria-label="Tampilan peran"
-              :value="route.meta.student ? 'student' : 'teacher'"
-              @change="
-                router.push(
-                  $event.target.value === 'student' ? '/student' : '/dashboard',
-                )
-              "
-            >
-              <option value="teacher">Pengajar</option>
-              <option value="student">Peserta</option>
-            </select></label
+            ><Icon name="user" /><MotionField
+              ><select
+                aria-label="Tampilan peran"
+                :value="route.meta.student ? 'student' : 'teacher'"
+                @change="
+                  router.push(
+                    $event.target.value === 'student'
+                      ? '/student'
+                      : '/dashboard',
+                  )
+                "
+              >
+                <option value="teacher">Pengajar</option>
+                <option value="student">Peserta</option>
+              </select></MotionField
+            ></label
           ><button
             class="icon-btn"
             aria-label="Panduan penggunaan"

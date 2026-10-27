@@ -28,7 +28,7 @@ export function pointerRipple(
       from: {
         scaleX: tokens.mode === "full" ? 0 : 1,
         scaleY: tokens.mode === "full" ? 0 : 1,
-        opacity: 1,
+        opacity: tokens.effects.rippleOpacity,
       },
       preset: "smooth",
       tokens,
@@ -53,9 +53,12 @@ export function createMotionScope(
     selector = "[data-liquid-interactive]",
     preset = "snappy",
     press = true,
-    hover = true,
-    magnetic = true,
+    hover = false,
+    magnetic = false,
     ripple = true,
+    spatialPress = true,
+    filter = () => true,
+    optionsFor = () => ({}),
     engine = motionEngine,
   } = {},
 ) {
@@ -73,6 +76,7 @@ export function createMotionScope(
     const el = e.target.closest?.(selector);
     return el &&
       root.contains(el) &&
+      filter(el) &&
       !el.matches(':disabled,[aria-disabled="true"]')
       ? el
       : null;
@@ -82,6 +86,14 @@ export function createMotionScope(
       const surface = el.querySelector("[data-liquid-surface]") || el;
       states.set(el, {
         surface,
+        options: {
+          press,
+          hover,
+          magnetic,
+          ripple,
+          spatialPress,
+          ...optionsFor(el),
+        },
         hover: false,
         pressed: false,
         x: 0,
@@ -99,16 +111,25 @@ export function createMotionScope(
       return;
     }
     const spatial = s.tokens.mode === "full",
-      over = spatial && s.tokens.limits.hover && hover && s.hover;
+      over = spatial && s.tokens.limits.hover && s.options.hover && s.hover;
     const scale = over ? s.tokens.scales.hover : 1;
     engine.animate(
       s.surface,
       {
-        x: over && magnetic ? s.x : 0,
-        y: over ? (magnetic ? s.y : 0) - s.tokens.distances.hoverLift : 0,
-        scaleX: s.pressed && press ? s.tokens.scales.pressX : scale,
-        scaleY: s.pressed && press ? s.tokens.scales.pressY : scale,
-        opacity: s.pressed && press ? s.tokens.effects.pressOpacity : 1,
+        x: over && s.options.magnetic ? s.x : 0,
+        y: over
+          ? (s.options.magnetic ? s.y : 0) - s.tokens.distances.hoverLift
+          : 0,
+        scaleX:
+          s.pressed && s.options.press && s.options.spatialPress
+            ? s.tokens.scales.pressX
+            : scale,
+        scaleY:
+          s.pressed && s.options.press && s.options.spatialPress
+            ? s.tokens.scales.pressY
+            : scale,
+        opacity:
+          s.pressed && s.options.press ? s.tokens.effects.pressOpacity : 1,
       },
       { preset, tokens: s.tokens, retain: true },
     );
@@ -131,8 +152,9 @@ export function createMotionScope(
     const s = state(el);
     s.tokens = safeTokens(el);
     s.hover = true;
-    s.rect = el.getBoundingClientRect();
-    draw(s);
+    if (s.options.hover && s.options.magnetic)
+      s.rect = el.getBoundingClientRect();
+    if (s.options.hover) draw(s);
   });
   on(root, "pointerout", (e) => {
     const el = target(e);
@@ -140,16 +162,23 @@ export function createMotionScope(
     const s = state(el);
     s.hover = false;
     s.x = s.y = 0;
-    draw(s);
+    if (s.options.hover) draw(s);
   });
   on(
     root,
     "pointermove",
     (e) => {
+      if (!magnetic) return;
       const el = target(e);
       if (!el) return;
       const s = state(el);
-      if (!s.tokens?.limits.hover || !hover || !magnetic || !s.hover) return;
+      if (
+        !s.tokens?.limits.hover ||
+        !s.options.hover ||
+        !s.options.magnetic ||
+        !s.hover
+      )
+        return;
       const r = s.rect || (s.rect = el.getBoundingClientRect());
       s.x =
         Math.max(
@@ -174,7 +203,7 @@ export function createMotionScope(
     s.tokens = safeTokens(el);
     s.pressed = true;
     draw(s);
-    if (ripple) {
+    if (s.options.ripple) {
       const h = pointerRipple(s.surface, event, { tokens: s.tokens, engine });
       ripples.add(h);
       h.finished.then(() => ripples.delete(h));
@@ -197,7 +226,12 @@ export function createMotionScope(
   on(root, "keydown", (e) => {
     if (e.repeat || !["Enter", " "].includes(e.key)) return;
     const el = target(e);
-    if (el && el.matches('button,a,[role="button"]')) down(el);
+    if (
+      el &&
+      el.matches('button,a,[role="button"]') &&
+      (e.key === "Enter" || el.matches('button,[role="button"]'))
+    )
+      down(el);
   });
   on(root, "keyup", (e) => {
     if (["Enter", " "].includes(e.key)) release();
@@ -218,12 +252,20 @@ export function createMotionScope(
   cleanup.push(observeMotionPolicy(root, reset, engine));
   const removals = new win.MutationObserver(() => {
     for (const [el, s] of states)
-      if (!root.contains(el)) {
+      if (
+        !root.contains(el) ||
+        el.matches(':disabled,[aria-disabled="true"]')
+      ) {
         engine.reset(s.surface);
         states.delete(el);
       }
   });
-  removals.observe(root, { subtree: true, childList: true });
+  removals.observe(root, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ["disabled", "aria-disabled"],
+  });
   cleanup.push(() => removals.disconnect());
   return {
     refresh: reset,

@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 import { computed } from "vue";
 import Icon from "../ui/Icon.vue";
 import QuestionEditor from "./QuestionEditor.vue";
@@ -18,11 +19,12 @@ const question = computed(() => props.draft.questions[props.index]);
   <label class="field"
     ><span class="field-label"
       >Instruksi {{ draft.type === "Tugas" ? "tugas" : "pengerjaan" }}</span
-    ><textarea
-      v-model="draft.instructions"
-      class="input"
-      maxlength="5000"
-    /></label
+    ><MotionField>
+      <textarea
+        v-model="draft.instructions"
+        class="input"
+        maxlength="5000"
+      /></MotionField></label
   ><template v-if="draft.type !== 'Tugas'"
     ><div class="source-actions">
       <button class="btn small" type="button" @click="$emit('add')">

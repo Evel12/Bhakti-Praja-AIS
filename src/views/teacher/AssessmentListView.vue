@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
@@ -47,12 +48,13 @@ function create() {
         >
       </div>
       <label class="search"
-        ><Icon name="search" /><input
-          v-model="search"
-          class="input"
-          placeholder="Cari assessment..."
-          aria-label="Cari assessment"
-      /></label>
+        ><Icon name="search" /><MotionField
+          ><input
+            v-model="search"
+            class="input"
+            placeholder="Cari assessment..."
+            aria-label="Cari assessment" /></MotionField
+      ></label>
     </div>
     <AssessmentTable :items="items" />
   </section>

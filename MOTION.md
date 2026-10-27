@@ -56,13 +56,13 @@ Satu snapshot melakukan satu panggilan getComputedStyle. Ambil sebelum satu inte
 - Timer ujian, autosave, dan submission harus tetap independen dari penyelesaian animasi.
 - Jangan gunakan bouncy pada semua sibling. Bouncy hanya untuk aksen sukses yang memiliki alasan.
 - Gooey dibatasi maksimal dua momen dekoratif yang direncanakan: overview dashboard dan receipt sukses; tidak menutupi soal/input.
-- Jangan memberi magnetic hover pada input, touch, disabled control, atau teks panjang.
+- Hover tombol selalu diam: tidak ada magnetic pull, lift, atau scale saat hover. Input, touch, disabled control, dan teks panjang juga tidak memakai magnetic hover. Primitive magnetic hanya opt-in untuk objek dekoratif non-tombol.
 
 ## Cakupan fase dan pemeriksaan
 
-Fase 2 menambahkan tokens, reader, policy resolver, opt-out, dan tes. Fase 3 menambahkan engine/primitives dan halaman review Motion Lab. Motion baru belum diterapkan ke halaman assessment utama atau toast; aturan sidebar lama tetap ada sampai batch navigasi. Fade reduced-motion pada primitive berjalan lewat JS, sehingga tidak bergantung pada CSS animation yang dimatikan oleh aturan reduced-motion lama.
+Fase 2 menambahkan tokens, reader, policy resolver, opt-out, dan tes. Fase 3 menambahkan engine/primitives dan halaman review Motion Lab. Fase 4 menerapkan atoms pada halaman assessment utama. Toast dan aturan sidebar lama menunggu batch overlays/navigasi. Fade reduced-motion pada primitive berjalan lewat JS, sehingga tidak bergantung pada CSS animation yang dimatikan oleh aturan reduced-motion lama.
 
-Batch berikutnya setelah review primitive: atoms; containers; overlays; navigation; media/loaders; page transitions/backgrounds; performance/accessibility dan tuning dev-only. Setiap fase berhenti untuk review. Peringatan dev/lint untuk hardcoded transitions dan panel tuning global belum dipasang.
+Batch berikutnya setelah review fase 4: containers; overlays; navigation; media/loaders; page transitions/backgrounds; performance/accessibility dan tuning dev-only. Setiap fase berhenti untuk review. Peringatan dev/lint untuk hardcoded transitions dan panel tuning global belum dipasang.
 
 Uji tokens memeriksa sumber CSS, override dinamis, satu style read, immutable presets, fade-only reduced motion, subtree opt-out, mobile flags, stagger cap, nilai invalid, dan import tanpa DOM. Tes ini belum merupakan pengukuran 60 fps atau visual QA seluruh primitive.
 
@@ -138,3 +138,54 @@ CSS View Transitions menonaktifkan interpolasi ukuran default dari browser. `vie
 Belum dilakukan klaim pengukuran 60 fps pada perangkat low-end atau audit aksesibilitas menyeluruh. Preferensi reduced OS diuji lewat policy/media fixture; mode review reduced diverifikasi di browser. Tahap performance akhir masih perlu profiling perangkat nyata, degradasi low-end, guard hardcoded transitions, dan tuning dev-only global. Primitive belum dipasang massal ke halaman assessment.
 
 Referensi: [startViewTransition](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition), [Element.animate](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate), [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+
+## Penerapan fase 4 · Interactive atoms
+
+Tombol tidak mengikuti kursor. Default `createMotionScope` kini `hover:false` dan `magnetic:false`; hover tidak mengubah transform, membaca bounding rect, atau menjadwalkan RAF. Squash hanya saat pointer/Enter/Space ditekan, lalu kembali dengan preset `snappy`. Ripple memakai opacity dari token, bukan nilai awal penuh. Magnetic primitive tetap tersedia sebagai opt-in untuk objek dekoratif non-tombol.
+
+`createAtomMotionScope` dipasang sekali pada app dan memakai event delegation. Tombol/link baru, kontrol pada dialog, serta halaman teacher/student otomatis tercakup tanpa listener per komponen. Tombol native tetap native: type submit, disabled, click, RouterLink, download, fokus, dan form validation tidak diambil alih atau ditunda. Button-like link memakai press/ripple; text link hanya opacity dan Enter, sehingga Space tetap menggulir halaman. Tombol existing memakai transform pada kontrolnya saat press (layout tidak berubah); MotionButton menyediakan inner surface jika hitbox press perlu benar-benar tetap.
+
+`MotionField` membungkus 20 deklarasi input/select/textarea di pencarian, role switch, builder, editor soal, pengaturan jadwal, dan penilaian. Hanya opacity ring dekoratif yang digerakkan dengan preset `gentle`; input, teks, caret, native date/select popup, dan layout tidak digerakkan. Ring `aria-hidden`/pointer-events none; outline native focus-visible tetap 3 px. Checkbox/radio mempertahankan indikator, label, dan interaksi native.
+
+```vue
+<MotionField>
+  <input v-model="title" class="input" required />
+</MotionField>
+<button class="btn primary" type="submit">Simpan</button>
+```
+
+Untuk input baru gunakan wrapper ini; tidak perlu handler motion. Untuk satu subtree gunakan `data-motion="off"`. Reduced motion hanya opacity, termasuk ripple tanpa ekspansi. CSS tidak menambah transition baru. Native input/keyboard tidak pernah di-preventDefault oleh motion.
+
+Navigasi/sidebar, tabs, nomor soal, step navigation, dan Motion Lab dikecualikan dari scope atoms agar batch berikutnya tidak berubah lebih dulu atau mendapat efek ganda. Lab memakai scope sendiri dengan default hover diam yang sama. Container, overlay, route transition global, media, dan gooey baru belum diterapkan pada fase ini. Tidak ada efek blob tambahan.
+
+Lifecycle mencakup pointerup di luar tombol, pointercancel, blur, kontrol yang dihapus/dinonaktifkan, perubahan policy, tab tersembunyi, dan unmount. Ripple dibuang, style/will-change dipulihkan, listener dan observer dilepas. Ring aktif tidak memulai animasi ulang ketika tab tersembunyi. Semua efek memakai budget engine bersama (8 desktop/3 mobile), tanpa mengunci aksi saat budget habis.
+
+### File yang diubah pada fase 4
+
+| File                                         | Perubahan                                                                                             |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| src/App.vue                                  | Memasang/melepas satu scope atoms untuk aplikasi.                                                     |
+| src/motion/atoms.js                          | Delegasi native button/link dan fokus ring, pengecualian batch, cleanup.                              |
+| src/motion/interactions.js                   | Default hover diam, opsi per kontrol/filter/spatialPress, Enter link, disabled cleanup, token ripple. |
+| src/motion/primitives.css                    | Surface ripple dan ring dekoratif tanpa mengubah layout/hit testing input.                            |
+| src/components/motion/MotionField.vue        | Wrapper fokus reusable; konten tetap dimiliki Vue.                                                    |
+| src/layouts/AppShell.vue                     | Wrapper select peran.                                                                                 |
+| src/components/assessment/IdentityStep.vue   | Wrapper judul, jenis, mata kuliah, kelas, deskripsi.                                                  |
+| src/components/assessment/ContentStep.vue    | Wrapper instruksi.                                                                                    |
+| src/components/assessment/SettingsStep.vue   | Wrapper tanggal, durasi, rilis nilai.                                                                 |
+| src/components/assessment/QuestionEditor.vue | Wrapper pertanyaan, opsi, poin, pembahasan.                                                           |
+| src/views/teacher/AssessmentListView.vue     | Wrapper pencarian assessment.                                                                         |
+| src/views/teacher/QuestionBankView.vue       | Wrapper pencarian dan mata kuliah dalam dialog.                                                       |
+| src/views/teacher/AssignmentGradeView.vue    | Wrapper nilai dan umpan balik.                                                                        |
+| src/views/MotionLabView.vue                  | Scope lokal dan teks review hover diam/fase 4.                                                        |
+| tests/components/motion-atoms.test.js        | Sepuluh tes integrasi atoms/lifecycle/semantik native.                                                |
+| tests/components/motion-primitives.test.js   | Magnetic opt-in diuji pada dekorasi non-tombol.                                                       |
+| MOTION.md                                    | Pedoman, file, hasil dan batas fase 4.                                                                |
+
+### Verifikasi fase 4
+
+27 Oktober 2026: 56 tes lulus (46 regresi + 10 baru), build produksi berhasil. Tes memastikan hover tombol tidak mengubah transform, membaca geometry atau membuat RAF; kontrol dinamis; press/release di luar; form submit tepat sekali; input/select/checkbox tetap reaktif; text link tidak menghalangi Space/navigation; reduced/off; disabled/removal; visibility dan cleanup.
+
+Browser build produksi memverifikasi pencarian DNS menghasilkan satu soal dan kembali ke enam; dialog editor menerima textarea, input opsi, radio dan select lalu Batal mengembalikan fokus; builder mempertahankan nilai draft dan label native. Semua input yang diperiksa memiliki transform none, outline fokus 3 px. Tidak ditemukan overflow pada 360/390/768/1024/1440 px. Tidak ada error/warning console pada alur yang diuji. Data soal uji dialog dibatalkan, tidak disimpan.
+
+Belum dilakukan pengukuran 60 fps pada perangkat low-end atau audit aksesibilitas seluruh situs. Reduced/off dan tab hidden diuji melalui fixture/policy; preferensi OS nyata belum diubah. Panel tuning dev-only, guard hardcoded transitions, profiling akhir, dan batch containers berikutnya menunggu review fase ini.

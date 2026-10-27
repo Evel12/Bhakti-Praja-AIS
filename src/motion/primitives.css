@@ -11,6 +11,38 @@
   touch-action: manipulation;
   vertical-align: middle;
 }
+/* Stationary hover; squash is press-only. No transition: all motion uses tokens. */
+:where([data-liquid-atoms])
+  :is(button.btn, a.btn, button.icon-btn, a.icon-btn):not(
+    .liquid-hit-target
+  ):not(.sidebar *) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.liquid-field {
+  display: block;
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  border-radius: 10px;
+}
+.liquid-focus-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #719581;
+  border-radius: inherit;
+  box-shadow: 0 0 0 3px #71958118;
+  pointer-events: none;
+  opacity: 0;
+}
+.role-switch .liquid-field {
+  border-radius: 4px;
+}
+.search > .icon {
+  z-index: 1;
+  pointer-events: none;
+}
 .liquid-surface {
   position: relative;
   overflow: hidden;

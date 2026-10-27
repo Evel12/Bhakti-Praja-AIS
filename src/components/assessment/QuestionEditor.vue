@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 const props = defineProps({
   question: Object,
   index: { type: Number, default: 0 },
@@ -11,12 +12,14 @@ function invalidate() {
   <div class="question-editor">
     <label class="field"
       ><span class="field-label">Pertanyaan {{ index + 1 }}</span
-      ><textarea
-        v-model="question.text"
-        class="input"
-        maxlength="2000"
-        @input="invalidate"
-      />
+      ><MotionField>
+        <textarea
+          v-model="question.text"
+          class="input"
+          maxlength="2000"
+          @input="invalidate"
+        />
+      </MotionField>
     </label>
     <fieldset>
       <legend class="field-label">
@@ -32,30 +35,34 @@ function invalidate() {
           @change="invalidate" /><span class="option-letter">{{
           String.fromCharCode(65 + i)
         }}</span
-        ><input
-          v-model="question.options[i]"
-          class="input"
-          :aria-label="'Pilihan ' + String.fromCharCode(65 + i)"
-          maxlength="1000"
-          @input="invalidate"
-      /></label>
+        ><MotionField
+          ><input
+            v-model="question.options[i]"
+            class="input"
+            :aria-label="'Pilihan ' + String.fromCharCode(65 + i)"
+            maxlength="1000"
+            @input="invalidate" /></MotionField
+      ></label>
     </fieldset>
     <div class="form-grid">
       <label class="field"
         ><span class="field-label">Poin soal</span
-        ><input
-          v-model.number="question.points"
-          type="number"
-          min="1"
-          max="100"
-          class="input" /></label
+        ><MotionField
+          ><input
+            v-model.number="question.points"
+            type="number"
+            min="1"
+            max="100"
+            class="input" /></MotionField></label
       ><label class="field"
         ><span class="field-label">Pembahasan</span
-        ><textarea
-          v-model="question.explanation"
-          class="input"
-          maxlength="2000"
-        />
+        ><MotionField>
+          <textarea
+            v-model="question.explanation"
+            class="input"
+            maxlength="2000"
+          />
+        </MotionField>
       </label>
     </div>
     <label v-if="question.source === 'ai'" class="check-label notice warning"

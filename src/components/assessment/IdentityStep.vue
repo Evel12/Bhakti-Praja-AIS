@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 import { COURSES, CLASSES } from "../../domain/assessment.js";
 defineProps({ draft: Object });
 </script>
@@ -8,37 +9,46 @@ defineProps({ draft: Object });
   <div class="form-grid">
     <label class="field full"
       ><span class="field-label">Judul assessment *</span
-      ><input
-        v-model="draft.title"
-        class="input"
-        maxlength="150"
-        placeholder="Contoh: Kuis Arsitektur Jaringan"
-        required /></label
+      ><MotionField
+        ><input
+          v-model="draft.title"
+          class="input"
+          maxlength="150"
+          placeholder="Contoh: Kuis Arsitektur Jaringan"
+          required /></MotionField></label
     ><label class="field"
       ><span class="field-label">Jenis assessment</span
-      ><select v-model="draft.type" class="input">
-        <option v-for="v in ['Kuis', 'Tugas', 'Ujian']" :key="v">
-          {{ v }}
-        </option>
-      </select></label
+      ><MotionField
+        ><select v-model="draft.type" class="input">
+          <option v-for="v in ['Kuis', 'Tugas', 'Ujian']" :key="v">
+            {{ v }}
+          </option>
+        </select></MotionField
+      ></label
     ><label class="field"
       ><span class="field-label">Mata kuliah</span
-      ><select v-model="draft.course" class="input">
-        <option v-for="v in COURSES" :key="v">{{ v }}</option>
-      </select></label
+      ><MotionField
+        ><select v-model="draft.course" class="input">
+          <option v-for="v in COURSES" :key="v">{{ v }}</option>
+        </select></MotionField
+      ></label
     ><label class="field"
       ><span class="field-label">Kelas</span
-      ><select v-model="draft.className" class="input">
-        <option v-for="v in CLASSES" :key="v">{{ v }}</option>
-      </select></label
+      ><MotionField
+        ><select v-model="draft.className" class="input">
+          <option v-for="v in CLASSES" :key="v">{{ v }}</option>
+        </select></MotionField
+      ></label
     ><label class="field full"
       ><span class="field-label">Deskripsi</span
-      ><textarea
-        v-model="draft.description"
-        class="input"
-        maxlength="2000"
-        placeholder="Apa yang akan dipelajari atau dievaluasi?"
-      />
+      ><MotionField>
+        <textarea
+          v-model="draft.description"
+          class="input"
+          maxlength="2000"
+          placeholder="Apa yang akan dipelajari atau dievaluasi?"
+        />
+      </MotionField>
     </label>
   </div>
 </template>

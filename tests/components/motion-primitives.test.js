@@ -36,7 +36,7 @@ describe("motion primitives and lifecycle", () => {
     );
     vi.spyOn(window, "cancelAnimationFrame").mockImplementation(c.cancelFrame);
     root.innerHTML =
-      "<button data-liquid-interactive><span data-liquid-surface>Magnet</span></button>";
+      "<div data-liquid-interactive><span data-liquid-surface>Magnet</span></div>";
     const button = root.firstChild,
       surface = button.firstChild;
     button.getBoundingClientRect = () => ({
@@ -45,7 +45,12 @@ describe("motion primitives and lifecycle", () => {
       width: 100,
       height: 40,
     });
-    const scope = createMotionScope(root, { engine, ripple: false });
+    const scope = createMotionScope(root, {
+      engine,
+      ripple: false,
+      hover: true,
+      magnetic: true,
+    });
     button.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));
     button.dispatchEvent(
       new MouseEvent("pointermove", {

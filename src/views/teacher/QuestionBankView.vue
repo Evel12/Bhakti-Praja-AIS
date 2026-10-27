@@ -1,4 +1,5 @@
 <script setup>
+import MotionField from "../../components/motion/MotionField.vue";
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
@@ -59,11 +60,12 @@ function use(q) {
   >
   <div class="filters">
     <label class="search"
-      ><input
-        v-model="search"
-        class="input"
-        aria-label="Cari bank soal"
-        placeholder="Cari pertanyaan atau mata kuliah..." /></label
+      ><MotionField
+        ><input
+          v-model="search"
+          class="input"
+          aria-label="Cari bank soal"
+          placeholder="Cari pertanyaan atau mata kuliah..." /></MotionField></label
     ><span class="section-caption">{{ questions.length }} soal tersedia</span>
   </div>
   <div class="bank-grid">
@@ -85,9 +87,11 @@ function use(q) {
     ><template v-if="editing"
       ><label class="field mb"
         ><span class="field-label">Mata kuliah</span
-        ><select v-model="editing.topic" class="input">
-          <option v-for="c in COURSES" :key="c">{{ c }}</option>
-        </select></label
+        ><MotionField
+          ><select v-model="editing.topic" class="input">
+            <option v-for="c in COURSES" :key="c">{{ c }}</option>
+          </select></MotionField
+        ></label
       ><QuestionEditor :question="editing" />
       <ul v-if="errors.length" class="error-box" role="alert">
         <li v-for="e in errors" :key="e">{{ e }}</li>

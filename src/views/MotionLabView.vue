@@ -114,10 +114,14 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div ref="root" :data-motion="mode === 'system' ? undefined : mode">
+  <div
+    ref="root"
+    data-liquid-scope="local"
+    :data-motion="mode === 'system' ? undefined : mode"
+  >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 3 · Coba primitive secara terpisah sebelum penerapan ke seluruh EXAMNIA."
+      description="Fase 4 · Atoms diterapkan ke EXAMNIA. Primitive lanjutan tetap tersedia untuk review."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle
@@ -150,8 +154,9 @@ onBeforeUnmount(() => {
       <section class="panel">
         <h2>01 · Press, hover & ripple</h2>
         <p>
-          Tekan dengan pointer atau keyboard. Hover magnetik aktif pada pointer
-          presisi. Hitbox dan focus ring tetap stabil.
+          Tekan dengan pointer atau keyboard. Hover tetap diam, tanpa tarikan
+          kursor. Press squash, spring release, dan ripple mengikuti token
+          bersama.
         </p>
         <div class="liquid-lab-stage action-row">
           <MotionButton variant="primary" @click="clicks++"
