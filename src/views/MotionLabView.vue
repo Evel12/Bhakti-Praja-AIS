@@ -12,6 +12,11 @@ import MotionPresence from "../components/motion/MotionPresence.vue";
 import MotionShape from "../components/motion/MotionShape.vue";
 import LiquidGoo from "../components/motion/LiquidGoo.vue";
 import PageTitle from "../components/ui/PageTitle.vue";
+import AppDialog from "../components/ui/AppDialog.vue";
+import AppToast from "../components/ui/AppToast.vue";
+const overlayOpen = ref(false),
+  overlayMessage = ref(""),
+  overlaySequence = ref(0);
 const root = ref(),
   tiles = ref(),
   routeTarget = ref(),
@@ -121,7 +126,7 @@ onBeforeUnmount(() => {
   >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 5 · Panel, kartu, dan daftar kini memakai motion bersama. Hover tombol tetap diam."
+      description="Fase 6 · Dialog dan notifikasi memakai motion bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle
@@ -151,6 +156,42 @@ onBeforeUnmount(() => {
       </p>
     </div>
     <div class="liquid-lab-grid">
+      <section class="panel">
+        <h2>Overlay · Dialog & notifikasi</h2>
+        <p>
+          Uji Escape, fokus keyboard, dan mode reduced/off. Preview ini tidak
+          mengubah data assessment.
+        </p>
+        <div class="action-row mt">
+          <button class="btn" @click="overlayOpen = true">
+            Preview dialog
+          </button>
+          <button
+            class="btn"
+            @click="
+              overlayMessage = 'Preview notifikasi EXAMNIA';
+              overlaySequence++;
+            "
+          >
+            Preview notifikasi
+          </button>
+        </div>
+        <AppDialog
+          :open="overlayOpen"
+          title="Preview overlay"
+          @close="overlayOpen = false"
+        >
+          <p class="dialog-copy">
+            Dialog memakai spring smooth. Tekan Escape atau Tutup untuk kembali
+            ke tombol pembuka tanpa menunggu animasi.
+          </p>
+        </AppDialog>
+        <AppToast
+          :message="overlayMessage"
+          :sequence="overlaySequence"
+          @dismiss="overlayMessage = ''"
+        />
+      </section>
       <section class="panel">
         <h2>01 · Press, hover & ripple</h2>
         <p>

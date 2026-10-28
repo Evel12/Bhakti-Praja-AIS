@@ -173,7 +173,8 @@
 .error-box ul {
   list-style: disc;
 }
-dialog {
+dialog,
+.dialog-surface {
   margin: auto;
   max-height: 85vh;
   overflow: auto;

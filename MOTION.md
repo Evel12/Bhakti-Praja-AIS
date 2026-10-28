@@ -241,3 +241,35 @@ Reduced motion (termasuk override per item) memakai opacity saja. `data-motion="
 Browser pada build produksi memverifikasi bank soal 6 → DNS 1 → kosong 0 → 6, fokus pencarian tetap, detail soal dapat dibuka dan Escape mengembalikan fokus. Ghost exit tidak masuk accessibility tree, inert dan tanpa ID; sesudah settle ghost/will-change berjumlah 0. Filter assessment SQL menampilkan satu baris nyata dalam tbody, peran peserta menampilkan 7 kartu pada data browser uji dan halaman hasil peserta tetap memakai tabel native. Dashboard/role/route tetap berfungsi. Tidak ada overflow dokumen pada 360/390/768/1024/1440 px; tidak ada error/warning console pada alur yang diuji. Tidak ada data assessment baru atau perubahan nilai yang disimpan saat QA.
 
 Pengujian ini bukan pengukuran 60 fps pada perangkat low-end. Reduced/off, policy dan cleanup diuji melalui fixture; preferensi OS nyata belum diubah. Exit snapshot sengaja dibatasi item terlihat tanpa form/media. Animasi overlays/toast, navigasi, media/loaders, transisi halaman global/background, guard hardcoded transitions dan tuning dev-only menunggu batch berikutnya. Fase 6 (overlays) belum dimulai; berhenti untuk review fase 5.
+
+## Penerapan fase 6 · Dialog dan notifikasi
+
+28 Oktober 2026. `createOverlayMotion` memakai primitive presence dengan preset `smooth` dan token bersama. Enter/exit hanya mengubah transform/opacity; reduced motion fade-only, `data-motion="off"` dan tab hidden melewati efek. Budget global 8 desktop/3 mobile tetap berlaku. Tombol tidak mengikuti kursor dan tidak bergerak saat hover.
+
+`AppDialog` mempertahankan native showModal, top layer, backdrop, Escape dan fokus modal. ID judul unik memakai Vue useId. Penutupan tidak menunggu spring: dialog asli segera ditutup, fokus kembali ke pembuka yang masih terhubung. Snapshot visual sebelum slot dibersihkan mengisi animasi exit; salinan inert/aria-hidden, tanpa ID, name, href, autofocus, live region atau tab stop. Nilai form yang belum disimpan disalin untuk tampilan saja. Tidak ada submit/aksi yang ditunda. Buka-tutup cepat dan unmount membatalkan pekerjaan tertunda.
+
+`AppToast` memperbaiki class .toast yang sebelumnya hilang, menyediakan live region permanen (polite/atomic), pesan berulang melalui sequence, ID unik, tombol Tutup notifikasi, serta fokus kembali setelah dismissal keyboard. Notifikasi memakai posisi fixed responsif. Waktu baca 5 detik adalah perilaku produk, terpisah dari durasi motion: pointer/fokus menghentikan timer, keluar memberi waktu baca penuh kembali. Timer lama dan timer store dibersihkan saat diganti/dismiss/dispose. Preview Motion Lab bersifat manual-dismiss dan tidak mengubah assessment.
+
+Overlay berhenti bergerak saat pointerdown, keyboard atau fokus berpindah di dalamnya, agar kontrol mudah ditarget. Resize/scroll/policy/unmount membersihkan snapshot, listener dan RAF; will-change dilepas setelah settle. Geometry snapshot ditulis sekali, tidak ditween. Backdrop native tetap statis; tidak ada filter/gooey tambahan. Dropdown native tetap mengikuti browser. Popover dan tooltip sidebar dikerjakan bersama navigasi pada fase 7 agar state/fokusnya ditangani dalam satu batch.
+
+### File fase 6
+
+| File | Perubahan |
+| --- | --- |
+| src/motion/overlays.js | Controller enter/exit, snapshot inert, budget, policy dan cleanup. |
+| src/components/ui/AppDialog.vue | Integrasi modal native, unique label, fokus, race/unmount guard. |
+| src/components/ui/AppToast.vue | Toast reusable, live announcement, keyboard dismissal dan pause/resume. |
+| src/App.vue | Pasang AppToast global. |
+| src/stores/uiStore.js | Sequence notifikasi, dismiss, pause/resume dan disposal timer. |
+| src/motion/primitives.css | Layer snapshot dan aksesibilitas tombol toast. |
+| src/styles/design-system.css | Surface snapshot dialog dan ukuran toast responsif. |
+| src/styles/main.css | Style dialog juga berlaku pada snapshot visual. |
+| src/views/MotionLabView.vue | Preview dialog/toast pada mode system/reduced/off. |
+| tests/components/motion-overlays.test.js | Delapan tes overlay, semantik, fokus, lifecycle dan timer. |
+| MOTION.md | Dokumentasi fase, daftar file dan batas pengujian. |
+
+### Verifikasi dan batas fase 6
+
+76 tes lulus (68 regresi + 8 overlay), build produksi berhasil. Tes mencakup snapshot inert/ID-free dan nilai form, reduced/off, budget/hidden, scroll/policy/reopen/dispose, label unik, native open/close dan fokus, race unmount, live region persisten serta timer notifikasi. Browser memverifikasi Escape, penutupan toast via keyboard, mode reduced pada Motion Lab, form bank soal yang dapat diisi dan dibatalkan tanpa menyimpan, fokus kembali ke Tambah soal dan enam soal tetap tersedia. Pada viewport 390 px dialog berada dalam layar dan tidak ada overflow; console alur uji tanpa error/warning.
+
+Ini bukan pengukuran 60 fps pada perangkat low-end atau uji screen reader nyata. Preferensi reduced diuji melalui token/policy fixture dan mode review, bukan mengubah OS. Audit performa seluruh situs, guard hardcoded transitions dan tuning panel tetap fase berikutnya. Berhenti untuk review fase 6 sebelum navigasi (fase 7).

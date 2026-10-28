@@ -1562,6 +1562,7 @@ input[type="checkbox"] {
   display: none;
 }
 .toast {
+  width: max-content;
   position: fixed;
   bottom: 24px;
   left: 50%;
@@ -1585,7 +1586,8 @@ input[type="checkbox"] {
   width: 17px;
   height: 17px;
 }
-dialog {
+dialog,
+.dialog-surface {
   width: min(610px, calc(100vw - 30px));
   max-height: 88dvh;
   overflow: auto;

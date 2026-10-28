@@ -7,6 +7,7 @@ import { useAssessmentStore } from "./stores/assessmentStore.js";
 import { useUiStore } from "./stores/uiStore.js";
 import AppShell from "./layouts/AppShell.vue";
 import ExamLayout from "./layouts/ExamLayout.vue";
+import AppToast from "./components/ui/AppToast.vue";
 import { repository } from "./repositories/assessmentRepository.js";
 import { download } from "./utils/format.js";
 const route = useRoute(),
@@ -63,13 +64,12 @@ function reload() {
   <component v-else :is="route.meta.exam ? ExamLayout : AppShell"
     ><RouterView :key="route.path"
   /></component>
-  <div
-    v-if="ui.message"
-    id="toast"
-    :class="{ error: ui.error }"
-    role="status"
-    aria-live="polite"
-  >
-    {{ ui.message }}
-  </div>
+  <AppToast
+    :message="ui.message"
+    :error="ui.error"
+    :sequence="ui.toastSequence"
+    @dismiss="ui.dismissToast"
+    @pause="ui.pauseToast"
+    @resume="ui.resumeToast"
+  />
 </template>

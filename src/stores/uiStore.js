@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, onScopeDispose } from "vue";
 export const SIDEBAR_KEY = "examnia.ui.sidebarCollapsed";
 export const useUiStore = defineStore("ui", () => {
   let initial = false;
@@ -9,7 +9,8 @@ export const useUiStore = defineStore("ui", () => {
   const collapsed = ref(initial),
     mobileOpen = ref(false),
     message = ref(""),
-    error = ref(false);
+    error = ref(false),
+    toastSequence = ref(0);
   let timer;
   function toggle() {
     collapsed.value = !collapsed.value;
@@ -20,8 +21,32 @@ export const useUiStore = defineStore("ui", () => {
   function toast(text, isError = false) {
     message.value = text;
     error.value = isError;
-    clearTimeout(timer);
-    timer = setTimeout(() => (message.value = ""), 5000);
+    toastSequence.value++;
+    resumeToast();
   }
-  return { collapsed, mobileOpen, message, error, toggle, toast };
+  // Reading time is product behavior, not a motion duration.
+  function pauseToast() {
+    clearTimeout(timer);
+  }
+  function resumeToast() {
+    pauseToast();
+    if (message.value) timer = setTimeout(dismissToast, 5000);
+  }
+  function dismissToast() {
+    pauseToast();
+    message.value = "";
+  }
+  onScopeDispose(pauseToast);
+  return {
+    collapsed,
+    mobileOpen,
+    message,
+    error,
+    toggle,
+    toast,
+    toastSequence,
+    pauseToast,
+    resumeToast,
+    dismissToast,
+  };
 });
