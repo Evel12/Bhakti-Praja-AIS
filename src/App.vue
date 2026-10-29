@@ -6,6 +6,7 @@ import { createNavigationScope } from "./motion/navigation.js";
 import { createMediaScope } from "./motion/media.js";
 import { useRoute, useRouter } from "vue-router";
 import { installPageTransitions } from "./motion/pages.js";
+import { installMotionCapabilities } from "./motion/capabilities.js";
 import { useAssessmentStore } from "./stores/assessmentStore.js";
 import { useUiStore } from "./stores/uiStore.js";
 import AppShell from "./layouts/AppShell.vue";
@@ -17,8 +18,9 @@ const route = useRoute(),
   router = useRouter(),
   store = useAssessmentStore(),
   ui = useUiStore();
-let atoms, containers, navigation, media, pages;
+let atoms, containers, navigation, media, pages, capabilities;
 onMounted(() => {
+  capabilities = installMotionCapabilities(document.documentElement);
   atoms = createAtomMotionScope(document.getElementById("app"));
   containers = createContainerMotionScope(document.getElementById("app"));
   navigation = createNavigationScope(document.getElementById("app"));
@@ -31,6 +33,7 @@ onBeforeUnmount(() => {
   navigation?.dispose();
   media?.dispose();
   pages?.dispose();
+  capabilities?.dispose();
 });
 function backup() {
   store.run(() =>

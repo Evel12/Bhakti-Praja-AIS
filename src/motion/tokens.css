@@ -48,6 +48,7 @@
   --motion-overshoot-limit: 0.08;
 
   --motion-max-concurrent: 8;
+  --motion-lite-concurrent: 2;
   --motion-hover-enabled: 1;
   --motion-goo-enabled: 1;
   --motion-reduced: 0;

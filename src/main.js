@@ -4,3 +4,14 @@ import App from "./App.vue";
 import router from "./router/index.js";
 import "./styles/main.css";
 createApp(App).use(createPinia()).use(router).mount("#app");
+if (import.meta.env.DEV) {
+  let tuning;
+  let disposed = false;
+  import("./motion/tuning.js").then(({ installMotionTuning }) => {
+    if (!disposed) tuning = installMotionTuning(document.documentElement);
+  });
+  import.meta.hot?.dispose(() => {
+    disposed = true;
+    tuning?.dispose();
+  });
+}

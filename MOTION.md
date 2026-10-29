@@ -374,3 +374,57 @@ PageAtmosphere memakai LiquidGoo hanya di /dashboard dan /student. Bersama demo 
 Belum ada pemeriksaan visual browser, uji screen reader nyata, atau profiling 60 fps/perangkat low-end; tool browser tidak tersedia di sesi ini. Tidak ada screenshot baru yang diklaim sebagai fase 9. Perlu review visual untuk menilai skala rasa gerak, posisi dekorasi dan perilaku View Transitions pada browser nyata.
 
 Berhenti untuk review fase 9. Batch penutup berikutnya mencakup guard hardcoded motion, audit aksesibilitas/performa, degradasi low-end dan konfigurasi tuning global dev-only.
+
+## Fase 10 · Audit kode, fallback perangkat dan tuning development
+
+29 Oktober 2026. Implementasi penutup menambahkan deteksi konservatif hardwareConcurrency/deviceMemory yang positif dan <=4, atau Save-Data. Hint tidak tersedia/invalid tidak dianggap nol. Root data-motion-tier=lite memaksa mode fade-only, menonaktifkan gooey/magnetic/hover spatial melalui snapshot token, dan membatasi budget bersama ke --motion-lite-concurrent (2). Off dan preferensi reduced tetap berlaku; tidak ada UA sniff, request jaringan atau penyimpanan preferensi baru. Listener Save-Data dan atribut sebelumnya dipulihkan saat dispose.
+
+`npm run check:motion` sekarang dijalankan paling awal oleh `npm run check`. Guard memeriksa sumber css/js/vue, menolak CSS motion selain none, literal numeric duration/stiffness/damping/mass/delay pada properti objek UI/motion, literal easing dan permanent will-change. Nilai canonical di tokens.css dan durasi assessment pada domain/fixtures dikecualikan. Ini scanner pola, bukan parser/linter AST penuh; penulisan dinamis/alias tetap membutuhkan code review. Engine tetap membatasi properti runtime ke transform/opacity/filter dan menolak ukuran/posisi layout.
+
+### Tuning khusus development
+
+Di `npm run dev`, buka console browser dan gunakan:
+
+```js
+examniaMotion.inspect() // settings, snapshot token saat ini, active/peak/raf engine
+examniaMotion.set({ stiffnessFactor: 1.1, dampingFactor: 1.1, staggerMs: 30, overshoot: 0.04 })
+examniaMotion.reset()
+```
+
+Faktor diterapkan bersama ke empat preset dari baseline CSS yang dibaca saat install, bukan mengalikan hasil tuning sebelumnya. Mass dan relasi preset dipertahankan. Perubahan memakai CSS variables global; policy membatalkan animasi lama agar tidak bercampur dengan token baru. Opsi divalidasi seluruhnya sebelum write: faktor positif <=4, stagger 0..stagger cap, overshoot 0..1; key tak dikenal dan NaN ditolak. Reset/dispose mengembalikan inline override dan API lama. Tidak ada persistence, perubahan data assessment atau cara mengaktifkan hover magnetic dari tuning. Import berada di cabang import.meta.env.DEV; HMR membersihkan API dan guard race dynamic import. Bundle produksi diperiksa tidak mengandung examniaMotion/stiffnessFactor/dampingFactor.
+
+### Konsistensi dan pedoman
+
+| Kebutuhan | Pilihan bersama | Alasan |
+| --- | --- | --- |
+| Press/release | snappy | Respons kontrol singkat; hover tetap diam. |
+| Enter container, ikon/media, indikator | gentle | Hierarki tenang dan tidak mengambil fokus. |
+| FLIP, overlay, drawer, halaman | smooth | Perubahan ruang terhubung tanpa penundaan aksi. |
+| Bouncy | Eksplorasi Motion Lab | Bukan default semua elemen. |
+| Reduced/lite | opacity saja | Transform/filter spatial dilewati oleh engine. |
+| Gooey | Dashboard, halaman peserta, demo Lab | Maksimal tiga konteks; tanpa loop dan tanpa memfilter teks. |
+
+Untuk elemen baru, pakai scope/wrapper bersama sebelum menambah listener per komponen. Jangan membuat duration/easing/spring lokal, tween ukuran/grid/path, will-change permanen, spinner loop atau progress palsu. Pertahankan ukuran/alt media, hitbox, native form semantics dan focus-visible. Pakai data-motion=off untuk opt-out; jangan reset transform statis. Cleanup observer/listener/RAF pada unmount; kegagalan motion tidak boleh menunda transaksi atau navigasi.
+
+### File fase 10
+
+| File | Perubahan |
+| --- | --- |
+| src/motion/capabilities.js | Hint low-end/Save-Data, restore policy dan listener. |
+| src/motion/tuning.js | API dev-only global, validasi atomik, baseline/reset/dispose. |
+| src/motion/tokens.css | Token canonical budget lite. |
+| src/motion/tokens.js | Lite memaksa fade-only dan budget minimum bersama. |
+| src/motion/policy.js | Batalkan job saat tier atau tuning berubah. |
+| src/App.vue | Install/cleanup kemampuan perangkat. |
+| src/main.js | Import tuning hanya DEV dan cleanup HMR. |
+| scripts/check-motion.mjs | Guard pola source motion yang dapat dijalankan di CI. |
+| package.json | check:motion dan integrasi pada check. |
+| tests/components/motion-final.test.js | Tujuh tes perangkat, tuning, policy, burst/read-write dan guard. |
+| MOTION-AUDIT.md | Temuan audit, bukti dan keterbatasan. |
+| MOTION.md | Panduan akhir, tuning, konsistensi dan daftar file. |
+
+### Verifikasi akhir dan batas
+
+106 tes lulus (11 Node + 95 Vitest), motion guard lulus dan build produksi berhasil. Tes tambahan memastikan hint hilang aman, perubahan Save-Data/disposal, lite opacity-only/budget dua, scaling preset seragam, input tuning invalid tidak meninggalkan write parsial, pemulihan override/API, notifikasi policy, burst 20 elemen dibatasi dua job, nol getComputedStyle/getBoundingClientRect selama RAF flush setelah prepare, serta nol job/RAF/will-change setelah settle. Bundle produksi tidak membawa API tuning. Tes ini tidak mengukur durasi frame nyata.
+
+Audit kode dan automated regression selesai; QA visual browser, screen reader nyata, pengukuran kontras menyeluruh dan profiling FPS pada perangkat fisik belum dilakukan karena tool browser tidak tersedia. Target 60 fps belum terverifikasi. Tidak ada screenshot baru fase ini. Lihat MOTION-AUDIT.md untuk bukti dan batas setiap kesimpulan.

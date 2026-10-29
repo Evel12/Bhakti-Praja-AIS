@@ -24,7 +24,7 @@ export function observeMotionPolicy(root, onChange, engine = motionEngine) {
   observer.observe(root.ownerDocument.documentElement, {
     subtree: true,
     attributes: true,
-    attributeFilter: ["data-motion"],
+    attributeFilter: ["data-motion", "data-motion-tier", "data-motion-tuning"],
   });
   const visibility = () => {
     if (root.ownerDocument.hidden) update();

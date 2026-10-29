@@ -111,7 +111,8 @@ export function readMotionTokens(
   };
   const disabled =
     !!element.closest?.('[data-motion="off"]') || flag("--motion-disabled");
-  const reduced = flag("--motion-reduced");
+  const lite = !!element.closest?.('[data-motion-tier="lite"]');
+  const reduced = flag("--motion-reduced") || lite;
   const mode = disabled ? "off" : reduced ? "reduced" : "full";
   const instant = time("--motion-duration-instant");
   const overshootLimit = number("--motion-overshoot-limit");
@@ -121,7 +122,12 @@ export function readMotionTokens(
     throw new MotionTokenError(
       "--motion-overshoot-limit must be a ratio from 0 to 1.",
     );
-  const maxConcurrent = number("--motion-max-concurrent", true);
+  const maxConcurrent = lite
+    ? Math.min(
+        number("--motion-lite-concurrent", true),
+        number("--motion-max-concurrent", true),
+      )
+    : number("--motion-max-concurrent", true);
   if (!Number.isInteger(maxConcurrent))
     throw new MotionTokenError("--motion-max-concurrent must be an integer.");
   const frameStep = time("--motion-frame-step");
