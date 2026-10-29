@@ -10,6 +10,7 @@ import { date, time } from "../../utils/format.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import AppDialog from "../../components/ui/AppDialog.vue";
 import Icon from "../../components/ui/Icon.vue";
+import AppLoading from "../../components/ui/AppLoading.vue";
 const store = useAssessmentStore(),
   attemptStore = useAttemptStore(),
   ui = useUiStore(),
@@ -130,7 +131,7 @@ async function upload(e) {
         <p v-if="locked" class="notice warning">
           Tenggat pengumpulan sudah lewat. Berkas tersimpan tidak dihapus.
         </p>
-        <label v-else class="upload"
+        <label v-else class="upload" :aria-busy="uploading"
           ><Icon name="upload" /><strong>{{
             uploading ? "Menyimpan berkas..." : "Pilih atau ganti berkas tugas"
           }}</strong
@@ -142,6 +143,7 @@ async function upload(e) {
             :disabled="uploading"
             @change="upload"
         /></label>
+        <AppLoading v-if="uploading" label="Menyimpan berkas…" />
         <div v-if="at.attachment" class="file-card">
           <Icon name="file" />
           <div>

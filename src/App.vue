@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount } from "vue";
 import { createAtomMotionScope } from "./motion/atoms.js";
 import { createContainerMotionScope } from "./motion/containers.js";
 import { createNavigationScope } from "./motion/navigation.js";
+import { createMediaScope } from "./motion/media.js";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "./stores/assessmentStore.js";
 import { useUiStore } from "./stores/uiStore.js";
@@ -14,16 +15,18 @@ import { download } from "./utils/format.js";
 const route = useRoute(),
   store = useAssessmentStore(),
   ui = useUiStore();
-let atoms, containers, navigation;
+let atoms, containers, navigation, media;
 onMounted(() => {
   atoms = createAtomMotionScope(document.getElementById("app"));
   containers = createContainerMotionScope(document.getElementById("app"));
   navigation = createNavigationScope(document.getElementById("app"));
+  media = createMediaScope(document.getElementById("app"));
 });
 onBeforeUnmount(() => {
   atoms?.dispose();
   containers?.dispose();
   navigation?.dispose();
+  media?.dispose();
 });
 function backup() {
   store.run(() =>

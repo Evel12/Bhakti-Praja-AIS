@@ -91,6 +91,7 @@ function create() {
           ><svg
             v-if="graded.length > 1"
             class="sparkline"
+            :data-media-key="graded.map((a) => a.id + ':' + a.score).join('|')"
             viewBox="0 0 96 56"
             role="img"
             aria-label="Tren nilai peserta terakhir"

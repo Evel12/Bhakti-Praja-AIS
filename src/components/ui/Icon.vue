@@ -5,6 +5,7 @@ defineProps({ name: { type: String, default: "file" } });
 <template>
   <svg
     class="icon"
+    :data-liquid-icon="name"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"

@@ -304,3 +304,38 @@ Tooltip rail memakai enter opacity gentle dari token. Fokus keyboard dan pointer
 Tes regresi, tes navigasi dan build produksi dijalankan. Cakupan meliputi Escape tooltip, hover link statis, perilaku keyboard native, reduced/off, FLIP hanya pada surface tanpa fokus, pembatalan saat keyboard, compact popover/aria-current/fokus, mobile Escape/inert/body lock serta buka-tutup cepat. Pemeriksaan visual browser belum dilakukan: tool browser sesi sebelumnya tidak tersedia; percobaan membaca UI aplikasi ChatGPT ditolak automatic approval review karena dapat membuka percakapan lain. Tidak dilakukan pembacaan alternatif untuk melewati penolakan tersebut. Tidak ada klaim pengukuran 60 fps atau uji screen reader nyata.
 
 Fase 7 berhenti untuk review. Media/loaders, transisi halaman/background global dan audit performa/tuning akhir tetap batch berikutnya.
+
+## Penerapan fase 8 · Media, ikon dan loading
+
+29 Oktober 2026. `createMediaScope` dipasang sekali di App dan mencakup media/indikator baru melalui load/error capture dan MutationObserver terbatas. Semua feedback fase ini memakai opacity dengan preset spring gentle, token stagger bersama, budget global dan reduced/off. Tidak ada durasi/easing baru di komponen, dependency tambahan atau loop RAF idle.
+
+Gambar biasa mendapat satu entrance setelah load atau saat sudah cached (complete/naturalWidth). Konten tidak pre-hide dan tidak menunggu decode; ukuran, alt dan native load/error tetap milik elemen asli. Sumber yang sama tidak diputar ulang pada event load duplikat. Gambar gagal tetap menampilkan fallback browser/alt. Logo Tut Wuri Handayani, gambar area ujian dan entrance gambar di dalam panel/kartu/daftar dikecualikan agar identitas tetap stabil dan motion tidak bertumpuk.
+
+Icon.vue menandai nama ikon melalui data-liquid-icon. Hanya perubahan nama yang memulai fade spring; ikon awal dan hover tidak memulai efek. SVG tetap aria-hidden untuk ikon dekoratif. Grafik nilai dashboard memakai data-media-key dari ID/nilai peserta; perubahan data nyata memulai opacity saja, tanpa tween titik/polyline/path. Label grafik tetap role=img dan aria-label.
+
+AppLoading adalah status reusable dengan label terbaca dan tiga titik aria-hidden. Titik masuk satu kali dengan stagger, lalu diam selama pekerjaan berlangsung; tidak ada spinner loop, fake percentage, minimum waiting time atau penundaan aksi. Label upload berkas memiliki aria-busy dan AppLoading hanya muncul ketika FileReader/persist sedang bekerja, mengikuti ref uploading yang sudah ada. Validasi jenis/ukuran, error, simpan dan submit tetap memakai alur sebelumnya. Preview loading dan pergantian ikon tersedia di Motion Lab; preview harus diselesaikan secara manual agar tidak mengarang proses backend.
+
+Perubahan data-motion/visibility membatalkan pekerjaan; elemen terhapus dan scope dispose melepas handle, observer, load/error/media/visibility listener serta will-change. Pembacaan base opacity dibatch sebelum write animasi. Scope tidak menggerakkan transform, filter, dimensi atau posisi media. Gunakan data-media-key stabil yang berubah hanya bersama konten grafik/media; jangan hubungkan ke timer ujian. Untuk status baru gunakan AppLoading dan kondisi pending sebenarnya. Native video/audio tidak autoplay atau diberi gerak dekoratif.
+
+### File fase 8
+
+| File | Perubahan |
+| --- | --- |
+| src/motion/media.js | Scope media cached/load/error, perubahan SVG key, finite loader, budget/policy/cleanup. |
+| src/components/ui/AppLoading.vue | Label status live polite/atomic dan titik dekoratif. |
+| src/components/ui/Icon.vue | Penanda nama ikon untuk perubahan state. |
+| src/App.vue | Mount/dispose scope media global. |
+| src/views/teacher/DashboardView.vue | Key grafik berdasarkan data nilai sebenarnya. |
+| src/views/student/AttemptView.vue | Status penyimpanan berkas dan aria-busy. |
+| src/views/MotionLabView.vue | Preview loading/ikon dan label fase 8. |
+| src/motion/primitives.css | Tata letak status dan titik berukuran tetap. |
+| tests/components/motion-media.test.js | Delapan tes media/loading, accessibility attributes dan lifecycle. |
+| MOTION.md | API/perilaku, daftar file dan batas verifikasi. |
+
+### Verifikasi dan batas fase 8
+
+91 tes lulus (83 regresi + 8 baru; 11 Node + 80 Vitest), build produksi berhasil. Tes mencakup cached image sekali tanpa decode gate, alt/dimensi stabil, gambar gagal/removal, pengecualian logo/exam/nested container, perubahan ikon/grafik dan label, reduced/off, label status/titik dekoratif, nol RAF setelah settle, budget bersama, policy dan disposal. Keberhasilan ini bukan uji screen reader nyata, pengukuran 60 fps, atau verifikasi visual browser.
+
+Tool browser sesi lama tidak tersedia. Pemeriksaan visual fase ini belum dilakukan; pembacaan jendela ChatGPT pada fase sebelumnya ditolak automatic approval review karena dapat membuka percakapan lain dan tidak diulang sebagai jalan pintas. Tidak ada screenshot baru yang diklaim sebagai hasil fase 8.
+
+Berhenti untuk review fase 8 sebelum transisi halaman/background global (fase 9). Guard hardcoded motion, audit performa akhir dan tuning global tetap batch penutup.

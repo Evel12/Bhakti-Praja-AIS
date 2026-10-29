@@ -14,6 +14,10 @@ import LiquidGoo from "../components/motion/LiquidGoo.vue";
 import PageTitle from "../components/ui/PageTitle.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
 import AppToast from "../components/ui/AppToast.vue";
+import AppLoading from "../components/ui/AppLoading.vue";
+import Icon from "../components/ui/Icon.vue";
+const mediaPending = ref(false),
+  mediaIcon = ref(false);
 const overlayOpen = ref(false),
   overlayMessage = ref(""),
   overlaySequence = ref(0);
@@ -126,7 +130,7 @@ onBeforeUnmount(() => {
   >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 7 · Navigasi, sidebar, submenu dan tooltip memakai motion bersama. Hover tombol tetap diam."
+      description="Fase 8 · Media, perubahan ikon dan indikator loading memakai motion bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle
@@ -156,6 +160,26 @@ onBeforeUnmount(() => {
       </p>
     </div>
     <div class="liquid-lab-grid">
+      <section class="panel">
+        <h2>Media · Status & ikon</h2>
+        <p>
+          Indikator masuk sekali, lalu tetap terlihat sampai proses selesai.
+          Preview ini tidak menyimpan data.
+        </p>
+        <div class="action-row mt">
+          <button
+            class="btn"
+            :aria-pressed="mediaPending"
+            @click="mediaPending = !mediaPending"
+          >
+            {{ mediaPending ? "Selesaikan preview" : "Preview loading" }}
+          </button>
+          <button class="btn" @click="mediaIcon = !mediaIcon">
+            <Icon :name="mediaIcon ? 'check' : 'file'" />Ganti ikon
+          </button>
+        </div>
+        <AppLoading v-if="mediaPending" class="mt" label="Memproses preview…" />
+      </section>
       <section class="panel">
         <h2>Overlay · Dialog & notifikasi</h2>
         <p>
