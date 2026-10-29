@@ -417,6 +417,7 @@ Untuk elemen baru, pakai scope/wrapper bersama sebelum menambah listener per kom
 | src/motion/policy.js | Batalkan job saat tier atau tuning berubah. |
 | src/App.vue | Install/cleanup kemampuan perangkat. |
 | src/main.js | Import tuning hanya DEV dan cleanup HMR. |
+| src/views/MotionLabView.vue | Keterangan review sesuai transisi global yang sudah aktif. |
 | scripts/check-motion.mjs | Guard pola source motion yang dapat dijalankan di CI. |
 | package.json | check:motion dan integrasi pada check. |
 | tests/components/motion-final.test.js | Tujuh tes perangkat, tuning, policy, burst/read-write dan guard. |

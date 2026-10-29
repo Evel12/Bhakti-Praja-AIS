@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
   >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 9 · Transisi halaman dan background terhubung memakai motion bersama. Hover tombol tetap diam."
+      description="Liquid motion · Preview interaksi, navigasi, media, dan transisi bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle
@@ -295,8 +295,8 @@ onBeforeUnmount(() => {
       <section class="panel">
         <h2>06 · Route transition</h2>
         <p>
-          Preview transaksi navigasi. Coba API native atau fallback; alur
-          assessment belum dipasangi transisi global.
+          Preview API native atau fallback. Navigasi situs memakai transisi
+          setelah perpindahan dikonfirmasi.
         </p>
         <div class="liquid-preview-controls">
           <MotionButton @click="navigate(true)" :aria-disabled="busy"
