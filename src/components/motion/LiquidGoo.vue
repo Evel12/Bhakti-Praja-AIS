@@ -17,6 +17,11 @@ const enabled = computed(() => tokens.value?.limits.gooey),
 function draw() {
   tokens.value = safeTokens(root.value);
   if (!tokens.value) return;
+  if (root.value.ownerDocument.hidden) {
+    motionEngine.reset(a.value);
+    motionEngine.reset(b.value);
+    return;
+  }
   const t = tokens.value,
     travel = t.effects.gooTravel;
   for (const [el, sign] of [

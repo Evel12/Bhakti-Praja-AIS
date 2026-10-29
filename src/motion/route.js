@@ -46,7 +46,7 @@ export function routeKeyframes(tokens, preset = "smooth") {
 }
 
 /** A reusable transaction: update executes once even if the API is absent or
- * fails. This is not installed as a global router guard in phase 3.
+ * fails. Page integration runs afterEach; it never blocks router guards.
  */
 export async function transitionRoute(
   update,
@@ -73,6 +73,7 @@ export async function transitionRoute(
   const oldName = target.style.viewTransitionName,
     oldAttribute = root.getAttribute("data-liquid-route");
   let transition,
+    cancelled = false,
     animations = [],
     fallbackHandle,
     releaseBudget;
@@ -83,6 +84,7 @@ export async function transitionRoute(
   };
   const run = {
     cancel() {
+      cancelled = true;
       transition?.skipTransition();
       animations.forEach((a) => a.cancel());
       fallbackHandle?.cancel();
@@ -94,6 +96,8 @@ export async function transitionRoute(
   signal?.addEventListener("abort", run.cancel, { once: true });
   const fallback = async () => {
     await commit();
+    if (cancelled || signal?.aborted || runs.get(root) !== run)
+      return { mode: "cancelled" };
     if (!signal?.aborted) {
       fallbackHandle = animatePresence(target, {
         preset,
@@ -121,7 +125,7 @@ export async function transitionRoute(
       return await fallback();
     }
     await commit();
-    if (signal?.aborted) {
+    if (cancelled || signal?.aborted || runs.get(root) !== run) {
       run.cancel();
       return { mode: "cancelled" };
     }

@@ -7,6 +7,7 @@ import { useUiStore } from "../stores/uiStore.js";
 import AppSidebar from "../components/navigation/AppSidebar.vue";
 import Icon from "../components/ui/Icon.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
+import PageAtmosphere from "../components/motion/PageAtmosphere.vue";
 const route = useRoute(),
   router = useRouter(),
   ui = useUiStore(),
@@ -103,7 +104,12 @@ watch(
           </button>
         </div>
       </header>
-      <slot />
+      <div class="page-stage">
+        <PageAtmosphere
+          v-if="['/dashboard', '/student'].includes(route.path)"
+        />
+        <div id="route-scene" class="route-scene"><slot /></div>
+      </div>
       <footer class="footer-note">
         EXAMNIA · Ruang yang lebih tenang untuk belajar.
       </footer>

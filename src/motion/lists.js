@@ -16,6 +16,7 @@ export function createListMotion(root, { engine = motionEngine } = {}) {
     engine,
     initialHide: false,
     stagger: true,
+    filter: () => !root.closest("[data-liquid-page-motion]"),
   });
   let disposed = false;
   function cancel() {

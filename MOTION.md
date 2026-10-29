@@ -339,3 +339,38 @@ Perubahan data-motion/visibility membatalkan pekerjaan; elemen terhapus dan scop
 Tool browser sesi lama tidak tersedia. Pemeriksaan visual fase ini belum dilakukan; pembacaan jendela ChatGPT pada fase sebelumnya ditolak automatic approval review karena dapat membuka percakapan lain dan tidak diulang sebagai jalan pintas. Tidak ada screenshot baru yang diklaim sebagai hasil fase 8.
 
 Berhenti untuk review fase 8 sebelum transisi halaman/background global (fase 9). Guard hardcoded motion, audit performa akhir dan tuning global tetap batch penutup.
+
+## Penerapan fase 9 · Halaman dan background
+
+29 Oktober 2026. `installPageTransitions` menambahkan enhancement visual pada router.afterEach setelah navigasi sukses. Hook tidak mengembalikan promise animasi, tidak mengubah URL/data, dan tidak memblokir guard/submit. DOM patch ditunggu melalui nextTick. Browser dengan View Transitions memakai snapshot + keyframe spring dari token; browser tanpa API atau snapshot yang gagal memakai presence fallback. Karena efek dimulai setelah konfirmasi router, snapshot native adalah enhancement visual state yang dirender saat browser mengambil snapshot, bukan jaminan snapshot halaman sebelum URL berubah.
+
+Target hanya #route-scene di AppShell: sidebar, topbar, footer dan toast tidak ikut digeser. Initial load, perubahan query/hash pada path sama, navigasi gagal, halaman lokal Motion Lab, serta perpindahan dari/ke meta.exam dilewati. Fokus shell tetap menuju main-content sesuai perilaku sebelumnya. Pointer/keyboard atau fokus masuk ke kontrol halaman membatalkan efek agar hitbox stabil. Navigasi cepat membatalkan run sebelumnya dan tidak memutar fallback lama setelah DOM patch tertunda. Hook/listener/signal dan atribut snapshot/penanda dibersihkan pada settle atau dispose. Kegagalan visual tidak membatalkan route yang sudah dikonfirmasi.
+
+Saat penanda data-liquid-page-motion aktif, entrance container dan item daftar baru dilewati agar page spring tidak bertumpuk dengan reveal anak. Konten tetap visible dan perubahan data tetap langsung. Budget native snapshot memakai dua slot bersama engine; overflow budget melewati efek. Reduced motion fade-only; off/hidden melewati efek. CSS menonaktifkan interpolasi ukuran snapshot bawaan; pseudo-element tidak menangkap pointer. Efek hanya transform/opacity, tidak ada tween width, height, top, left, grid atau radius.
+
+PageAtmosphere memakai LiquidGoo hanya di /dashboard dan /student. Bersama demo Motion Lab, ada tiga konteks gooey yang dibatasi. Lapisan dekoratif aria-hidden/inert, tanpa teks/tautan, pointer-events none dan dibatasi area header kanan. Konten berada pada lapisan tersendiri dan tidak terkena SVG filter. Gerak gentle sekali saat mount, tanpa loop; filter nonaktif pada mobile/coarse/reduced/off. Policy saat tab hidden kini mereset blob tanpa memulai animasi baru. Logo dan hover tombol tetap diam.
+
+### File fase 9
+
+| File | Perubahan |
+| --- | --- |
+| src/motion/pages.js | afterEach enhancement, pengecualian route, interaction/rapid cancel dan lifecycle. |
+| src/motion/route.js | Cancellation state mencegah stale fallback/native replay. |
+| src/components/motion/PageAtmosphere.vue | Wrapper background dekoratif inert. |
+| src/components/motion/LiquidGoo.vue | Tidak memulai RAF baru saat dokumen hidden. |
+| src/layouts/AppShell.vue | Scene stabil dan background terbatas dua halaman. |
+| src/App.vue | Install/dispose page transitions dengan nextTick Vue. |
+| src/motion/containers.js | Hindari nested reveal selama page motion. |
+| src/motion/lists.js | Hindari entrance item baru selama page motion. |
+| src/motion/primitives.css | Layer background/scene dan pointer fallback snapshot. |
+| src/views/MotionLabView.vue | Label fase 9. |
+| tests/components/motion-pages.test.js | Delapan tes route, cancellation, policy dan dekorasi. |
+| MOTION.md | Perilaku, daftar file dan batas verifikasi. |
+
+### Verifikasi dan batas fase 9
+
+99 tes lulus (91 regresi + 8 baru; 11 Node + 88 Vitest), build produksi berhasil. Tes memastikan navigation resolve saat promise motion masih pending, skip initial/query/exam/Lab/failed, fokus shell tidak membatalkan gerak tetapi fokus kontrol membatalkan, rapid navigation/keydown, rejection visual tidak rollback path, disposal hook, reduced/off tanpa transform, stale fallback tidak berjalan, serta background inert dan filter off pada reduced. Tes primitive native/snapshot rejection, budget/cleanup dan alur assessment tetap lulus.
+
+Belum ada pemeriksaan visual browser, uji screen reader nyata, atau profiling 60 fps/perangkat low-end; tool browser tidak tersedia di sesi ini. Tidak ada screenshot baru yang diklaim sebagai fase 9. Perlu review visual untuk menilai skala rasa gerak, posisi dekorasi dan perilaku View Transitions pada browser nyata.
+
+Berhenti untuk review fase 9. Batch penutup berikutnya mencakup guard hardcoded motion, audit aksesibilitas/performa, degradasi low-end dan konfigurasi tuning global dev-only.
