@@ -26,6 +26,7 @@ const routes = [
   path,
   component,
   meta: {
+    assessmentList: path === "/assessments/:status?",
     student: /^\/(student|instructions|attempt|review|my-results)/.test(path),
     exam: path.startsWith("/attempt"),
   },
@@ -41,5 +42,6 @@ export default createRouter({
     ...routes,
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
-  scrollBehavior: () => ({ top: 0 }),
+  scrollBehavior: (to, from) =>
+    to.meta.assessmentList && from.meta.assessmentList ? false : { top: 0 },
 });

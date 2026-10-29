@@ -35,7 +35,11 @@ watch(
 );
 watch(
   () => route.path,
-  async () => {
+  async (path, previousPath) => {
+    if (
+      route.meta.assessmentList &&
+      router.resolve(previousPath).meta.assessmentList
+    ) return;
     await nextTick();
     document.getElementById("main-content")?.focus({ preventScroll: true });
   },

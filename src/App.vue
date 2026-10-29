@@ -75,7 +75,7 @@ function reload() {
     </div>
   </section>
   <component v-else :is="route.meta.exam ? ExamLayout : AppShell"
-    ><RouterView :key="route.path"
+    ><RouterView :key="route.meta.assessmentList ? 'assessment-list' : route.path"
   /></component>
   <AppToast
     :message="ui.message"

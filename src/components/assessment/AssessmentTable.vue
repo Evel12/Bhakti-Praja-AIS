@@ -6,7 +6,11 @@ import { statusOf } from "../../domain/assessment.js";
 import { date, time } from "../../utils/format.js";
 import StatusBadge from "../ui/StatusBadge.vue";
 import Icon from "../ui/Icon.vue";
-defineProps({ items: Array, compact: Boolean });
+defineProps({
+  items: Array,
+  compact: Boolean,
+  motion: { type: Boolean, default: true },
+});
 const store = useAssessmentStore(),
   router = useRouter();
 function duplicate(a) {
@@ -26,7 +30,7 @@ function duplicate(a) {
           <th>Aksi</th>
         </tr>
       </thead>
-      <MotionList as="tbody" :item-keys="items.map((a) => a.id)">
+      <MotionList as="tbody" :item-keys="items.map((a) => a.id)" :enabled="motion">
         <tr v-for="a in items" :key="a.id" :data-motion-key="a.id">
           <td class="title-cell">
             <div class="title-with-icon">

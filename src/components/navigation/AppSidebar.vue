@@ -12,6 +12,7 @@ import { useUiStore } from "../../stores/uiStore.js";
 import AppBrand from "../brand/AppBrand.vue";
 import SidebarItem from "./SidebarItem.vue";
 import Icon from "../ui/Icon.vue";
+import { assessmentFilters } from "../../utils/assessmentNavigation.js";
 import { createOverlayMotion } from "../../motion/overlays.js";
 import { createNavigationLayout } from "../../motion/navigation.js";
 import { motionEngine } from "../../motion/engine.js";
@@ -176,9 +177,10 @@ onBeforeUnmount(() => {
         popover = false;
       "
     >
-      <Icon :name="ui.collapsed ? 'chevron' : 'back'" /><span v-if="!compact"
-        >Ciutkan navigasi</span
-      ><span v-else class="rail-tooltip">Lebarkan navigasi</span>
+      <Icon :name="ui.collapsed ? 'arrow' : 'back'" />
+      <span class="rail-tooltip" role="tooltip">{{
+        ui.collapsed ? "Lebarkan navigasi" : "Ciutkan navigasi"
+      }}</span>
     </button>
     <nav id="sidebar-navigation" class="nav-list">
       <p v-if="!compact" class="nav-label">Workspace</p>
@@ -217,7 +219,7 @@ onBeforeUnmount(() => {
           >
             <p v-if="compact" class="nav-label">Assessment</p>
             <RouterLink
-              v-for="s in ['all', 'Draft', 'Aktif', 'Terjadwal', 'Ditutup']"
+              v-for="s in assessmentFilters"
               :key="s"
               :to="'/assessments/' + s"
               class="nav-item"

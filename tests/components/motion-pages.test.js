@@ -38,6 +38,7 @@ async function setup(transition = vi.fn(() => new Promise(() => {}))) {
       { path: "/two", component: {} },
       { path: "/attempt/:id", component: {}, meta: { exam: true } },
       { path: "/motion-lab", component: {} },
+      { path: "/assessments/:status?", component: {}, meta: { assessmentList: true } },
     ],
   });
   const api = installPageTransitions(router, {
@@ -49,6 +50,20 @@ async function setup(transition = vi.fn(() => new Promise(() => {}))) {
   return { scene, shell, router, api, transition };
 }
 describe("phase 9 post-confirmation page enhancement", () => {
+  it("keeps assessment filter changes local while retaining page transitions at list boundaries", async () => {
+    const { router, scene, transition } = await setup();
+    await router.push("/one");
+    await router.push("/assessments/all");
+    expect(transition).toHaveBeenCalledTimes(1);
+    const signal = transition.mock.calls[0][1].signal;
+    await router.push("/assessments/Draft");
+    await router.push("/assessments/Aktif");
+    expect(signal.aborted).toBe(true);
+    expect(transition).toHaveBeenCalledTimes(1);
+    expect(scene.hasAttribute("data-liquid-page-motion")).toBe(false);
+    await router.push("/two");
+    expect(transition).toHaveBeenCalledTimes(2);
+  });
   it("never waits for animation to resolve navigation and skips initial/query-only updates", async () => {
     const { router, scene, transition } = await setup();
     await router.push("/one");

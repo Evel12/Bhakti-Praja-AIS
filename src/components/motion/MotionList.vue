@@ -10,6 +10,7 @@ import { createListMotion } from "../../motion/lists.js";
 const props = defineProps({
   as: { type: String, default: "div" },
   itemKeys: { type: Array, required: true },
+  enabled: { type: Boolean, default: true },
 });
 const root = ref();
 let motion,
@@ -20,7 +21,7 @@ const changed = () =>
   props.itemKeys.some((key, i) => key !== rendered[i]);
 onMounted(() => {
   rendered = [...props.itemKeys];
-  motion = createListMotion(root.value);
+  if (props.enabled) motion = createListMotion(root.value);
 });
 onBeforeUpdate(() => {
   if (changed()) snapshot = motion?.capture();

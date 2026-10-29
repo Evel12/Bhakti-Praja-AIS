@@ -28,6 +28,7 @@ export function installPageTransitions(
       failure ||
       !from.matched?.length ||
       to.path === from.path ||
+      (to.meta.assessmentList && from.meta.assessmentList) ||
       to.meta.exam ||
       from.meta.exam ||
       to.path === "/motion-lab" ||

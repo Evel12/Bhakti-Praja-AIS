@@ -66,8 +66,10 @@
 }
 .collapse-control {
   display: flex;
-  gap: 10px;
   align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  width: 44px;
   min-height: 44px;
   background: transparent;
   color: var(--muted);
@@ -157,6 +159,9 @@
 }
 .panel {
   overflow-wrap: anywhere;
+}
+.assessment-results {
+  overflow: clip;
 }
 .recovery {
   max-width: 760px;

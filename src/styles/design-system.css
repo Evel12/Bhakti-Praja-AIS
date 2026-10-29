@@ -674,13 +674,6 @@ td.title-cell {
   border-radius: 6px;
   color: #67715e;
 }
-.badge:before {
-  content: "";
-  width: 4px;
-  height: 4px;
-  background: currentColor;
-  border-radius: 50%;
-}
 .badge.active,
 .badge.released {
   background: #edf5ed;
@@ -701,9 +694,6 @@ td.title-cell {
 .badge.warning {
   background: #fff0e4;
   color: #936336;
-}
-.badge.no-dot:before {
-  display: none;
 }
 .week-strip {
   display: grid;
