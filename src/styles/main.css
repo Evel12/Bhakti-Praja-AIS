@@ -33,7 +33,7 @@
 }
 .shell {
   grid-template-columns: 248px minmax(0, 1fr);
-  transition: grid-template-columns 0.2s ease;
+  transition: none;
 }
 .shell.sidebar-collapsed {
   grid-template-columns: 80px minmax(0, 1fr);
@@ -118,8 +118,7 @@
   z-index: 60;
   pointer-events: none;
 }
-.tip-parent:hover > .rail-tooltip,
-.tip-parent:focus-visible > .rail-tooltip {
+.rail-tooltip[data-liquid-visible] {
   display: block;
 }
 .assessment-nav {
@@ -252,7 +251,7 @@ dialog,
     background: var(--canvas);
     border-radius: 0 24px 24px 0;
     transform: translateX(-100%);
-    transition: transform 0.2s;
+    transition: none;
     z-index: 40;
     padding: 24px 18px;
   }

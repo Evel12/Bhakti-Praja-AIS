@@ -1859,9 +1859,7 @@ dialog::backdrop {
     padding: 27px 20px;
     transform: translateX(-100%);
     visibility: hidden;
-    transition:
-      transform 0.18s,
-      visibility 0.18s;
+    transition: none;
   }
   .sidebar.open {
     transform: translateX(0);

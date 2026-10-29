@@ -1,5 +1,6 @@
 <script setup>
 import Icon from "../ui/Icon.vue";
+import MotionActiveIndicator from "../motion/MotionActiveIndicator.vue";
 defineProps({
   to: String,
   label: String,
@@ -15,7 +16,9 @@ defineProps({
     :class="{ active }"
     :aria-label="label"
     :aria-current="active ? 'page' : undefined"
-    ><Icon :name="icon" /><span v-if="!compact">{{ label }}</span
+    ><MotionActiveIndicator v-if="active" /><Icon :name="icon" /><span
+      v-if="!compact"
+      >{{ label }}</span
     ><span v-else class="rail-tooltip" role="tooltip">{{
       label
     }}</span></RouterLink

@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
   >
     <PageTitle
       title="Liquid Motion Lab"
-      description="Fase 6 · Dialog dan notifikasi memakai motion bersama. Hover tombol tetap diam."
+      description="Fase 7 · Navigasi, sidebar, submenu dan tooltip memakai motion bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
         >Kembali ke dashboard</RouterLink
       ></PageTitle

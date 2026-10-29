@@ -273,3 +273,34 @@ Overlay berhenti bergerak saat pointerdown, keyboard atau fokus berpindah di dal
 76 tes lulus (68 regresi + 8 overlay), build produksi berhasil. Tes mencakup snapshot inert/ID-free dan nilai form, reduced/off, budget/hidden, scroll/policy/reopen/dispose, label unik, native open/close dan fokus, race unmount, live region persisten serta timer notifikasi. Browser memverifikasi Escape, penutupan toast via keyboard, mode reduced pada Motion Lab, form bank soal yang dapat diisi dan dibatalkan tanpa menyimpan, fokus kembali ke Tambah soal dan enam soal tetap tersedia. Pada viewport 390 px dialog berada dalam layar dan tidak ada overflow; console alur uji tanpa error/warning.
 
 Ini bukan pengukuran 60 fps pada perangkat low-end atau uji screen reader nyata. Preferensi reduced diuji melalui token/policy fixture dan mode review, bukan mengubah OS. Audit performa seluruh situs, guard hardcoded transitions dan tuning panel tetap fase berikutnya. Berhenti untuk review fase 6 sebelum navigasi (fase 7).
+
+## Penerapan fase 7 · Navigasi
+
+29 Oktober 2026. Sidebar, submenu/popover, tooltip dan indikator menu aktif kini memakai engine/token bersama. Hover tombol/link tetap diam tanpa magnetic pull. Scope navigasi global juga mencakup kontrol baru di nav/.tabs, dengan press opacity saja sehingga hitbox tidak berubah; link native, Enter dan Space tetap mengikuti browser. Area ujian dan scope lokal Motion Lab dikecualikan.
+
+Transisi CSS grid-template-columns dan drawer linear dihapus. Layout desktop berpindah sekali ke lebar 248/80 px lalu konten melakukan FLIP translate smooth; elemen yang memegang fokus dilewati. Submenu menganimasikan enter/exit melalui controller overlay, sementara link saudara yang bergeser memakai FLIP. Drawer mobile masuk dengan spring smooth dari sisi kiri memakai transform dan opacity. Penutupan melepas modal/inert/body lock langsung; exit hanya salinan visual inert. Keyboard/pointer, resize, policy dan unmount membatalkan pekerjaan terkait. Reduced motion memakai fade saja; off melewati animasi.
+
+Tooltip rail memakai enter opacity gentle dari token. Fokus keyboard dan pointer dapat menampilkannya, Escape menutupnya sampai entry berikutnya; transform link tidak berubah. Indikator aktif adalah span dekoratif aria-hidden dengan gentle opacity/scale token. aria-current dan label link tetap pada kontrol asli. Semua listener dan pekerjaan engine dibersihkan saat scope/komponen dibongkar. Tidak ada dependency baru, tween ukuran/grid, loop idle, atau will-change permanen.
+
+### File fase 7
+
+| File | Perubahan |
+| --- | --- |
+| src/motion/navigation.js | Scope press/tooltip dan controller FLIP navigasi reusable. |
+| src/components/motion/MotionActiveIndicator.vue | Indikator aktif dekoratif dengan policy/cleanup. |
+| src/components/navigation/SidebarItem.vue | Indikator untuk link aktif. |
+| src/components/navigation/AppSidebar.vue | Spring drawer, submenu/popover, FLIP, fokus dan race guard. |
+| src/layouts/AppShell.vue | FLIP konten saat collapse desktop. |
+| src/App.vue | Mount/dispose scope navigasi global. |
+| src/styles/main.css | Hapus tween grid/drawer; visibilitas tooltip terkendali. |
+| src/styles/design-system.css | Hapus transisi drawer lama. |
+| src/motion/primitives.css | Layer indikator aktif. |
+| src/views/MotionLabView.vue | Label review fase 7. |
+| tests/components/motion-navigation.test.js | Tes tooltip, native link, reduced/off, FLIP, compact dan mobile drawer. |
+| MOTION.md | API/perilaku, daftar file dan batas verifikasi. |
+
+### Verifikasi dan batas fase 7
+
+Tes regresi, tes navigasi dan build produksi dijalankan. Cakupan meliputi Escape tooltip, hover link statis, perilaku keyboard native, reduced/off, FLIP hanya pada surface tanpa fokus, pembatalan saat keyboard, compact popover/aria-current/fokus, mobile Escape/inert/body lock serta buka-tutup cepat. Pemeriksaan visual browser belum dilakukan: tool browser sesi sebelumnya tidak tersedia; percobaan membaca UI aplikasi ChatGPT ditolak automatic approval review karena dapat membuka percakapan lain. Tidak dilakukan pembacaan alternatif untuk melewati penolakan tersebut. Tidak ada klaim pengukuran 60 fps atau uji screen reader nyata.
+
+Fase 7 berhenti untuk review. Media/loaders, transisi halaman/background global dan audit performa/tuning akhir tetap batch berikutnya.

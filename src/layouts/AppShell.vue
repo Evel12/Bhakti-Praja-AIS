@@ -1,6 +1,7 @@
 <script setup>
 import MotionField from "../components/motion/MotionField.vue";
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
+import { createNavigationLayout } from "../motion/navigation.js";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "../stores/uiStore.js";
 import AppSidebar from "../components/navigation/AppSidebar.vue";
@@ -10,6 +11,27 @@ const route = useRoute(),
   router = useRouter(),
   ui = useUiStore(),
   help = ref(false);
+const shell = ref();
+let layout,
+  revision = 0;
+onMounted(() => {
+  layout = createNavigationLayout(shell.value);
+});
+onBeforeUnmount(() => {
+  revision++;
+  layout?.dispose();
+});
+watch(
+  () => ui.collapsed,
+  async () => {
+    const ticket = ++revision;
+    const content = document.getElementById("main-content");
+    if (!content || matchMedia("(max-width: 1023px)").matches) return;
+    layout?.capture([content]);
+    await nextTick();
+    if (ticket === revision) layout?.play([content]);
+  },
+);
 watch(
   () => route.path,
   async () => {
@@ -29,7 +51,7 @@ watch(
     "
     >Lewati ke konten</a
   >
-  <div class="shell" :class="{ 'sidebar-collapsed': ui.collapsed }">
+  <div ref="shell" class="shell" :class="{ 'sidebar-collapsed': ui.collapsed }">
     <AppSidebar />
     <main
       id="main-content"

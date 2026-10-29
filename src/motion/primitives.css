@@ -283,3 +283,20 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
 .toast .toast-dismiss:focus-visible {
   outline-color: currentColor;
 }
+.nav-item {
+  position: relative;
+  isolation: isolate;
+}
+.liquid-nav-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: white;
+  box-shadow: 0 2px 2px #242a1510;
+  pointer-events: none;
+  z-index: -1;
+}
+.nav-item.active {
+  background: transparent;
+  box-shadow: none;
+}
