@@ -1,10 +1,10 @@
 <script setup>
-import MotionField from "../components/motion/MotionField.vue";
 import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { createNavigationLayout } from "../motion/navigation.js";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "../stores/uiStore.js";
 import AppSidebar from "../components/navigation/AppSidebar.vue";
+import RoleSwitcher from "../components/navigation/RoleSwitcher.vue";
 import Icon from "../components/ui/Icon.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
 import PageAtmosphere from "../components/motion/PageAtmosphere.vue";
@@ -82,24 +82,8 @@ watch(
           }}</span>
         </div>
         <div class="topbar-actions">
-          <label class="role-switch"
-            ><Icon name="user" /><MotionField
-              ><select
-                aria-label="Tampilan peran"
-                :value="route.meta.student ? 'student' : 'teacher'"
-                @change="
-                  router.push(
-                    $event.target.value === 'student'
-                      ? '/student'
-                      : '/dashboard',
-                  )
-                "
-              >
-                <option value="teacher">Pengajar</option>
-                <option value="student">Peserta</option>
-              </select></MotionField
-            ></label
-          ><button
+          <RoleSwitcher />
+          <button
             class="icon-btn"
             aria-label="Panduan penggunaan"
             @click="help = true"

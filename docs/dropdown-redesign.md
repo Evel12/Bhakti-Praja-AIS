@@ -1,7 +1,7 @@
-# Proposal dropdown peran
+# Redesign dropdown peran
 
-Usulan: gunakan custom dropdown dengan gaya yang mengikuti panel EXAMNIA.
-Proposal ini belum mengganti dropdown peran pada aplikasi.
+Diimplementasikan melalui komponen `RoleSwitcher.vue` pada topbar EXAMNIA.
+Custom dropdown mengikuti gaya panel aplikasi dan menggantikan select HTML bawaan.
 
 ## Tampilan
 
