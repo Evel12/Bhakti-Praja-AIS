@@ -1,0 +1,40 @@
+# Local tools, recovery copies, and private source-document extracts
+/.tools/
+/.recovery/
+/pdf-requirements.txt
+/.runtime/
+/.venv/
+
+# Credentials and local environments
+.env
+.env.*
+!.env.example
+auth.json
+*.key
+*.pem
+
+# Databases, exports, and backups
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sql
+*.dump
+*.bak
+
+# Dependencies and generated output
+node_modules/
+vendor/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.log
+.phpunit.result.cache
+.phpunit.cache/
+/backend/bootstrap/cache/*.php
+
+# Local editor and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
