@@ -1,43 +1,36 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { statusOf } from "../../domain/assessment.js";
-import { date, time } from "../../utils/format.js";
+import { dashboardWork, gradingQueue } from "../../domain/teacherWork.js";
+import { assessmentResultRows, classGradeRows } from "../../domain/resultSummary.js";
+import { date, time, deadlineDay } from "../../utils/format.js";
+import { useAssessmentClock } from "../../composables/useAssessmentClock.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import Icon from "../../components/ui/Icon.vue";
-import AssessmentTable from "../../components/assessment/AssessmentTable.vue";
+import SoftSelect from "../../components/ui/SoftSelect.vue";
 const store = useAssessmentStore(),
   router = useRouter();
+const now = useAssessmentClock(() => store.db.assessments);
+const selectedCourse = ref("");
+const resultRows = computed(() => assessmentResultRows(store.db));
+const courses = computed(() => [...new Set(resultRows.value.map((row) => row.assessment.course))].sort((a, b) => a.localeCompare(b, "id")));
+const courseOptions = computed(() => courses.value.map(name => ({ value: name, label: name })));
+const course = computed(() => courses.value.includes(selectedCourse.value) ? selectedCourse.value : courses.value[0] ?? "");
+const classGrades = computed(() => classGradeRows(resultRows.value, course.value));
 const active = computed(
-    () => store.db.assessments.filter((a) => statusOf(a) === "Aktif").length,
+    () => store.db.assessments.filter((a) => statusOf(a, now.value) === "Aktif").length,
   ),
-  pending = computed(
-    () =>
-      store.db.attempts.filter((a) => a.status === "submitted" && !a.graded)
-        .length,
-  ),
-  graded = computed(() => store.db.attempts.filter((a) => a.graded)),
-  avg = computed(() =>
-    graded.value.length
-      ? Math.round(
-          graded.value.reduce((s, a) => s + a.score, 0) / graded.value.length,
-        )
-      : 0,
-  ),
+  grading = computed(() => gradingQueue(store.db)),
+  pending = computed(() => grading.value.reduce((sum, entry) => sum + entry.attempts.length, 0)),
+  work = computed(() => dashboardWork(store.db, now.value).slice(0, 4)),
   upcoming = computed(() =>
     store.db.assessments
-      .filter((a) => ["Aktif", "Terjadwal"].includes(statusOf(a)))
+      .filter((a) => ["Aktif", "Terjadwal"].includes(statusOf(a, now.value)))
       .sort((a, b) => Date.parse(a.closeAt) - Date.parse(b.closeAt))
       .slice(0, 3),
   );
-const now = new Date(),
-  weekday = (now.getDay() + 6) % 7,
-  week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(now);
-    d.setDate(d.getDate() + i - weekday);
-    return d.getDate();
-  });
 function create() {
   const id = store.run(() => store.create());
   if (id) router.push("/builder/" + id);
@@ -54,9 +47,9 @@ function create() {
   <section class="panel overview-panel">
     <div class="panel-header">
       <h2>Overview</h2>
-      <span class="section-caption">{{ date(now.toISOString()) }}</span>
+      <span class="section-caption">{{ date(new Date(now).toISOString()) }}</span>
     </div>
-    <div class="overview-grid">
+    <div class="overview-grid lecturer-overview">
       <div class="metric">
         <span class="metric-icon"><Icon name="briefcase" /></span
         ><span class="metric-top">Assessment aktif</span>
@@ -66,8 +59,7 @@ function create() {
           }}</span>
         </div>
         <div class="metric-foot">
-          <span class="soft-tag">Siap dikerjakan</span
-          ><RouterLink to="/assessments/Aktif">Lihat assessment →</RouterLink>
+          <RouterLink to="/assessments/Aktif">Lihat assessment →</RouterLink>
         </div>
       </div>
       <div class="metric">
@@ -80,97 +72,84 @@ function create() {
         </div>
         <div class="metric-foot">
           Pengumpulan tugas ·
-          <RouterLink to="/results">Tinjau sekarang</RouterLink>
+          <RouterLink to="/results?filter=pending">Tinjau sekarang</RouterLink>
         </div>
       </div>
-      <div class="metric">
-        <span class="metric-icon"><Icon name="chart" /></span
-        ><span class="metric-top">Rata-rata nilai</span>
-        <div class="metric-value-row">
-          <span class="metric-value">{{ avg }}<em>/100</em></span
-          ><svg
-            v-if="graded.length > 1"
-            class="sparkline"
-            :data-media-key="graded.map((a) => a.id + ':' + a.score).join('|')"
-            viewBox="0 0 96 56"
-            role="img"
-            aria-label="Tren nilai peserta terakhir"
-          >
-            <polyline
-              :points="
-                graded
-                  .slice(-6)
-                  .map(
-                    (a, i, arr) =>
-                      `${4 + (i * 88) / (arr.length - 1)},${48 - a.score * 0.39}`,
-                  )
-                  .join(' ')
-              "
-              fill="none"
-              stroke="#83b69a"
-              stroke-width="2.4"
-            />
-          </svg>
-        </div>
-        <div class="metric-foot">
-          Dari {{ graded.length }} hasil yang sudah dinilai
-        </div>
+    </div>
+  </section>
+  <section class="panel class-comparison" aria-labelledby="class-grades-title">
+    <div class="panel-header class-grades-header">
+      <div>
+        <h2 id="class-grades-title">Nilai per kelas</h2>
+        <p>Rata-rata pengumpulan yang sudah dinilai · skala 0–100.</p>
       </div>
+      <SoftSelect v-if="courses.length" label="Mata kuliah" class="class-course-picker" :model-value="course" :options="courseOptions" @update:model-value="selectedCourse = $event" />
+    </div>
+    <table v-if="classGrades.length" class="lecturer-table class-grades-table">
+      <caption class="sr-only">Perbandingan nilai kelas untuk {{ course }}</caption>
+      <thead><tr><th scope="col">Kelas</th><th scope="col">Rata-rata</th><th scope="col">Dinilai</th><th scope="col">Perlu dinilai</th><th scope="col"><span class="sr-only">Rincian kelas</span></th></tr></thead>
+      <tbody>
+        <tr v-for="row in classGrades" :key="row.className">
+          <th scope="row">{{ row.className }}</th>
+          <td data-label="Rata-rata" class="class-grade-average">{{ row.average === null ? '—' : row.average + '/100' }}</td>
+          <td data-label="Dinilai">{{ row.graded }}</td>
+          <td data-label="Perlu dinilai"><span :class="{ 'pending-count': row.pending }">{{ row.pending }}</span></td>
+          <td><RouterLink class="register-link" :to="{ path: '/results', query: { class: row.className, course } }" :aria-label="'Rincian ' + course + ' · ' + row.className">Rincian <Icon name="arrow" /></RouterLink></td>
+        </tr>
+      </tbody>
+    </table>
+    <p v-if="classGrades.length && classGrades.every((row) => row.average === null)" class="section-caption class-grade-note">Belum ada hasil dinilai untuk mata kuliah ini.</p>
+    <div v-if="!courses.length" class="empty">
+      <h3>Belum ada assessment terbit</h3>
+      <p>Perbandingan kelas muncul setelah assessment diterbitkan. Nilai ditampilkan setelah pengumpulan dinilai.</p>
+      <RouterLink to="/assessments/Draft" class="btn mt">Lanjutkan draft</RouterLink>
     </div>
   </section>
   <div class="dashboard-grid">
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2>Aktivitas assessment</h2>
-          <p>Semua yang sedang Anda siapkan.</p>
+          <h2>Prioritas Anda</h2>
+          <p>Penilaian tertunda, tenggat terdekat, lalu draft yang bisa dilanjutkan.</p>
         </div>
-        <RouterLink to="/assessments/all" class="btn ghost small"
-          >Lihat semua →</RouterLink
+        <RouterLink :to="pending ? '/results?filter=pending' : '/assessments/all'" class="btn ghost small"
+          >{{ pending ? 'Semua penilaian tertunda' : 'Semua assessment' }} →</RouterLink
         >
       </div>
-      <AssessmentTable
-        :items="
-          store.db.assessments.filter((a) => a.state !== 'archived').slice(0, 4)
-        "
-        compact
-      />
+      <ul v-if="work.length" class="teacher-work-list">
+        <li v-for="task in work" :key="task.assessment.id" class="teacher-work-item" :data-task-kind="task.kind">
+          <div class="teacher-work-copy">
+            <RouterLink :to="task.to" class="assessment-title">{{ task.assessment.title || 'Draft tanpa judul' }}</RouterLink>
+            <p class="table-secondary">{{ task.assessment.course }} · {{ task.assessment.className }}</p>
+            <p class="task-reason">{{ task.reason }}<template v-if="task.kind === 'deadline'"> · {{ date(task.assessment.closeAt) }} · {{ time(task.assessment.closeAt) }} WIB</template></p>
+          </div>
+          <RouterLink :to="task.to" class="btn small">{{ task.action }} →<span class="sr-only"> {{ task.assessment.title || 'Draft tanpa judul' }}</span></RouterLink>
+        </li>
+      </ul>
+      <div v-else class="empty">
+        <h3>Belum ada pekerjaan yang perlu ditindaklanjuti</h3>
+        <p>Buat assessment baru untuk menyiapkan pembelajaran berikutnya.</p>
+        <button class="btn mt" @click="create">Buat assessment</button>
+      </div>
     </section>
     <aside class="dashboard-aside">
       <section class="panel">
         <div class="panel-header">
-          <h2>Agenda terdekat</h2>
+          <div><h2>Tenggat terdekat</h2><p>Waktu tutup assessment · WIB</p></div>
           <Icon name="calendar" />
         </div>
-        <div class="week-strip">
-          <div
-            v-for="(d, i) in week"
-            :key="i"
-            class="week-day"
-            :class="{ selected: i === weekday }"
-            :aria-current="i === weekday ? 'date' : undefined"
-          >
-            <span>{{
-              ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"][i]
-            }}</span
-            ><strong>{{ d }}</strong>
-          </div>
-        </div>
-        <RouterLink
-          v-for="a in upcoming"
-          :key="a.id"
-          :to="'/results/' + a.id"
-          class="agenda-entry"
-          ><span class="agenda-line"></span>
-          <div>
-            <div class="agenda-date">
-              {{ date(a.closeAt) }} · {{ time(a.closeAt) }} WIB
-            </div>
-            <h3>{{ a.title }}</h3>
-            <p>{{ a.type }} · {{ a.className }}</p>
-          </div></RouterLink
-        >
-        <p v-if="!upcoming.length" class="muted">Belum ada agenda mendatang.</p>
+        <ul v-if="upcoming.length" class="deadline-list">
+          <li v-for="a in upcoming" :key="a.id">
+            <RouterLink :to="'/results/' + a.id" class="deadline-entry">
+              <p class="deadline-relative">{{ deadlineDay(a.closeAt, now) }}</p>
+              <time :datetime="a.closeAt" class="deadline-date">{{ date(a.closeAt) }} · {{ time(a.closeAt) }} WIB</time>
+              <h3>{{ a.title }}</h3>
+              <p class="deadline-meta">{{ a.type }} · {{ a.className }}</p>
+              <span class="deadline-action">Pantau pengumpulan →</span>
+            </RouterLink>
+          </li>
+        </ul>
+        <p v-else class="muted">Belum ada tenggat mendatang.</p>
       </section>
       <section class="help-card">
         <h3>Soal yang baik dimulai dari ide sederhana.</h3>

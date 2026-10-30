@@ -45,6 +45,16 @@ function image(root, { src = "/example.png", loaded = true } = {}) {
   return img;
 }
 describe("phase 8 finite media feedback", () => {
+  it.each(['id="route-scene"', 'class="panel"', 'data-liquid-list', 'data-liquid-scope="local"'])(
+    "does not layer icon/media feedback inside an existing owner (%s)", async (owner) => {
+      const { root, engine } = setup('full', `<div ${owner}><svg data-liquid-icon="file"></svg><span data-liquid-loader><span data-liquid-dot></span></span></div>`);
+      const animate = vi.spyOn(engine, 'animate');
+      root.querySelector('svg').dataset.liquidIcon = 'check';
+      image(root.firstChild);
+      await flushPromises();
+      expect(animate).not.toHaveBeenCalled();
+    },
+  );
   it("introduces a cached image once without waiting for decode, changing size or hiding alt text", async () => {
     const { root, c, engine } = setup();
     const img = image(root);

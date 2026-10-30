@@ -36,6 +36,9 @@ it("preserves the assessment page, search and focus while fading only results on
     global: { plugins: [createPinia(), router], stubs: { AppDialog: true } },
   });
   await flushPromises();
+  expect(wrapper.findAll('#sidebar [aria-label="Assessment"]')).toHaveLength(1);
+  expect(wrapper.find("#assessment-submenu").exists()).toBe(false);
+  expect(wrapper.findAll(".tab")).toHaveLength(5);
   const panel = wrapper.get(".panel").element;
   const title = wrapper.get(".page-title").element;
   const results = wrapper.get(".assessment-results").element;

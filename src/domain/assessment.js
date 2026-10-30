@@ -1,3 +1,5 @@
+import { assessmentIssues } from "./assessmentValidation.js";
+
 export const STORAGE_KEY = "kulon-assessment-v1";
 export const STUDENT_ID = "student-demo";
 export const COURSES = [
@@ -61,43 +63,7 @@ export function newAssessment(now = Date.now()) {
   };
 }
 export function validateAssessment(a) {
-  const errors = [];
-  if (!a.title.trim()) errors.push("Judul assessment wajib diisi.");
-  if (!a.course || !a.className) errors.push("Pilih mata kuliah dan kelas.");
-  const start = Date.parse(a.openAt),
-    end = Date.parse(a.closeAt);
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start)
-    errors.push("Waktu tutup harus setelah waktu buka.");
-  if (a.type === "Tugas") {
-    if (!a.instructions.trim()) errors.push("Tuliskan instruksi tugas.");
-  } else {
-    if (
-      !Number.isFinite(Number(a.duration)) ||
-      a.duration < 1 ||
-      a.duration > 240
-    )
-      errors.push("Durasi harus 1–240 menit.");
-    if (!a.questions.length) errors.push("Tambahkan setidaknya satu soal.");
-    a.questions.forEach((q, i) => {
-      if (
-        !q.text.trim() ||
-        q.options.length < 2 ||
-        q.options.some((o) => !o.trim())
-      )
-        errors.push(`Lengkapi pertanyaan dan pilihan pada soal ${i + 1}.`);
-      if (
-        !Number.isInteger(q.correct) ||
-        q.correct < 0 ||
-        q.correct >= q.options.length
-      )
-        errors.push(`Pilih kunci jawaban soal ${i + 1}.`);
-      if (!Number.isFinite(Number(q.points)) || Number(q.points) <= 0)
-        errors.push(`Poin soal ${i + 1} harus lebih dari 0.`);
-      if (q.source === "ai" && !q.reviewed)
-        errors.push(`Tinjau soal AI nomor ${i + 1} terlebih dahulu.`);
-    });
-  }
-  return errors;
+  return assessmentIssues(a).map((issue) => issue.message);
 }
 export function saveAssessment(db, a) {
   const next = clone(a);

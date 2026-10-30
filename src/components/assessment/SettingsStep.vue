@@ -1,7 +1,10 @@
 <script setup>
 import MotionField from "../../components/motion/MotionField.vue";
 import { localInput, fromInput } from "../../utils/format.js";
-defineProps({ draft: Object });
+import FieldError from "../ui/FieldError.vue";
+import { useAssessmentFields } from "../../composables/useAssessmentFields.js";
+const props = defineProps({ draft: Object, issues: { type: Array, default: () => [] } });
+const { field, issue } = useAssessmentFields(() => props.issues);
 </script>
 <template>
   <h2>Jadwal & pengaturan</h2>
@@ -14,9 +17,10 @@ defineProps({ draft: Object });
           class="input date-field"
           type="datetime-local"
           :value="localInput(draft.openAt)"
+          v-bind="field('openAt')"
           @input="
             draft.openAt = fromInput($event.target.value)
-          " /></MotionField></label
+          " /></MotionField><FieldError :issue="issue('openAt')" /></label
     ><label class="field"
       ><span class="field-label">Waktu tutup (WIB)</span
       ><MotionField
@@ -24,19 +28,21 @@ defineProps({ draft: Object });
           class="input date-field"
           type="datetime-local"
           :value="localInput(draft.closeAt)"
+          v-bind="field('closeAt')"
           @input="
             draft.closeAt = fromInput($event.target.value)
-          " /></MotionField></label
+          " /></MotionField><FieldError :issue="issue('closeAt')" /></label
     ><label v-if="draft.type !== 'Tugas'" class="field"
       ><span class="field-label">Durasi (menit)</span
       ><MotionField
         ><input
           v-model.number="draft.duration"
+            v-bind="field('duration')"
           type="number"
           min="1"
           max="240"
           class="input" /></MotionField
-      ><small class="field-hint"
+      ><FieldError :issue="issue('duration')" /><small class="field-hint"
         >1–240 menit. Pengerjaan berhenti saat waktu tutup.</small
       ></label
     ><label class="field"

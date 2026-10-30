@@ -1,7 +1,10 @@
 <script setup>
 import MotionField from "../../components/motion/MotionField.vue";
 import { COURSES, CLASSES } from "../../domain/assessment.js";
-defineProps({ draft: Object });
+import FieldError from "../ui/FieldError.vue";
+import { useAssessmentFields } from "../../composables/useAssessmentFields.js";
+const props = defineProps({ draft: Object, issues: { type: Array, default: () => [] } });
+const { field, issue } = useAssessmentFields(() => props.issues);
 </script>
 <template>
   <h2>Identitas assessment</h2>
@@ -12,10 +15,11 @@ defineProps({ draft: Object });
       ><MotionField
         ><input
           v-model="draft.title"
+          v-bind="field('title')"
           class="input"
           maxlength="150"
           placeholder="Contoh: Kuis Arsitektur Jaringan"
-          required /></MotionField></label
+          required /></MotionField><FieldError :issue="issue('title')" /></label
     ><label class="field"
       ><span class="field-label">Jenis assessment</span
       ><MotionField
@@ -28,17 +32,15 @@ defineProps({ draft: Object });
     ><label class="field"
       ><span class="field-label">Mata kuliah</span
       ><MotionField
-        ><select v-model="draft.course" class="input">
+        ><select v-model="draft.course" v-bind="field('course')" class="input">
           <option v-for="v in COURSES" :key="v">{{ v }}</option>
-        </select></MotionField
-      ></label
+        </select></MotionField><FieldError :issue="issue('course')" /></label
     ><label class="field"
       ><span class="field-label">Kelas</span
       ><MotionField
-        ><select v-model="draft.className" class="input">
+        ><select v-model="draft.className" v-bind="field('className')" class="input">
           <option v-for="v in CLASSES" :key="v">{{ v }}</option>
-        </select></MotionField
-      ></label
+        </select></MotionField><FieldError :issue="issue('className')" /></label
     ><label class="field full"
       ><span class="field-label">Deskripsi</span
       ><MotionField>

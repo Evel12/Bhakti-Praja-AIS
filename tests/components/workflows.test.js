@@ -35,7 +35,7 @@ describe("navigation and reactive workflow safeguards", () => {
     setActivePinia(createPinia());
     expect(useAssessmentStore().db).toEqual(before);
   });
-  it("collapses the sidebar, exposes accessible submenu and restores preference", async () => {
+  it("collapses the sidebar, keeps Assessment a direct labeled destination and restores preference", async () => {
     const pinia = createPinia();
     setActivePinia(pinia);
     const router = createRouter({
@@ -55,9 +55,10 @@ describe("navigation and reactive workflow safeguards", () => {
         .attributes("aria-expanded"),
     ).toBe("false");
     await wrapper.get('[aria-label="Assessment"]').trigger("click");
-    expect(wrapper.get(".nav-popover").text()).toContain("Terjadwal");
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
     await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/assessments/all");
+    expect(wrapper.get('[aria-label="Assessment"]').attributes("href")).toBe("/assessments/all");
+    expect(wrapper.find("#assessment-submenu").exists()).toBe(false);
     expect(wrapper.find(".nav-popover").exists()).toBe(false);
     wrapper.unmount();
     setActivePinia(createPinia());

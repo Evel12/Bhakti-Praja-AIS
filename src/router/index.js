@@ -43,5 +43,7 @@ export default createRouter({
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
   scrollBehavior: (to, from) =>
-    to.meta.assessmentList && from.meta.assessmentList ? false : { top: 0 },
+    (to.meta.assessmentList && from.meta.assessmentList)
+      || (to.path === from.path && to.path.startsWith('/results'))
+      ? false : { top: 0 },
 });

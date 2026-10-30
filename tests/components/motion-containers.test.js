@@ -88,6 +88,42 @@ function cardList(mode) {
   };
 }
 describe("phase 5 containers and structural lists", () => {
+  it("never queues automatic entrances for routed panels, including later replacements", async () => {
+    const { root, engine } = setup('<div id="route-scene"><section class="panel"><select><option>A</option></select></section><section class="panel">Other box</section></div>');
+    const animate = vi.spyOn(engine, "animate");
+    disposables.push(createContainerMotionScope(root, { engine }));
+    expect(observers[0].nodes.size).toBe(0);
+    root.querySelector('.panel').innerHTML = '<p>Changed class data</p>';
+    root.firstChild.insertAdjacentHTML('beforeend', '<section class="panel">New box</section>');
+    await flushPromises();
+    observers[0].fire([...root.querySelectorAll('.panel')]);
+    expect(animate).not.toHaveBeenCalled();
+  });
+  it("rechecks ownership when a delayed observer fires during page motion", () => {
+    const { root, engine } = setup('<section class="panel">Panel</section>');
+    const animate = vi.spyOn(engine, 'animate');
+    disposables.push(createContainerMotionScope(root, { engine }));
+    const panel = root.firstChild;
+    root.setAttribute('data-liquid-page-motion', '');
+    observers[0].fire([panel]);
+    expect(animate).not.toHaveBeenCalled();
+    root.removeAttribute('data-liquid-page-motion');
+    observers[0].fire([panel]);
+    expect(animate).not.toHaveBeenCalled();
+  });
+  it("does not layer list entrances or layout animations under a page transition", () => {
+    const { root, engine, list, shift } = cardList();
+    const animate = vi.spyOn(engine, 'animate');
+    const before = list.capture();
+    root.setAttribute('data-liquid-page-motion', '');
+    root.firstChild.remove();
+    shift();
+    list.update(before);
+    observers[0].fire([...root.children]);
+    expect(animate).not.toHaveBeenCalled();
+    expect(document.querySelector('.liquid-exit-ghost')).toBeNull();
+    expect(list.capture().size).toBe(0);
+  });
   it("keeps per-item reduced motion for both retained cards and exit snapshots", async () => {
     const { root, c, list, shift } = cardList();
     root.children[0].dataset.motion = "reduced";

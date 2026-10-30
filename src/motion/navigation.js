@@ -94,6 +94,7 @@ export function createNavigationLayout(root, { engine = motionEngine } = {}) {
   return {
     capture(elements) {
       stop();
+      if (root.querySelector('[data-liquid-page-motion]')) return;
       const tokens = safeTokens(root);
       if (!root.ownerDocument.hidden && tokens?.mode !== "off") {
         elements.forEach((el) => engine.reset(el));
@@ -103,7 +104,7 @@ export function createNavigationLayout(root, { engine = motionEngine } = {}) {
     play(elements) {
       const snapshot = before;
       before = new Map();
-      if (root.ownerDocument.hidden) return;
+      if (root.ownerDocument.hidden || root.querySelector('[data-liquid-page-motion]')) return;
       handles = animateLayout(
         snapshot,
         elements.filter((el) => !el.contains(root.ownerDocument.activeElement)),

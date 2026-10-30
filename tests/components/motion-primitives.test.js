@@ -264,6 +264,18 @@ describe("motion primitives and lifecycle", () => {
         expect(keyframes.frames.every((f) => !("transform" in f))).toBe(true);
     }
   });
+  it("uses a bounded gentle lift for normal routes and opacity alone for reduced motion", () => {
+    const full = routeKeyframes(tokens(), "gentle-lift");
+    expect(full.duration).toBe(200);
+    expect(full.exitDuration).toBe(130);
+    expect(full.frames).toEqual([
+      { opacity: 0, transform: "translateY(6px)" },
+      { opacity: 1, transform: "translateY(0px)" },
+    ]);
+    const reduced = routeKeyframes(tokens("reduced"), "gentle-lift");
+    expect(reduced.duration).toBe(120);
+    expect(reduced.frames).toEqual([{ opacity: 0 }, { opacity: 1 }]);
+  });
   it("never calls a route update twice when native snapshots reject", async () => {
     const target = element(),
       update = vi.fn();
@@ -318,11 +330,26 @@ describe("motion primitives and lifecycle", () => {
       await expect(
         transitionRoute(update, {
           target,
+          preset: "gentle-lift",
           engine: { reserve: vi.fn(() => release) },
         }),
       ).resolves.toEqual({ mode: "native" });
       expect(update).toHaveBeenCalledTimes(1);
       expect(animate).toHaveBeenCalledTimes(2);
+      expect(animate.mock.calls[0][1]).toMatchObject({
+        duration: 130,
+        fill: "both",
+        pseudoElement: "::view-transition-old(liquid-scene)",
+      });
+      expect(animate.mock.calls[1][0]).toEqual([
+        { opacity: 0, transform: "translateY(6px)" },
+        { opacity: 1, transform: "translateY(0px)" },
+      ]);
+      expect(animate.mock.calls[1][1]).toMatchObject({
+        duration: 200,
+        fill: "both",
+        pseudoElement: "::view-transition-new(liquid-scene)",
+      });
       expect(release).toHaveBeenCalledTimes(1);
       expect(root.hasAttribute("data-liquid-route")).toBe(false);
       expect(target.style.viewTransitionName).toBe("existing-name");

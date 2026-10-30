@@ -50,13 +50,38 @@ function scope(mode = "full") {
   };
 }
 describe("phase 7 navigation", () => {
-  it("releases the mobile drawer immediately on Escape and prevents stale open focus", async () => {
+  it("does not move the shell content while a page transition owns it", () => {
+    const root = element(), c = clock();
+    root.innerHTML = '<main><div data-liquid-page-motion></div></main>';
+    const content = root.firstChild;
+    let left = 0;
+    content.getBoundingClientRect = () => ({ left, top: 0, width: 300, height: 200 });
+    const engine = createMotionEngine({ ...c, getTokens: () => tokens() });
+    const animate = vi.spyOn(engine, 'animate');
+    const layout = createNavigationLayout(root, { engine });
+    cleanup.push(() => layout.dispose());
+    layout.capture([content]);
+    left = 100;
+    layout.play([content]);
+    expect(animate).not.toHaveBeenCalled();
+    root.querySelector('[data-liquid-page-motion]').removeAttribute('data-liquid-page-motion');
+    layout.capture([content]);
+    left = 200;
+    content.firstChild.setAttribute('data-liquid-page-motion', '');
+    layout.play([content]);
+    expect(animate).not.toHaveBeenCalled();
+  });
+  it("releases the mobile drawer on Escape and direct navigation without stale open focus", async () => {
     const pinia = createPinia();
     setActivePinia(pinia);
     const ui = useUiStore();
     const router = createRouter({
       history: createMemoryHistory(),
-      routes: [{ path: "/dashboard", component: { template: "<div/>" } }],
+      routes: [
+        { path: "/dashboard", component: { template: "<div/>" } },
+        { path: "/assessments/:status", component: { template: "<div/>" } },
+        { path: "/:pathMatch(.*)*", component: { template: "<div/>" } },
+      ],
     });
     await router.push("/dashboard");
     const opener = element("button");
@@ -88,6 +113,13 @@ describe("phase 7 navigation", () => {
     await flushPromises();
     expect(ui.mobileOpen).toBe(false);
     expect(document.activeElement).toBe(opener);
+    ui.mobileOpen = true;
+    await flushPromises();
+    await w.get('[aria-label="Assessment"]').trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/assessments/all");
+    expect(ui.mobileOpen).toBe(false);
+    expect(w.get("aside").attributes("inert")).toBeDefined();
   });
   it("reveals tooltip without moving the link, and Escape dismisses until a new entry", () => {
     const { link, tip, c } = scope();
@@ -157,7 +189,7 @@ describe("phase 7 navigation", () => {
     expect(c.pending()).toBe(0);
     expect(content.style.transform).toBe("");
   });
-  it("opens compact submenu, exposes current page, restores trigger on Escape and disposes races", async () => {
+  it("keeps the compact Assessment destination current across filters and navigates directly", async () => {
     const pinia = createPinia();
     setActivePinia(pinia);
     const ui = useUiStore();
@@ -175,15 +207,14 @@ describe("phase 7 navigation", () => {
     });
     cleanup.push(() => w.unmount());
     await flushPromises();
+    const link = w.get('[aria-label="Assessment"]');
+    expect(link.attributes("aria-current")).toBe("page");
+    expect(link.attributes("aria-expanded")).toBeUndefined();
+    expect(link.get('[role="tooltip"]').text()).toBe("Assessment");
     await w.get('[aria-label="Assessment"]').trigger("click");
     await flushPromises();
-    expect(w.get('.nav-popover [aria-current="page"]').text()).toBe("Draft");
-    w.get(".nav-popover a").element.focus();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    await flushPromises();
+    expect(router.currentRoute.value.path).toBe("/assessments/all");
     expect(w.find(".nav-popover").exists()).toBe(false);
-    expect(document.activeElement).toBe(
-      w.get('[aria-label="Assessment"]').element,
-    );
+    expect(w.get('[aria-label="Assessment"]').attributes("aria-current")).toBe("page");
   });
 });

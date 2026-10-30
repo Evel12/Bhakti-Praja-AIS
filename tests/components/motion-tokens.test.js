@@ -143,7 +143,7 @@ describe("shared motion foundation", () => {
     expect(getStaggerDelay(100, tokens)).toBe(tokens.stagger.cap);
     expect(() => getStaggerDelay(-1, tokens)).toThrow(MotionTokenError);
     expect(() => resolveMotionProfile("invented", tokens)).toThrow(
-      /Unknown spring/,
+      /Unknown motion preset/,
     );
     expect(resolveMotionProfile("snappy", tokens)).toMatchObject({
       kind: "spring",

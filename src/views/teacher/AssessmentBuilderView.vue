@@ -3,7 +3,7 @@ import IdentityStep from "../../components/assessment/IdentityStep.vue";
 import ContentStep from "../../components/assessment/ContentStep.vue";
 import SettingsStep from "../../components/assessment/SettingsStep.vue";
 import PreviewStep from "../../components/assessment/PreviewStep.vue";
-import { ref, computed, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { useUiStore } from "../../stores/uiStore.js";
@@ -11,11 +11,12 @@ import {
   clone,
   newQuestion,
   uid,
-  validateAssessment,
 } from "../../domain/assessment.js";
+import { assessmentIssues } from "../../domain/assessmentValidation.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import AppDialog from "../../components/ui/AppDialog.vue";
 import Icon from "../../components/ui/Icon.vue";
+import { useDraftAutosave } from "../../composables/useDraftAutosave.js";
 const store = useAssessmentStore(),
   ui = useUiStore(),
   route = useRoute(),
@@ -24,21 +25,36 @@ const found = store.db.assessments.find((a) => a.id === route.params.id);
 const draft = ref(found ? clone(found) : null),
   step = ref(0),
   index = ref(0),
-  errors = ref([]),
+  validatedSteps = ref([]),
+  publishAttempted = ref(false),
+  validationNow = ref(Date.now()),
   dialog = ref(""),
-  selected = ref([]),
-  saved = ref(found ? JSON.stringify(found) : "");
+  selected = ref([]);
 const steps = ["Identitas", "Konten", "Pengaturan", "Pratinjau"];
-const dirty = computed(
-  () => draft.value && JSON.stringify(draft.value) !== saved.value,
+const errors = computed(() => draft.value
+  ? assessmentIssues(draft.value, { forPublish: publishAttempted.value, now: validationNow.value })
+    .filter((issue) => publishAttempted.value || validatedSteps.value.includes(issue.step))
+  : []);
+const stepErrors = (value) => errors.value.filter((issue) => issue.step === value).length;
+async function goToError(issue) {
+  step.value = issue.step;
+  if (issue.questionId) {
+    const position = draft.value.questions.findIndex((q) => q.id === issue.questionId);
+    if (position >= 0) index.value = position;
+  }
+  await nextTick();
+  const input = document.getElementById(issue.target);
+  input?.focus();
+  input?.scrollIntoView?.({ block: "center" });
+}
+const { dirty, status: saveStatus, error: saveError, save: persistDraft, markSaved } = useDraftAutosave(
+  draft,
+  (value) => store.saveDraft(value),
 );
 function save(show = true) {
-  const result = store.run(
-    () => store.saveDraft(draft.value),
-    show ? "Draft tersimpan." : "",
-  );
-  if (result) saved.value = JSON.stringify(draft.value);
-  return !!result;
+  const result = persistDraft();
+  if (result && show) ui.toast("Draft tersimpan.");
+  return result;
 }
 onBeforeRouteLeave(() => {
   if (draft.value?.state === "draft" && dirty.value) return save(false);
@@ -58,17 +74,10 @@ watch(
   },
 );
 function next() {
-  errors.value = [];
-  const d = draft.value;
-  if (step.value === 0 && !d.title.trim())
-    errors.value = ["Tuliskan judul assessment terlebih dahulu."];
-  if (step.value === 1)
-    errors.value = validateAssessment(d).filter((x) =>
-      /soal|pertanyaan|pilihan|poin|instruksi/i.test(x),
-    );
-  if (step.value === 2)
-    errors.value = validateAssessment(d).filter((x) => /waktu|durasi/i.test(x));
-  if (!errors.value.length && save(false)) step.value++;
+  if (!validatedSteps.value.includes(step.value)) validatedSteps.value.push(step.value);
+  const first = errors.value.find((issue) => issue.step === step.value);
+  if (first) goToError(first);
+  else if (save(false)) step.value++;
 }
 function add() {
   draft.value.questions.push(newQuestion());
@@ -104,19 +113,25 @@ function addBank(ai = false) {
   selected.value = [];
 }
 function checkPublish() {
-  errors.value = validateAssessment(draft.value);
-  if (Date.parse(draft.value.closeAt) <= Date.now())
-    errors.value.push("Waktu tutup sudah lewat. Atur jadwal baru.");
-  if (!errors.value.length) dialog.value = "publish";
+  validationNow.value = Date.now();
+  publishAttempted.value = true;
+  if (errors.value.length) goToError(errors.value[0]);
+  else dialog.value = "publish";
 }
 function publish() {
+  validationNow.value = Date.now();
+  if (errors.value.length) {
+    dialog.value = "";
+    goToError(errors.value[0]);
+    return;
+  }
   const result = store.run(
     () => store.publish(draft.value),
     "Assessment berhasil diterbitkan.",
   );
   if (result) {
     draft.value.state = "published";
-    saved.value = JSON.stringify(draft.value);
+    markSaved();
     dialog.value = "";
     router.push("/assessments/all");
   }
@@ -154,50 +169,51 @@ function pdf(e) {
   ><template v-else
     ><PageTitle
       :title="draft.title || 'Buat assessment'"
-      description="Susun langkah demi langkah. Draft disimpan saat berpindah halaman."
-      ><span class="unsaved">{{
-        dirty ? "Perubahan belum disimpan" : "Draft tersimpan"
+      description="Susun langkah demi langkah. Draft disimpan otomatis di browser ini."
+      ><span class="unsaved" role="status" aria-live="polite" aria-atomic="true">{{
+        saveStatus === "error" ? "Draft belum tersimpan" : saveStatus === "saving" ? "Menyimpan…" : "Draft tersimpan"
       }}</span
       ><button class="btn" @click="save()">
         <Icon name="save" />Simpan draft
       </button></PageTitle
     >
+    <p v-if="saveError" class="notice warning" role="alert">
+      {{ saveError }} Edit Anda tetap terbuka. Coba lagi dengan tombol Simpan draft sebelum menutup halaman.
+    </p>
     <div class="builder-grid">
       <nav class="step-nav" aria-label="Langkah pembuatan">
         <button
           v-for="(s, i) in steps"
           :key="s"
           class="step"
-          :class="{ active: step === i }"
+          :class="{ active: step === i, 'step-has-errors': stepErrors(i) }"
           :aria-current="step === i ? 'step' : undefined"
-          @click="
-            step = i;
-            errors = [];
-          "
+          @click="step = i"
         >
           <span class="step-number">{{ i + 1 }}</span
-          ><span>{{ s }}</span>
+          ><span>{{ s }}<small v-if="stepErrors(i)" class="step-error-label">{{ stepErrors(i) }} perlu diperbaiki</small></span>
         </button>
       </nav>
       <section class="panel builder-form">
         <form @submit.prevent>
-          <IdentityStep v-if="step === 0" :draft="draft" />
+          <IdentityStep v-if="step === 0" :draft="draft" :issues="errors" />
           <ContentStep
             v-if="step === 1"
             :draft="draft"
             :index="index"
+            :issues="errors"
             @add="add"
             @bank="dialog = 'bank'"
             @ai="dialog = 'ai'"
             @remove="dialog = 'remove'"
             @select="index = $event"
           />
-          <SettingsStep v-if="step === 2" :draft="draft" />
+          <SettingsStep v-if="step === 2" :draft="draft" :issues="errors" />
           <PreviewStep v-if="step === 3" :draft="draft" />
           <div v-if="errors.length" class="error-box" role="alert">
             <strong>Periksa kembali</strong>
             <ul>
-              <li v-for="error in errors" :key="error">{{ error }}</li>
+              <li v-for="error in errors" :key="error.target"><a :href="'#' + error.target" @click.prevent="goToError(error)">{{ steps[error.step] }} · {{ error.message }}</a></li>
             </ul>
           </div>
           <div class="builder-footer">
@@ -207,10 +223,7 @@ function pdf(e) {
                 v-if="step"
                 type="button"
                 class="btn"
-                @click="
-                  step--;
-                  errors = [];
-                "
+                @click="step--"
               >
                 Sebelumnya</button
               ><button

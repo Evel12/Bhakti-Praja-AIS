@@ -65,6 +65,7 @@ export function observeReveals(
             revealed.add(el);
           }
           if (
+            !filter(el) ||
             !entry.tokens ||
             entry.tokens.mode === "off" ||
             root.ownerDocument.hidden ||

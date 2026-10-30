@@ -12,63 +12,31 @@ import { useUiStore } from "../../stores/uiStore.js";
 import AppBrand from "../brand/AppBrand.vue";
 import SidebarItem from "./SidebarItem.vue";
 import Icon from "../ui/Icon.vue";
-import { assessmentFilters } from "../../utils/assessmentNavigation.js";
 import { createOverlayMotion } from "../../motion/overlays.js";
-import { createNavigationLayout } from "../../motion/navigation.js";
 import { motionEngine } from "../../motion/engine.js";
 import { safeTokens } from "../../motion/policy.js";
-import MotionActiveIndicator from "../motion/MotionActiveIndicator.vue";
 const route = useRoute(),
   ui = useUiStore(),
   panel = ref(),
-  trigger = ref(),
-  expanded = ref(true),
-  popover = ref(false),
   mobile = ref(false);
 const compact = computed(() => ui.collapsed && !mobile.value);
 let media,
   overlay,
-  layout,
   drawer,
   revision = 0,
   disposed = false;
-const submenu = ref();
-watch(
-  () => (compact.value ? popover.value : expanded.value),
-  async (open) => {
-    const ticket = ++revision;
-    const links = [
-      ...(panel.value?.querySelectorAll(":scope > nav > .nav-item") || []),
-    ];
-    layout?.capture(links);
-    if (!open && submenu.value) {
-      if (submenu.value.contains(document.activeElement))
-        trigger.value?.focus();
-      overlay?.exit(submenu.value);
-    }
-    await nextTick();
-    if (disposed || ticket !== revision) return;
-    layout?.play(links);
-    if (open && submenu.value) overlay?.enter(submenu.value);
-  },
-);
 function resize() {
   mobile.value = media.matches;
   if (!media.matches) ui.mobileOpen = false;
-  popover.value = false;
 }
 function close(restore = true) {
   ui.mobileOpen = false;
-  popover.value = false;
   if (restore) nextTick(() => document.getElementById("menu-trigger")?.focus());
 }
 function keydown(e) {
   drawer?.cancel();
   if (e.key === "Escape") {
-    if (popover.value) {
-      popover.value = false;
-      trigger.value?.focus();
-    } else if (ui.mobileOpen) close();
+    if (ui.mobileOpen) close();
   }
   if (e.key === "Tab" && ui.mobileOpen) {
     const els = [...panel.value.querySelectorAll("a,button")].filter(
@@ -85,9 +53,8 @@ function keydown(e) {
     }
   }
 }
-function outside(e) {
+function cancelDrawer() {
   drawer?.cancel();
-  if (!panel.value?.contains(e.target)) popover.value = false;
 }
 watch(
   () => ui.mobileOpen,
@@ -121,22 +88,20 @@ watch(
 );
 onMounted(() => {
   overlay = createOverlayMotion(panel.value);
-  layout = createNavigationLayout(panel.value);
   media = matchMedia("(max-width: 1023px)");
   resize();
   media.addEventListener("change", resize);
   document.addEventListener("keydown", keydown);
-  document.addEventListener("pointerdown", outside);
+  document.addEventListener("pointerdown", cancelDrawer);
 });
 onBeforeUnmount(() => {
   disposed = true;
   revision++;
   drawer?.cancel();
   overlay?.dispose();
-  layout?.dispose();
   media?.removeEventListener("change", resize);
   document.removeEventListener("keydown", keydown);
-  document.removeEventListener("pointerdown", outside);
+  document.removeEventListener("pointerdown", cancelDrawer);
   document.body.style.overflow = "";
 });
 </script>
@@ -172,10 +137,7 @@ onBeforeUnmount(() => {
       :aria-expanded="!ui.collapsed"
       aria-controls="sidebar-navigation"
       :aria-label="ui.collapsed ? 'Lebarkan navigasi' : 'Ciutkan navigasi'"
-      @click="
-        ui.toggle();
-        popover = false;
-      "
+      @click="ui.toggle()"
     >
       <Icon :name="ui.collapsed ? 'arrow' : 'back'" />
       <span class="rail-tooltip" role="tooltip">{{
@@ -192,45 +154,13 @@ onBeforeUnmount(() => {
           :compact="compact"
           :active="route.path === '/dashboard'"
         />
-        <div class="assessment-nav">
-          <button
-            ref="trigger"
-            class="nav-item tip-parent"
-            :class="{ active: /assessments|builder/.test(route.path) }"
-            aria-label="Assessment"
-            :aria-expanded="compact ? popover : expanded"
-            aria-controls="assessment-submenu"
-            @click="compact ? (popover = !popover) : (expanded = !expanded)"
-          >
-            <MotionActiveIndicator
-              v-if="/assessments|builder/.test(route.path)"
-            /><Icon name="briefcase" /><template v-if="!compact"
-              ><span>Assessment</span
-              ><Icon
-                class="chevron"
-                :name="expanded ? 'up' : 'down'" /></template
-            ><span v-else-if="!popover" class="rail-tooltip">Assessment</span>
-          </button>
-          <div
-            ref="submenu"
-            v-if="compact ? popover : expanded"
-            id="assessment-submenu"
-            :class="compact ? 'nav-popover' : 'nav-sub'"
-          >
-            <p v-if="compact" class="nav-label">Assessment</p>
-            <RouterLink
-              v-for="s in assessmentFilters"
-              :key="s"
-              :to="'/assessments/' + s"
-              class="nav-item"
-              :class="{ active: route.params.status === s }"
-              :aria-current="route.params.status === s ? 'page' : undefined"
-              ><MotionActiveIndicator v-if="route.params.status === s" />{{
-                s === "all" ? "Semua assessment" : s
-              }}</RouterLink
-            >
-          </div>
-        </div>
+        <SidebarItem
+          to="/assessments/all"
+          label="Assessment"
+          icon="briefcase"
+          :compact="compact"
+          :active="/assessments|builder/.test(route.path)"
+        />
         <SidebarItem
           to="/bank"
           label="Bank soal"

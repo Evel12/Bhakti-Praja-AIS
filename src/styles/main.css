@@ -2,6 +2,24 @@
 @import "./design-system.css";
 @import "../motion/tokens.css";
 @import "../motion/primitives.css";
+@import "./lecturer-results.css";
+@import "./soft-fields.css";
+:root {
+  --table-heading: #4f5e47;
+  --muted: #68705f;
+  --text-metadata: 12px;
+}
+th {
+  color: var(--table-heading);
+  font-size: var(--text-metadata);
+  font-weight: 600;
+}
+.table-secondary,
+.metric-foot,
+.metric-foot .soft-tag,
+.section-caption {
+  font-size: var(--text-metadata);
+}
 @theme {
   --color-star-white: #efefe8;
   --color-ink: #262923;
@@ -123,24 +141,6 @@
 .rail-tooltip[data-liquid-visible] {
   display: block;
 }
-.assessment-nav {
-  position: relative;
-}
-.nav-popover {
-  position: absolute;
-  left: calc(100% + 15px);
-  top: 0;
-  width: 205px;
-  background: var(--surface);
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: 0 12px 40px #26292326;
-  z-index: 50;
-}
-.is-compact .nav-popover .nav-item {
-  justify-content: flex-start;
-}
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -222,6 +222,100 @@ dialog,
 .unsaved {
   color: var(--amber);
   font-size: 11px;
+}
+.field-error {
+  display: block;
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.option-content {
+  flex: 1;
+  min-width: 0;
+}
+.step-error-label {
+  display: block;
+  color: var(--danger);
+  font-size: 11px;
+}
+.step-has-errors .step-number {
+  border-color: var(--danger);
+}
+.error-box a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.grading-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.teacher-work-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.deadline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.deadline-entry {
+  display: block;
+  padding-block: 16px;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.deadline-entry h3 {
+  margin-top: 8px;
+  font-size: 14px;
+}
+.deadline-relative {
+  font-size: 13px;
+  font-weight: 600;
+}
+.deadline-date,
+.deadline-meta {
+  color: var(--muted);
+  font-size: var(--text-metadata);
+}
+.deadline-action {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--green);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.deadline-entry:hover .deadline-action {
+  color: var(--ink);
+}
+.teacher-work-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.teacher-work-copy {
+  flex: 1 1 180px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.teacher-work-item .btn {
+  flex-shrink: 0;
+}
+.task-reason {
+  margin-top: 6px;
+  color: var(--green);
+  font-size: 13px;
 }
 .exam-shell .brand-name {
   font-size: 20px;

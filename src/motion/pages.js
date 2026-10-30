@@ -45,6 +45,7 @@ export function installPageTransitions(
       .then(() =>
         transition(nextRender, {
           target,
+          preset: "gentle-lift",
           signal: run.controller.signal,
           engine,
         }),
@@ -65,6 +66,9 @@ export function installPageTransitions(
   doc.addEventListener("pointerdown", interaction, true);
   doc.addEventListener("keydown", interaction, true);
   doc.addEventListener("focusin", interaction, true);
+  doc.addEventListener("input", interaction, true);
+  doc.addEventListener("change", interaction, true);
+  doc.addEventListener("click", interaction, true);
   return {
     dispose() {
       disposed = true;
@@ -73,6 +77,9 @@ export function installPageTransitions(
       doc.removeEventListener("pointerdown", interaction, true);
       doc.removeEventListener("keydown", interaction, true);
       doc.removeEventListener("focusin", interaction, true);
+      doc.removeEventListener("input", interaction, true);
+      doc.removeEventListener("change", interaction, true);
+      doc.removeEventListener("click", interaction, true);
     },
   };
 }

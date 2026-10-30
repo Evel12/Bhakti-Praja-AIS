@@ -20,7 +20,7 @@ export function createMediaScope(root, { engine = motionEngine } = {}) {
     // Batch computed styles before animation writes. Only opacity on media/icons.
     const ready = elements
       .filter(
-        (el) => root.contains(el) && !el.closest('.brand,[data-motion="off"]'),
+        (el) => root.contains(el) && !el.closest('#route-scene,dialog,.sidebar,.panel,.bank-card,.help-card,[data-liquid-list],[data-liquid-scope="local"],.brand,[data-motion="off"]'),
       )
       .map((el) => ({ el, tokens: safeTokens(el) }))
       .filter((item) => item.tokens && item.tokens.mode !== "off");

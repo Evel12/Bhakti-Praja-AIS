@@ -5,6 +5,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import { date } from "../../utils/format.js";
+import { resultContext } from "../../utils/resultNavigation.js";
 const store = useAssessmentStore(),
   route = useRoute(),
   router = useRouter();
@@ -16,6 +17,10 @@ const at = computed(() =>
   );
 const score = ref(at.value?.score ?? ""),
   feedback = ref(at.value?.feedback || "");
+const returnTo = computed(() => ({
+  path: '/results/' + a.value?.id,
+  query: { ...(route.query.queue === 'pending' ? { filter: 'pending' } : {}), ...resultContext(route.query) },
+}));
 function save() {
   if (
     score.value === "" ||
@@ -35,7 +40,7 @@ function save() {
       }),
     "Penilaian tersimpan.",
   );
-  if (ok) router.push("/results/" + a.value.id);
+  if (ok) router.push(returnTo.value);
 }
 </script>
 <template>
@@ -98,7 +103,7 @@ function save() {
           }}
         </p>
         <button class="btn primary block">Simpan penilaian</button
-        ><RouterLink :to="'/results/' + a.id" class="btn block mt"
+        ><RouterLink :to="returnTo" class="btn block mt"
           >Kembali</RouterLink
         >
       </form>

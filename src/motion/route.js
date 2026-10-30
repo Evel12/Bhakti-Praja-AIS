@@ -7,6 +7,17 @@ import { motionEngine } from "./engine.js";
 const runs = new WeakMap();
 export function routeKeyframes(tokens, preset = "smooth") {
   const profile = resolveMotionProfile(preset, tokens);
+  if (profile.kind === "tween") {
+    return {
+      frames: [
+        { opacity: 0, transform: `translateY(${tokens.distances.pageLift}px)` },
+        { opacity: 1, transform: "translateY(0px)" },
+      ],
+      duration: profile.duration,
+      exitDuration: tokens.durations.pageExit,
+      easing: profile.easing,
+    };
+  }
   if (profile.kind !== "spring")
     return {
       frames: [{ opacity: 0 }, { opacity: 1 }],
@@ -99,11 +110,21 @@ export async function transitionRoute(
     if (cancelled || signal?.aborted || runs.get(root) !== run)
       return { mode: "cancelled" };
     if (!signal?.aborted) {
-      fallbackHandle = animatePresence(target, {
-        preset,
-        tokens: safeTokens(target),
-        engine,
-      });
+      const currentTokens = safeTokens(target);
+      if (!currentTokens || currentTokens.mode === "off") return { mode: "off" };
+      // Match the page preview in browsers without snapshots: one bounded lift,
+      // no scale or spring. The engine applies the opacity-only reduced policy.
+      fallbackHandle = preset === "gentle-lift"
+        ? engine.animate(
+            target,
+            { y: 0, opacity: engine.prepare(target).base.opacity },
+            {
+              from: { y: currentTokens.distances.pageLift, opacity: 0 },
+              preset,
+              tokens: currentTokens,
+            },
+          )
+        : animatePresence(target, { preset, tokens: currentTokens, engine });
       await fallbackHandle.finished;
     }
     return { mode: "fallback" };
@@ -143,7 +164,8 @@ export async function transitionRoute(
             ...(offset !== undefined ? { offset } : {}),
           })),
           {
-            duration: entry.duration,
+            duration: entry.exitDuration ?? entry.duration,
+            fill: "both",
             ...(entry.easing ? { easing: entry.easing } : {}),
             pseudoElement: "::view-transition-old(liquid-scene)",
           },
@@ -152,6 +174,7 @@ export async function transitionRoute(
       own(
         root.animate(entry.frames, {
           duration: entry.duration,
+          fill: "both",
           ...(entry.easing ? { easing: entry.easing } : {}),
           pseudoElement: "::view-transition-new(liquid-scene)",
         }),

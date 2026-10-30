@@ -246,39 +246,6 @@ button .icon {
 .nav-item .chevron {
   margin-left: auto;
 }
-.nav-sub {
-  padding-left: 29px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin: 4px 0 11px;
-}
-.nav-sub:before {
-  content: "";
-  position: absolute;
-  left: 23px;
-  top: 0;
-  bottom: 21px;
-  border-left: 1px solid #dfe2d8;
-}
-.nav-sub .nav-item {
-  position: relative;
-  min-height: 38px;
-  padding: 9px 12px;
-  font-size: 13px;
-}
-.nav-sub .nav-item:before {
-  content: "";
-  position: absolute;
-  left: -6px;
-  top: 5px;
-  width: 7px;
-  height: 16px;
-  border-left: 1px solid #dfe2d8;
-  border-bottom: 1px solid #dfe2d8;
-  border-radius: 0 0 0 7px;
-}
 .nav-count {
   font-size: 11px;
   min-width: 22px;
@@ -694,67 +661,6 @@ td.title-cell {
 .badge.warning {
   background: #fff0e4;
   color: #936336;
-}
-.week-strip {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-  margin: 0 0 20px;
-}
-.week-day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 1px;
-  gap: 7px;
-  border-radius: 12px;
-  font-size: 10px;
-  color: var(--muted);
-  background: transparent;
-}
-.week-day strong {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-}
-.week-day.selected {
-  background: var(--ink);
-  color: #b8c2ad;
-}
-.week-day.selected strong {
-  color: white;
-}
-.agenda-entry {
-  display: flex;
-  gap: 12px;
-  padding: 15px 0;
-  border-top: 1px solid #eceee6;
-}
-.agenda-line {
-  width: 3px;
-  background: #a8cbb5;
-  border-radius: 3px;
-  flex: none;
-  align-self: stretch;
-  min-height: 39px;
-}
-.agenda-entry:nth-child(odd) .agenda-line {
-  background: #dbcbb6;
-}
-.agenda-entry h3 {
-  font-size: 12px;
-  letter-spacing: 0;
-  font-weight: 550;
-}
-.agenda-entry p {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 5px;
-}
-.agenda-date {
-  font-size: 10px;
-  color: #73806a;
-  margin-bottom: 5px;
 }
 .help-card {
   background: #e7ebdf;
@@ -1764,9 +1670,6 @@ dialog::backdrop {
     font-size: 12px;
     gap: 10px;
   }
-  .nav-sub .nav-item {
-    font-size: 12px;
-  }
   .brand {
     padding-left: 10px;
   }
@@ -2236,7 +2139,6 @@ dialog::backdrop {
   .icon-btn,
   .number-grid button,
   .tab,
-  .week-day,
   .text-btn,
   .btn.small {
     min-height: 44px;
@@ -2246,12 +2148,6 @@ dialog::backdrop {
   }
   .nav-item {
     min-height: 44px;
-  }
-  .nav-sub .nav-item {
-    min-height: 44px;
-  }
-  .week-day {
-    min-width: 0;
   }
   .table-action-buttons .icon-btn {
     min-width: 40px;
@@ -2272,9 +2168,6 @@ dialog::backdrop {
 .nav-item {
   font-size: 14px;
 }
-.nav-sub .nav-item {
-  font-size: 13px;
-}
 .btn {
   font-size: 13px;
 }
@@ -2289,8 +2182,6 @@ dialog::backdrop {
 .metric-foot .soft-tag,
 .table-secondary,
 .table-hide-medium,
-.agenda-date,
-.agenda-entry p,
 .help-card p,
 .field-hint,
 .tiny,
@@ -2306,8 +2197,7 @@ dialog::backdrop {
 .role-switch select {
   font-size: 11px;
 }
-.assessment-title,
-.agenda-entry h3 {
+.assessment-title {
   font-size: 13px;
 }
 table {
@@ -2337,9 +2227,6 @@ th {
   }
   .nav-item {
     font-size: 14px;
-  }
-  .nav-sub .nav-item {
-    font-size: 13px;
   }
   .page-title .btn {
     font-size: 12px;

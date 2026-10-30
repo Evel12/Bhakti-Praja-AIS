@@ -164,12 +164,15 @@ export function readMotionTokens(
       base: time("--motion-duration-base"),
       slow: time("--motion-duration-slow"),
       fade: time("--motion-duration-fade"),
+      page: time("--motion-duration-page"),
+      pageExit: time("--motion-duration-page-exit"),
       springCap: time("--motion-duration-spring-cap"),
     },
     easings: {
       liquid: easing("--ease-liquid"),
       liquidOut: easing("--ease-liquid-out"),
       fade: easing("--ease-liquid-fade"),
+      pageLift: easing("--ease-page-lift"),
     },
     stagger: {
       step: time("--motion-stagger-step"),
@@ -186,6 +189,7 @@ export function readMotionTokens(
       hoverLift: length("--motion-hover-lift"),
       magnetic: length("--motion-magnetic-distance"),
       reveal: length("--motion-reveal-distance"),
+      pageLift: length("--motion-page-lift"),
       gooBlur: length("--motion-goo-blur"),
     },
     springs,
@@ -222,8 +226,8 @@ export function resolveMotionProfile(
   preset = "smooth",
   tokens = readMotionTokens(),
 ) {
-  if (!SPRING_PRESET_NAMES.includes(preset)) {
-    throw new MotionTokenError(`Unknown spring preset: ${preset}.`);
+  if (preset !== "gentle-lift" && !SPRING_PRESET_NAMES.includes(preset)) {
+    throw new MotionTokenError(`Unknown motion preset: ${preset}.`);
   }
   if (tokens.mode === "off") {
     return freeze({
@@ -238,6 +242,14 @@ export function resolveMotionProfile(
       duration: tokens.durations.fade,
       easing: tokens.easings.fade,
       allowedProperties: tokens.allowedProperties,
+    });
+  }
+  if (preset === "gentle-lift") {
+    return freeze({
+      kind: "tween",
+      duration: tokens.durations.page,
+      easing: tokens.easings.pageLift,
+      allowedProperties: ["transform", "opacity"],
     });
   }
   return freeze({

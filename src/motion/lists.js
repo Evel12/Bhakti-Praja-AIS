@@ -16,7 +16,8 @@ export function createListMotion(root, { engine = motionEngine } = {}) {
     engine,
     initialHide: false,
     stagger: true,
-    filter: () => !root.closest("[data-liquid-page-motion]"),
+    // The route owns initial appearance. Lists own structural changes only.
+    filter: () => !root.closest("#route-scene,[data-liquid-page-motion],dialog,.sidebar,[data-liquid-scope='local']"),
   });
   let disposed = false;
   function cancel() {
@@ -117,7 +118,7 @@ export function createListMotion(root, { engine = motionEngine } = {}) {
       if (disposed) return new Map();
       cancel();
       reveals.refresh();
-      if (root.ownerDocument.hidden || safeTokens(root)?.mode === "off")
+      if (root.closest("[data-liquid-page-motion]") || root.ownerDocument.hidden || safeTokens(root)?.mode === "off")
         return new Map();
       const items = itemsIn(root);
       items.forEach((el) => engine.reset(el));
@@ -148,6 +149,10 @@ export function createListMotion(root, { engine = motionEngine } = {}) {
     },
     update(before) {
       if (disposed) return;
+      if (root.closest("[data-liquid-page-motion]")) {
+        stop();
+        return;
+      }
       const items = itemsIn(root),
         current = new Set(items),
         tokens = safeTokens(root);

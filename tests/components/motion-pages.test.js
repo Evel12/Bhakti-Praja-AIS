@@ -50,6 +50,15 @@ async function setup(transition = vi.fn(() => new Promise(() => {}))) {
   return { scene, shell, router, api, transition };
 }
 describe("phase 9 post-confirmation page enhancement", () => {
+  it.each(['input', 'change', 'click'])("cancels page motion on a local %s event", async (type) => {
+    const { router, scene, transition } = await setup();
+    await router.push('/one');
+    await router.push('/two');
+    const signal = transition.mock.calls[0][1].signal;
+    scene.dispatchEvent(new Event(type, { bubbles: true }));
+    expect(signal.aborted).toBe(true);
+    expect(scene.hasAttribute('data-liquid-page-motion')).toBe(false);
+  });
   it("keeps assessment filter changes local while retaining page transitions at list boundaries", async () => {
     const { router, scene, transition } = await setup();
     await router.push("/one");
@@ -72,6 +81,7 @@ describe("phase 9 post-confirmation page enhancement", () => {
     expect(router.currentRoute.value.path).toBe("/two");
     expect(transition).toHaveBeenCalledTimes(1);
     expect(scene.hasAttribute("data-liquid-page-motion")).toBe(true);
+    expect(transition.mock.calls[0][1].preset).toBe("gentle-lift");
     await router.push("/two?q=test");
     expect(transition).toHaveBeenCalledTimes(1);
     expect(scene.hasAttribute("data-liquid-page-motion")).toBe(false);
@@ -143,6 +153,57 @@ describe("phase 9 post-confirmation page enhancement", () => {
       expect(scene.hasAttribute("data-liquid-page-motion")).toBe(false);
     },
   );
+  it("lifts the fallback page by 6px without scaling and finishes in 200ms", async () => {
+    const c = clock(),
+      engine = createMotionEngine({ ...c, getTokens: () => tokens() }),
+      target = element();
+    const result = transitionRoute(() => {}, {
+      target,
+      preset: "gentle-lift",
+      native: false,
+      engine,
+    });
+    await flushPromises();
+    expect(target.style.transform).toContain("translate3d(0px,6px,0)");
+    expect(target.style.transform).toContain("scale(1,1)");
+    expect(target.style.opacity).toBe("0");
+    c.step(100);
+    const halfway = engine.prepare(target).pose;
+    expect(halfway.y).toBeGreaterThan(0);
+    expect(halfway.y).toBeLessThan(6);
+    expect(halfway.opacity).toBeGreaterThan(0);
+    expect(halfway.opacity).toBeLessThan(1);
+    expect(halfway.scaleX).toBe(1);
+    expect(halfway.scaleY).toBe(1);
+    c.step(100);
+    await expect(result).resolves.toEqual({ mode: "fallback" });
+    expect(engine.stats().active).toBe(0);
+    expect(target.style.transform).toBe("");
+    expect(target.style.opacity).toBe("");
+    expect(target.style.willChange).toBe("");
+  });
+  it("restores the fallback immediately when a new interaction interrupts the lift", async () => {
+    const c = clock(),
+      engine = createMotionEngine({ ...c, getTokens: () => tokens() }),
+      target = element(),
+      controller = new AbortController();
+    const result = transitionRoute(() => {}, {
+      target,
+      preset: "gentle-lift",
+      native: false,
+      signal: controller.signal,
+      engine,
+    });
+    await flushPromises();
+    c.step(50);
+    controller.abort();
+    await result;
+    expect(c.pending()).toBe(0);
+    expect(engine.stats().active).toBe(0);
+    expect(target.style.transform).toBe("");
+    expect(target.style.opacity).toBe("");
+    expect(target.style.willChange).toBe("");
+  });
   it("does not restart a stale fallback after cancellation while DOM patch is pending", async () => {
     const target = element(),
       c = clock(),

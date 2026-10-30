@@ -102,7 +102,7 @@ export function createMotionEngine({
       if (elapsed < 0) continue;
       let settled = true;
       for (const k of job.keys) {
-        if (job.profile.kind === "fade") {
+        if (job.profile.kind !== "spring") {
           const p = clamp(elapsed / job.profile.duration, 0, 1);
           job.r.pose[k] =
             job.from[k] +
@@ -170,7 +170,7 @@ export function createMotionEngine({
     finishJob(el, "cancelled", false);
     if (from) r.pose = { ...r.pose, ...from };
     let target = { ...r.pose, ...to };
-    if (profile.kind !== "spring") {
+    if (profile.kind === "off" || profile.kind === "fade") {
       for (const k of [...spatial, "blur"]) {
         r.pose[k] = IDENTITY[k];
         target[k] = IDENTITY[k];
@@ -181,7 +181,7 @@ export function createMotionEngine({
     );
     if (
       profile.kind === "off" ||
-      (profile.kind === "fade" && profile.duration === 0) ||
+      (profile.kind !== "spring" && profile.duration === 0) ||
       !keys.length ||
       jobs.size + reserved >= snapshot.limits.maxConcurrent
     ) {

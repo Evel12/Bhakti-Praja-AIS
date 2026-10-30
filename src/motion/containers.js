@@ -3,7 +3,7 @@ import { motionEngine } from "./engine.js";
 
 const selector = ".panel,.bank-card,.help-card";
 const excluded =
-  "dialog,.sidebar,.exam-shell,[data-liquid-scope='local'],[data-liquid-list],[data-liquid-page-motion]";
+  "#route-scene,dialog,.sidebar,.exam-shell,[data-liquid-scope='local'],[data-liquid-list],[data-liquid-page-motion]";
 
 /** New panels/cards share one observer. Avoid nested effects and active exams. */
 export function createContainerMotionScope(
