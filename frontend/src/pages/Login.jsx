@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, me } from "../api";
+import { errorText } from '../finance/finance';
 import { GraduationCap, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useSchool } from '../school-context';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, notice = '' }) {
     const school = useSchool();
     const navigate = useNavigate();
 
     const [form, setForm] = useState({
         email: "",
         password: "",
+        portal: "ais",
     });
 
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(notice);
     const [showPassword, setShowPassword] = useState(false);
 
     function handleChange(e) {
@@ -31,26 +33,18 @@ export default function Login({ onLogin }) {
         setError("");
 
         try {
-            await login(form.email, form.password);
+            await login(form);
 
             const profile = await me();
+            const destination = form.portal === 'communication' ? '/communication' : '/';
 
             if (onLogin) {
-                onLogin(profile.data);
+                onLogin(profile.data, destination);
             }
 
-            navigate("/");
+            navigate(destination);
         } catch (err) {
-            const backendErrors = err?.response?.data?.errors;
-            const firstError = backendErrors
-                ? Object.values(backendErrors).flat()[0]
-                : null;
-
-            setError(
-                firstError ||
-                    err?.response?.data?.message ||
-                    "Masuk gagal. Periksa email dan kata sandi."
-            );
+            setError(err?.response?.status === 401 ? 'Email atau kata sandi salah.' : errorText(err));
         } finally {
             setLoading(false);
         }
@@ -83,6 +77,14 @@ export default function Login({ onLogin }) {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                            <label htmlFor="portal" className="block text-sm font-medium text-gray-700 mb-2">Layanan</label>
+                            <select id="portal" name="portal" value={form.portal} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-teal-500">
+                                <option value="ais">Administrasi akademik</option>
+                                <option value="member4">Portal wali dan keuangan pendidikan</option>
+                                <option value="communication">Komunikasi sekolah (semua peran)</option>
+                            </select>
+                        </div>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                                 Email

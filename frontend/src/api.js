@@ -44,7 +44,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const requestToken = error.config?.headers?.Authorization
+    const currentToken = getToken()
+    const currentAuthorization = currentToken ? `Bearer ${currentToken}` : undefined
+    if (error.response?.status === 401 && requestToken === currentAuthorization) {
       setToken(null)
       if (error.config?.url !== '/auth/login') window.dispatchEvent(new Event('ais-session-expired'))
     }
@@ -61,6 +64,7 @@ function extractCredentials(emailOrObject, password) {
     return {
       email: emailOrObject.email ?? '',
       password: emailOrObject.password ?? '',
+      portal: emailOrObject.portal ?? 'ais',
     }
   }
 

@@ -25,6 +25,9 @@ import CrudPage
 import Layout
   from './layouts/Layout'
 import Roles from './pages/Roles'
+import FinanceRoutes from './finance/FinancePages'
+import ParentPortal from './parent/ParentPortal'
+import CommunicationPages from './communication/CommunicationPages'
 
 const resources = {
   'teaching-loads': { title: 'Beban Mengajar', singular: 'Beban Mengajar' },
@@ -110,6 +113,8 @@ const resources = {
 }
 
 export default function App() {
+  const [loginDestination, setLoginDestination] = useState('/')
+  const [logoutNotice, setLogoutNotice] = useState('')
   const [
     user,
     setUser
@@ -160,11 +165,12 @@ export default function App() {
         element={
           user
             ? <Navigate
-                to="/"
+                to={loginDestination}
                 replace
               />
             : <Login
-                onLogin={setUser}
+                notice={logoutNotice}
+                onLogin={(profile, destination = '/') => { setLogoutNotice(''); setLoginDestination(destination); setUser(profile) }}
               />
         }
       />
@@ -175,19 +181,23 @@ export default function App() {
           user ? (
             <Layout
               user={user}
-              onLogout={() => {
+              onLogout={(message = '') => {
+                setLogoutNotice(message)
                 setUser(null)
               }}
             >
               <Routes>
-                <Route path="/roles" element={<Roles />} />
+                <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
+                <Route path="/parent/*" element={<ParentPortal user={user} />} />
+                <Route path="/communication/*" element={<CommunicationPages user={user} />} />
+                {user.role === 'admin' && <Route path="/roles" element={<Roles />} />}
 
                 <Route
                   path="/"
-                  element={<Dashboard />}
+                  element={user.role === 'admin' ? <Dashboard /> : <Navigate to={user.role === 'wali_murid' ? '/parent' : user.role === 'guru' ? '/communication' : '/finance'} replace />}
                 />
 
-                {Object.entries(
+                {user.role === 'admin' && Object.entries(
                   resources
                 ).map(
                   ([
