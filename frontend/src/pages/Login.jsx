@@ -36,7 +36,7 @@ export default function Login({ onLogin, notice = '' }) {
             await login(form);
 
             const profile = await me();
-            const destination = form.portal === 'communication' ? '/communication' : '/';
+            const destination = form.portal === 'assessment' ? '/assessment' : form.portal === 'communication' ? '/communication' : '/';
 
             if (onLogin) {
                 onLogin(profile.data, destination);
@@ -83,6 +83,7 @@ export default function Login({ onLogin, notice = '' }) {
                                 <option value="ais">Administrasi akademik</option>
                                 <option value="member4">Portal wali dan keuangan pendidikan</option>
                                 <option value="communication">Komunikasi sekolah (semua peran)</option>
+                                <option value="assessment">Assessment pembelajaran (guru dan siswa)</option>
                             </select>
                         </div>
                         <div>

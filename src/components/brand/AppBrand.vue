@@ -1,6 +1,6 @@
 <script setup>
 defineProps({ compact: Boolean });
-const logo = "/brand/tut-wuri-handayani.png";
+const logo = `${import.meta.env.BASE_URL}brand/tut-wuri-handayani.png`;
 </script>
 <template>
   <RouterLink to="/dashboard" class="brand" aria-label="EXAMNIA beranda"

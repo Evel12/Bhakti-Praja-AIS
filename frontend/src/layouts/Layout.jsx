@@ -192,7 +192,8 @@ export default function Layout({
     { path: '/communication/announcements', label: 'Pengumuman', icon: BookOpen },
     { path: '/communication/notifications', label: 'Pusat Notifikasi', icon: Receipt },
   ] }
-  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), communicationGroup]
+  const assessmentGroup = { label: 'Pembelajaran', items: [{ path: '/assessment', label: 'Assessment', icon: BookOpen }] }
+  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), ...(['admin', 'guru', 'murid'].includes(user.role) ? [assessmentGroup] : []), communicationGroup]
   const [
     collapsed,
     setCollapsed
@@ -543,7 +544,7 @@ export default function Layout({
                 font-semibold
                 text-slate-900
               ">
-                {admin ? 'Panel Administrasi' : parent ? 'Portal Wali Murid' : user.role === 'guru' ? 'Komunikasi Sekolah' : 'Keuangan Pendidikan'}
+                {location.pathname.startsWith('/assessment') ? 'Assessment Pembelajaran' : admin ? 'Panel Administrasi' : parent ? 'Portal Wali Murid' : user.role === 'guru' ? 'Komunikasi Sekolah' : 'Keuangan Pendidikan'}
               </p>
 
               <p className="

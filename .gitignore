@@ -22,6 +22,7 @@ auth.json
 *.bak
 
 # Dependencies and generated output
+/frontend/public/assessment-app/
 node_modules/
 vendor/
 dist/

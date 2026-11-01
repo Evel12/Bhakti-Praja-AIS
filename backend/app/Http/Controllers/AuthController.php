@@ -14,7 +14,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'max:150'],
             'password' => ['required', 'string', 'min:6'],
-            'portal' => ['nullable', \Illuminate\Validation\Rule::in(['ais', 'member4', 'communication'])],
+            'portal' => ['nullable', \Illuminate\Validation\Rule::in(['ais', 'member4', 'communication', 'assessment'])],
         ], [
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -50,11 +50,11 @@ class AuthController extends Controller
         }
 
         $portal = $request->input('portal') ?? 'ais';
-        $allowedRoles = match ($portal) { 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
+        $allowedRoles = match ($portal) { 'assessment' => ['admin', 'guru', 'murid'], 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
         if (! in_array($user->role?->name, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,
-                'message' => $portal === 'ais' ? 'Akses ditolak. Halaman ini khusus admin AIS.' : 'Peran akun tidak memiliki akses ke portal wali dan keuangan.',
+                'message' => $portal === 'ais' ? 'Akses ditolak. Halaman ini khusus admin AIS.' : ($portal === 'assessment' ? 'Peran akun tidak memiliki akses ke assessment.' : 'Peran akun tidak memiliki akses ke portal wali dan keuangan.'),
             ], 403);
         }
 

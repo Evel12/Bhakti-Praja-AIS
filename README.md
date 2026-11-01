@@ -115,16 +115,22 @@ Stage 7 completed verification of the available implementation: 82 Laravel tests
 See [the final requirement coverage and readiness report](docs/member4/STAGE-7.md). Academic sources from Members 2/3, messaging rules, academic reminder timing/data, external email delivery and push infrastructure remain blocked; production readiness is not claimed.
 ## Repository applications after branch integration
 
-This repository contains two independently runnable applications:
+Parent Portal already reads its children, schedules, bills and payments through Laravel/MySQL. The environment template now targets MySQL explicitly. See [parent MySQL setup and verification](docs/PARENT-MYSQL.md) for account relationships, empty-data handling and the distinction from assessment's local storage.
+
+The main website now includes assessment at `/assessment`, sharing the existing AIS login and navigation. CSS remains isolated inside an embedded document so the original contributor's Vue UI and React layouts do not override each other.
+
+For the combined website, run `npm ci` at repository root once, then `cd frontend` and `npm ci`. Start Laravel from `backend/` using `php artisan serve`, and run `npm run dev` in `frontend/`. Open the single frontend URL (normally port 5173). Choose **Assessment pembelajaran (guru dan siswa)** on the existing login form, or open **Assessment** from the sidebar after login. No separate assessment development server is needed. `frontend/npm run build` automatically builds and includes assessment in `frontend/dist/assessment-app/`; deploy the whole `frontend/dist/` on the same origin with `/api` routed to Laravel and SPA fallback enabled.
+
+The original standalone assessment workflow remains available for development:
 
 | Application | Location | Development commands |
 | --- | --- | --- |
 | Laravel API + React AIS / parent / finance / communication | `backend/` and `frontend/` | `cd backend` then `php artisan serve`; in another terminal `cd frontend` then `npm ci` and `npm run dev` |
 | Assessment UI contributed by Blackumis | Repository root (`src/`, `tests/`, root `package.json`) | At repository root: `npm ci`, then `npm run dev` (port 4173) |
 
-Root `npm run build` builds assessment into root `dist/`. Running the build inside `frontend/` builds React into `frontend/dist/`. Deploy them separately; neither build replaces the other.
+Root `npm run build` builds standalone assessment into root `dist/`. Running the build inside `frontend/` creates the combined deployment under `frontend/dist/`.
 
-Assessment retains its original Vue implementation, local-storage repository, fixtures, role switcher and history. Its role switcher is a UI demonstration, not Laravel authorization. It is not yet connected to the authenticated Laravel API or the parent portal's academic readers; local assessment data must not be treated as shared school records. This merge preserves working applications and does not claim cross-module data integration.
+Assessment retains its original Vue implementation, local-storage repository, fixtures and history. In the combined website, the existing Laravel session is validated before the workspace mounts, local data is scoped to the authenticated account, and the simulated role switcher and duplicate sidebar are hidden. Teacher/student routes follow the authenticated role; parents cannot enter the assessment workspace. These client route restrictions protect navigation only: assessment remains a local UI workspace, not a server-backed gradebook. Assessment data is not yet synchronized to MySQL or parent academic readers. The standalone developer version retains its original simulator and legacy storage key. See [single-website integration](docs/UNIFIED-WEB.md) for evidence and limits.
 
 The `assesment` branch (original spelling) was merged with its original commits intact. Assessment contributor: **Blackumis** (`herdikaputradevara@gmail.com`), including original tip `67766f6`. See [merge verification](docs/MERGE-VERIFICATION.md) for checks and limits.
 

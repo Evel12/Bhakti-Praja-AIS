@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import { assessmentRouteAllowed, assessmentHome } from '../integration/session.js';
 import DashboardView from "../views/teacher/DashboardView.vue";
 import AssessmentListView from "../views/teacher/AssessmentListView.vue";
 import AssessmentBuilderView from "../views/teacher/AssessmentBuilderView.vue";
@@ -31,7 +32,7 @@ const routes = [
     exam: path.startsWith("/attempt"),
   },
 }));
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", redirect: "/dashboard" },
@@ -47,3 +48,5 @@ export default createRouter({
       || (to.path === from.path && to.path.startsWith('/results'))
       ? false : { top: 0 },
 });
+router.beforeEach(to => assessmentRouteAllowed(to) || assessmentHome());
+export default router;

@@ -8,6 +8,7 @@ import RoleSwitcher from "../components/navigation/RoleSwitcher.vue";
 import Icon from "../components/ui/Icon.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
 import PageAtmosphere from "../components/motion/PageAtmosphere.vue";
+import { embedded, sessionUser } from '../integration/session.js';
 const route = useRoute(),
   router = useRouter(),
   ui = useUiStore(),
@@ -46,6 +47,23 @@ watch(
 );
 </script>
 <template>
+  <section v-if="embedded" class="embedded-assessment">
+    <nav aria-label="Navigasi assessment" class="embedded-tabs">
+      <template v-if="sessionUser?.role !== 'murid'">
+        <RouterLink to="/dashboard">Ringkasan</RouterLink>
+        <RouterLink to="/assessments/all">Assessment</RouterLink>
+        <RouterLink to="/bank">Bank soal</RouterLink>
+        <RouterLink to="/results">Hasil dan penilaian</RouterLink>
+      </template>
+      <template v-else>
+        <RouterLink to="/student">Assessment saya</RouterLink>
+        <RouterLink to="/my-results">Hasil saya</RouterLink>
+      </template>
+    </nav>
+    <p class="notice warning">Ruang assessment lokal: data contoh dan perubahan disimpan pada browser untuk akun ini. Nilai belum tersinkron ke sekolah atau portal wali.</p>
+    <main id="main-content" tabindex="-1"><div id="route-scene" class="route-scene"><slot /></div></main>
+  </section>
+  <template v-else>
   <a
     class="skip-link"
     href="#main-content"
@@ -116,4 +134,12 @@ watch(
       autentikasi, API Laravel, dan layanan AI belum terhubung.
     </p></AppDialog
   >
+  </template>
 </template>
+<style scoped>
+.embedded-assessment { padding: 16px; min-width: 0; }
+.embedded-assessment main { outline: none; }
+.embedded-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.embedded-tabs a { padding: 10px 14px; border: 1px solid #dbe5e9; border-radius: 10px; background: white; }
+.embedded-tabs a.router-link-active { background: #e6f4f1; color: #176754; }
+</style>
