@@ -113,3 +113,18 @@ Member 4 pages share in-flight requests through the existing authenticated API c
 Stage 7 completed verification of the available implementation: 82 Laravel tests / 929 assertions passed on both SQLite and isolated MySQL, frontend lint/build passed, and Chrome workflows covered finance, parent data isolation, announcements, notifications and logout failures. Three defects were fixed: announcement UTF-8 byte limits, failed logout handling, and internal API debug leakage. No new routes or migrations were added.
 
 See [the final requirement coverage and readiness report](docs/member4/STAGE-7.md). Academic sources from Members 2/3, messaging rules, academic reminder timing/data, external email delivery and push infrastructure remain blocked; production readiness is not claimed.
+## Repository applications after branch integration
+
+This repository contains two independently runnable applications:
+
+| Application | Location | Development commands |
+| --- | --- | --- |
+| Laravel API + React AIS / parent / finance / communication | `backend/` and `frontend/` | `cd backend` then `php artisan serve`; in another terminal `cd frontend` then `npm ci` and `npm run dev` |
+| Assessment UI contributed by Blackumis | Repository root (`src/`, `tests/`, root `package.json`) | At repository root: `npm ci`, then `npm run dev` (port 4173) |
+
+Root `npm run build` builds assessment into root `dist/`. Running the build inside `frontend/` builds React into `frontend/dist/`. Deploy them separately; neither build replaces the other.
+
+Assessment retains its original Vue implementation, local-storage repository, fixtures, role switcher and history. Its role switcher is a UI demonstration, not Laravel authorization. It is not yet connected to the authenticated Laravel API or the parent portal's academic readers; local assessment data must not be treated as shared school records. This merge preserves working applications and does not claim cross-module data integration.
+
+The `assesment` branch (original spelling) was merged with its original commits intact. Assessment contributor: **Blackumis** (`herdikaputradevara@gmail.com`), including original tip `67766f6`. See [merge verification](docs/MERGE-VERIFICATION.md) for checks and limits.
+

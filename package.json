@@ -1,0 +1,29 @@
+{
+  "name": "examnia-assessment-ui",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4173 --strictPort",
+    "start": "npm run dev",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "test": "node --test tests/*.test.mjs && vitest run",
+    "check:motion": "node scripts/check-motion.mjs",
+    "check": "npm run check:motion && npm run test && npm run build"
+  },
+  "dependencies": {
+    "vue": "^3.5.0",
+    "vue-router": "^4.5.0",
+    "pinia": "^3.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "vitest": "^4.1.12",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^26.1.0"
+  }
+}
