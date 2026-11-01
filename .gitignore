@@ -1,10 +1,6 @@
-node_modules/
-.DS_Store
+/Backend/vendor/
+/Backend/.env
+/Backend/.phpunit.cache/
+/Frontend/node_modules/
+/Frontend/dist/
 *.log
-.sites-local/
-playwright-report/
-test-results/
-
-dist/
-coverage/
-.sites-runtime/

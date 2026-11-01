@@ -1,0 +1,80 @@
+# EXAMNIA Phase 7 - rate limits and private API responses.
+# No new endpoints are introduced. These examples exercise existing routes.
+# See phase-7-hardening.md for every budget, HTTPS/proxy configuration, and deployment steps.
+# Run against your local development API; the changes do not require local HTTPS.
+
+@baseUrl = http://127.0.0.1:8000/api
+@studentToken = PASTE_STUDENT_LOGIN_DATA_TOKEN
+@teacherToken = PASTE_TEACHER_LOGIN_DATA_TOKEN
+@classId = PASTE_CLASS_ID_OWNED_BY_THIS_TEACHER
+
+### Student login - 200; use only locally seeded demo credentials.
+# Inspect Cache-Control: no-store, private; X-Content-Type-Options: nosniff;
+# X-Frame-Options: DENY; Referrer-Policy: no-referrer.
+# Copy data.token into studentToken. Never share this token.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "student1@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-seven-student"
+}
+
+### Account request budget - 200 until the shared allowance is exhausted.
+# Default: 120 authenticated requests/minute/account across tokens and route IDs.
+# For a short LOCAL demonstration, set API_RATE_PER_MINUTE=2 and run
+# php artisan config:clear, then repeat this GET until 429. Restore the default afterward.
+# Other authenticated calls made during the same window also consume that allowance.
+# A 429 includes error.code=TOO_MANY_REQUESTS, error.details={}, Retry-After,
+# and rate-limit headers. Wait the returned number of seconds before retrying.
+GET {{baseUrl}}/auth/me
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### No token - 401 even if an account previously reached its limit.
+GET {{baseUrl}}/auth/me
+Accept: application/json
+
+### Wrong role - 403; students cannot consume teacher functionality.
+GET {{baseUrl}}/classes/{{classId}}/gradebook
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Teacher gradebook - 200; account-wide report and general API budgets both apply.
+# Set teacherToken using the login example in phase-3-api.http.
+# Default report budget: 30 requests/minute/account, shared across gradebooks,
+# quiz grades, personal grades, and authorized completed reviews.
+# A policy denial after the role check also counts; changing IDs does not reset a budget.
+GET {{baseUrl}}/classes/{{classId}}/gradebook
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Malformed email - 422 validation response rather than a limiter conversion error.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": [],
+  "password": "not-a-real-password",
+  "device_name": "phase-seven-input-check"
+}
+
+### Unknown API resource - 404, same JSON error envelope and private response headers.
+GET {{baseUrl}}/missing-phase-seven-resource
+Accept: application/json
+
+### Allowed frontend preflight - 204 with CORS and API security headers.
+# Replace Origin with your configured FRONTEND_ORIGINS value when needed.
+# Retry-After / rate-limit response headers are exposed to allowed browser origins.
+OPTIONS {{baseUrl}}/auth/login
+Origin: http://127.0.0.1:4173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: authorization,content-type
+
+# Full endpoint examples remain in phase-1-api.http, phase-3-api.http,
+# phase-4-api.http, phase-5-api.http, and phase-6-api.http.
+# Generation requests have separate 3/minute and 20/hour limits; the ordinary
+# generation status GET uses the general account budget. Existing jobs are unaffected by 429.

@@ -1,0 +1,133 @@
+# EXAMNIA Phase 5 - completed reviews and stored-grade reporting.
+# VS Code REST Client variables; copy requests into Postman if preferred.
+# Configure MySQL and apply the existing migrations from Backend/ before use.
+# php artisan db:seed supplies the demo accounts below, but no completed attempts.
+# Use phase-4-api.http to start, answer, and finish an attempt for review examples.
+# Replace all PASTE_* values with IDs/tokens returned by your local API or class context.
+# Existing authentication, authoring, and attempt examples remain in phase-1/3/4-api.http.
+
+@baseUrl = http://127.0.0.1:8000/api
+@studentToken = PASTE_STUDENT_LOGIN_DATA_TOKEN
+@teacherToken = PASTE_TEACHER_LOGIN_DATA_TOKEN
+@classId = PASTE_CLASS_ID
+@quizId = PASTE_QUIZ_ID_IN_THAT_CLASS
+@attemptId = PASTE_FINISHED_ATTEMPT_ID
+@studentId = PASTE_STUDENT_ID_FROM_GRADEBOOK_OR_ATTEMPT
+
+### Student login - 200. Copy data.token into studentToken.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "student1@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-five-student"
+}
+
+### Teacher login - 200. Copy data.token into teacherToken.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "teacher@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-five-teacher"
+}
+
+### Personal grade summary and attempt history - 200; authenticated student only.
+# data.items contains individual attempts, including retakes, with stored metadata/grades.
+# data.summary covers ALL matching attempts, not only the current page.
+# No question text, selected answers, or option keys are included in these list rows.
+GET {{baseUrl}}/students/me/grades?page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Filter personal history by class, quiz, and status - 200.
+# Supported status values: ongoing|finished. All ID filters are positive integers.
+# Filters only narrow this student's own history; a student_id query cannot select another user.
+# An unrelated/nonexistent class or quiz filter produces an empty own-history result.
+GET {{baseUrl}}/students/me/grades?class_id={{classId}}&quiz_id={{quizId}}&status=finished&page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Review the student's own finished attempt - 200.
+# data.attempt contains stored result metadata; data.quiz/student identify the record.
+# data.questions includes every question and options with is_correct for authorized review.
+# question.answer is the saved choice/correctness/time, or null for an unanswered question.
+# An ongoing attempt or another student's attempt returns 403 before answer keys are exposed.
+GET {{baseUrl}}/attempts/{{attemptId}}/review
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Teacher class gradebook - 200; only classes owned by this teacher.
+# data.items is a paginated STUDENT list, not a list of attempts.
+# Each row has student identity, enrollment_status (enrolled|former), and its summary.
+# Current students without attempts remain visible with zero counts and null grade statistics.
+# Former members with attempt history in this class remain visible as historical rows.
+# data.summary covers all class attempts, independently of student-row pagination.
+GET {{baseUrl}}/classes/{{classId}}/gradebook?page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Limit a class gradebook to one quiz in that class - 200.
+# quizId must belong to classId; a quiz outside the selected class returns 404.
+# data.quiz identifies the selected quiz. Current class members remain visible with zero
+# counts when they have no attempt for the selected quiz.
+GET {{baseUrl}}/classes/{{classId}}/gradebook?quiz_id={{quizId}}&page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Teacher per-quiz grades - 200; quiz's class must belong to the teacher.
+# data.items contains individual attempts with student identities and stored result metadata.
+# data.summary covers all matching quiz attempts, including rows beyond this page.
+# Ongoing rows have final_grade:null and graded:false; list rows never contain answer keys.
+GET {{baseUrl}}/quizzes/{{quizId}}/grades?page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Filter one quiz's attempts by student and status - 200.
+# Copy studentId from an authorized gradebook row or attempt response.
+# Filters stay inside quizId's already authorized scope.
+GET {{baseUrl}}/quizzes/{{quizId}}/grades?student_id={{studentId}}&status=finished&page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Teacher per-student answer detail through a finished attempt review - 200.
+# quizId must be the attempt's actual quiz. A mismatched URL parent returns 404.
+# The teacher must own that quiz's class, and the attempt must be finished.
+# The response includes the student's saved answers and the question/option answer keys.
+GET {{baseUrl}}/quizzes/{{quizId}}/attempts/{{attemptId}}/review
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+# All five reporting endpoints return 200 on success using the existing envelope:
+# {"success":true,"message":"...","data":...}
+#
+# List responses include data.pagination:
+# {"current_page":1,"last_page":1,"per_page":20,"total":0}
+# page must be an integer >=1; per_page must be an integer from 1 through 100.
+#
+# Summary keys:
+# attempts_count, ongoing_count, finished_count, graded_count, ungraded_finished_count,
+# average_grade, highest_grade, lowest_grade.
+# Counts are integers; grade statistics are two-decimal strings or null.
+# Only FINISHED attempts with a non-null stored final_grade enter grade statistics.
+# A real grade of 0.00 is included; legacy missing grades stay null and are counted as
+# ungraded finished attempts. An empty report has null grade statistics, not a fabricated zero.
+# Retakes remain separate rows; averages describe the included attempts without selecting
+# an official best/latest attempt or changing the stored final grade.
+#
+# Report reads use saved grades and do not regrade from current scoring configuration.
+# No grade-list/gradebook response exposes questions, answers, or option correctness keys.
+# Only an authorized FINISHED-attempt review returns option is_correct values.
+# Legacy report rows do not require a scoring-rules snapshot merely to show stored data.
+#
+# Error envelope:
+# {"success":false,"message":"...","error":{"code":"...","details":{}}}
+# 401: missing, invalid, expired, or revoked token.
+# 403: wrong role, another student's review, another teacher's class/quiz, or unfinished review.
+# 404: missing resource, or an attempt/quiz not under the URL's selected parent.
+# 422: invalid pagination, status, or positive-integer ID filter.
+# Students and administrators do not receive an implicit teacher reporting bypass.
