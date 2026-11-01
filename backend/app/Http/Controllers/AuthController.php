@@ -14,11 +14,13 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'max:150'],
             'password' => ['required', 'string', 'min:6'],
+            'portal' => ['nullable', \Illuminate\Validation\Rule::in(['ais', 'member4', 'communication'])],
         ], [
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal 6 karakter.',
+            'portal.in' => 'Konteks portal tidak valid.',
         ]);
 
         if ($validator->fails()) {
@@ -47,16 +49,18 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (($user->role->name ?? null) !== 'admin') {
+        $portal = $request->input('portal') ?? 'ais';
+        $allowedRoles = match ($portal) { 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
+        if (! in_array($user->role?->name, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Akses ditolak. Halaman ini khusus admin AIS.',
+                'message' => $portal === 'ais' ? 'Akses ditolak. Halaman ini khusus admin AIS.' : 'Peran akun tidak memiliki akses ke portal wali dan keuangan.',
             ], 403);
         }
 
         $user->tokens()->delete();
 
-        $token = $user->createToken('ais-admin')->plainTextToken;
+        $token = $user->createToken($portal === 'ais' ? 'ais-admin' : $portal)->plainTextToken;
 
         return response()->json([
             'success' => true,

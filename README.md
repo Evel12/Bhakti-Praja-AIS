@@ -77,3 +77,39 @@ npm.cmd run build
 The backend test suite uses an in-memory SQLite database. Production hosting must serve the Laravel API and the built frontend with an appropriate `/api` routing configuration; Vite's development proxy is for local development.
 
 See [AIS-REVIEW.md](AIS-REVIEW.md) for the AIS scope review and [SCHOOL-SETUP.md](SCHOOL-SETUP.md) for school data sources and setup details.
+
+## Member 4: finance
+
+Finance is available at `/finance` after running the existing migrations. Choose **Portal wali dan keuangan pendidikan** on the login page for existing student/parent accounts; administrators can also open the finance menu from their academic administration session. Student and parent accounts must already be linked to the school records by Member 1. No finance demo records are added to the school database.
+
+Payment evidence is stored privately in Laravel's local disk (`storage/app/private/payment-proofs`) and downloaded through an authenticated API. JPG/JPEG/PNG/PDF files up to 2 MB are accepted. Payments remain pending until an administrator approves or rejects them. The current workflow accepts full invoice payments only.
+
+See [the Stage 3 report](docs/member4/STAGE-3.md), [API contract](docs/member4/API.md), and [integration dependencies](docs/member4/INTEGRATION.md).
+
+## Member 4: parent portal
+
+Existing active parent accounts can choose **Portal wali dan keuangan pendidikan** at login and open `/parent`. The portal shows linked children, school/class information, learning schedules, and child-specific bills/payment history. Payment submissions continue through the finance module.
+
+Grades, attendance, assignments/submissions and academic progress sources from Members 2/3 are absent in this checkout. Their portal pages clearly show unavailable states; no academic records or statistics are fabricated. The required integration contracts and verification limits are documented in [the Stage 4 report](docs/member4/STAGE-4.md). No Stage 4 migrations are needed. Communication/reminder delivery remains outside this stage.
+
+## Member 4: communication and notifications
+
+Run `php artisan migrate` for the additive notification metadata migration. Choose **Komunikasi sekolah (semua peran)** at login and open `/communication/announcements` or `/communication/notifications`. The existing authentication supports teachers in this context; academic administration and finance permissions remain unchanged.
+
+Administrators manage system announcements and can create payment reminders from an unpaid invoice's finance detail page. Announcements and reminders generate private in-app notifications; this is not push delivery. Reminders are manual and deduplicated. No recurring reminder schedule is installed.
+
+Email is disabled by default. Configure `MEMBER4_EMAIL_ENABLED=true`, `MAIL_MAILER=smtp` (or sendmail), the existing `MAIL_*` environment values and an appropriate `MAIL_FROM_ADDRESS`, then run `php artisan queue:work`. No credentials are committed. Log/array transports are not counted as email delivery. The queue-to-local-SMTP path was tested; production mailbox delivery was not.
+
+Messaging rules and reminder timing remain unspecified; assignment/examination data and push infrastructure are unavailable. See [the Stage 5 report](docs/member4/STAGE-5.md) for exact coverage, tests and pending requirements, and the following section for Stage 6 integration.
+
+## Member 4: dashboard and UI integration
+
+Stage 6 integrates the existing pages without new backend routes or migrations. Finance dashboard cards open the relevant lists, payment status filters survive reload, and finance details opened from the parent portal retain the selected-child return path. Dashboards refresh when focused again; financial totals remain calculated by the backend. Payment upload drafts are preserved when the file chooser returns focus.
+
+Member 4 pages share in-flight requests through the existing authenticated API client, handle server failures without exposing backend details, and retain session isolation. See [the Stage 6 report](docs/member4/STAGE-6.md) for integration details.
+
+## Member 4: final verification
+
+Stage 7 completed verification of the available implementation: 82 Laravel tests / 929 assertions passed on both SQLite and isolated MySQL, frontend lint/build passed, and Chrome workflows covered finance, parent data isolation, announcements, notifications and logout failures. Three defects were fixed: announcement UTF-8 byte limits, failed logout handling, and internal API debug leakage. No new routes or migrations were added.
+
+See [the final requirement coverage and readiness report](docs/member4/STAGE-7.md). Academic sources from Members 2/3, messaging rules, academic reminder timing/data, external email delivery and push infrastructure remain blocked; production readiness is not claimed.

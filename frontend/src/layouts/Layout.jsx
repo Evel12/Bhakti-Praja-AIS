@@ -5,6 +5,7 @@ import { useSchool } from '../school-context'
 
 import {
   NavLink,
+  useLocation,
   useNavigate
 } from 'react-router-dom'
 
@@ -28,6 +29,10 @@ import {
   UserRound,
   UserRoundCog,
   Users,
+  Wallet,
+  Receipt,
+  FileCheck,
+  History,
   X
 } from 'lucide-react'
 
@@ -155,6 +160,39 @@ export default function Layout({
   children
 }) {
   const school = useSchool()
+  const admin = user.role === 'admin'
+  const parent = user.role === 'wali_murid'
+  const location = useLocation()
+  const navigationParams = new URLSearchParams(location.search)
+  const selectedChild = location.pathname.startsWith('/parent') || navigationParams.get('from') === 'parent' ? navigationParams.get('student_id') : null
+  const parentGroup = { label: 'Portal Wali Murid', items: [
+    { path: '/parent', label: 'Dashboard Wali', icon: LayoutDashboard },
+    { path: '/parent/children', label: 'Daftar Anak', icon: Users },
+    { path: '/parent/information', label: 'Informasi Anak', icon: GraduationCap },
+    { path: '/parent/grades', label: 'Nilai Akademik', icon: BookOpen },
+    { path: '/parent/attendance', label: 'Absensi', icon: CalendarDays },
+    { path: '/parent/assignments', label: 'Tugas', icon: BookOpen },
+    { path: '/parent/schedules', label: 'Jadwal Pelajaran', icon: CalendarDays },
+    { path: '/parent/progress', label: 'Perkembangan Akademik', icon: BarChart3 },
+    { path: '/parent/invoices', label: 'Tagihan Pendidikan', icon: Receipt },
+    { path: '/parent/payments', label: 'Riwayat Pembayaran', icon: History },
+  ] }
+  const roleLabel = ({ admin: 'Administrator', guru: 'Guru', murid: 'Siswa', wali_murid: 'Wali Murid' })[user.role] ?? 'Pengguna'
+  const financeGroup = { label: 'Keuangan Pendidikan', items: [
+    { path: '/finance', label: 'Ringkasan Keuangan', icon: Wallet },
+    { path: '/finance/invoices', label: 'Tagihan Pendidikan', icon: Receipt },
+    { path: '/finance/payments', label: 'Riwayat Pembayaran', icon: History },
+    { path: '/finance/outstanding', label: 'Tagihan Belum Lunas', icon: CalendarDays },
+    ...(admin ? [
+      { path: '/finance/verification', label: 'Verifikasi Pembayaran', icon: FileCheck },
+      { path: '/finance/reports', label: 'Laporan Keuangan', icon: BarChart3 },
+    ] : []),
+  ] }
+  const communicationGroup = { label: 'Komunikasi Sekolah', items: [
+    { path: '/communication/announcements', label: 'Pengumuman', icon: BookOpen },
+    { path: '/communication/notifications', label: 'Pusat Notifikasi', icon: Receipt },
+  ] }
+  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), communicationGroup]
   const [
     collapsed,
     setCollapsed
@@ -169,11 +207,16 @@ export default function Layout({
     useNavigate()
 
   async function handleLogout() {
+    let logoutError = ''
     try {
       await logout()
+    } catch (error) {
+      if (error?.response?.status !== 401) {
+        logoutError = 'Anda telah keluar dari perangkat ini. Server belum dapat mengonfirmasi pencabutan sesi.'
+      }
     } finally {
-      onLogout()
-      navigate('/login')
+      onLogout(logoutError)
+      navigate('/login', { replace: true })
     }
   }
 
@@ -298,7 +341,7 @@ export default function Layout({
           p-3
         ">
 
-          {groups.map(
+          {navigationGroups.map(
             (group) => (
               <div
                 key={group.label}
@@ -329,8 +372,8 @@ export default function Layout({
                     }) => (
                       <NavLink
                         key={path}
-                        to={path}
-                        end={path === '/'}
+                        to={parent && path.startsWith('/parent') && selectedChild ? `${path}?student_id=${encodeURIComponent(selectedChild)}` : path}
+                        end={path === '/' || path === '/finance' || path === '/parent'}
                         title={label}
                         onClick={() =>
                           setMobileOpen(
@@ -417,7 +460,7 @@ export default function Layout({
             <LogOut size={18} />
 
             {!collapsed &&
-              'Logout'}
+              'Keluar'}
 
           </button>
 
@@ -500,7 +543,7 @@ export default function Layout({
                 font-semibold
                 text-slate-900
               ">
-                Admin Panel
+                {admin ? 'Panel Administrasi' : parent ? 'Portal Wali Murid' : user.role === 'guru' ? 'Komunikasi Sekolah' : 'Keuangan Pendidikan'}
               </p>
 
               <p className="
@@ -509,7 +552,7 @@ export default function Layout({
                 text-slate-500
                 sm:block
               ">
-                Core Academic Information System
+                Sistem Informasi Akademik
               </p>
 
             </div>
@@ -540,7 +583,7 @@ export default function Layout({
                 text-xs
                 text-slate-500
               ">
-                Administrator
+                {roleLabel}
               </p>
 
             </div>

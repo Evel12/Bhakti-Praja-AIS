@@ -35,6 +35,15 @@ Route::post(
 
 Route::get('/school-profile', \App\Http\Controllers\SchoolProfileController::class);
 
+// Shared Sanctum session endpoints; AIS resources below remain admin-only.
+Route::middleware(['auth:sanctum', \App\Http\Middleware\Member4Role::class.':admin,guru,murid,wali_murid'])
+    ->group(function () {
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::get('/auth/me', [AuthController::class, 'me']);
+    });
+
+require __DIR__.'/member4.php';
+
 /*
 |--------------------------------------------------------------------------
 | Area admin AIS (wajib token Sanctum + role admin di backend)
@@ -43,16 +52,6 @@ Route::get('/school-profile', \App\Http\Controllers\SchoolProfileController::cla
 
 Route::middleware(['auth:sanctum', AdminOnly::class])
     ->group(function () {
-
-        Route::post(
-            '/auth/logout',
-            [AuthController::class, 'logout']
-        );
-
-        Route::get(
-            '/auth/me',
-            [AuthController::class, 'me']
-        );
 
         Route::get(
             '/roles',
