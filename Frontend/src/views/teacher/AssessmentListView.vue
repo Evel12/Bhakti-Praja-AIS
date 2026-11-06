@@ -90,7 +90,7 @@ function create() {
       @focusin="stopFade"
       @pointerdown="stopFade"
     >
-      <AssessmentTable :items="items" :motion="false" />
+      <AssessmentTable :items="items" :motion="false" :show-status="filter === 'all'" />
     </div>
   </section>
 </template>

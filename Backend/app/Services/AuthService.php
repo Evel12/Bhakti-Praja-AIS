@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\PasswordReset;
@@ -32,6 +33,51 @@ class AuthService
             ]));
 
             return ['user' => $user, 'token' => $token->plainTextToken, 'expires_at' => $expiresAt->toIso8601String()];
+        });
+    }
+
+    public function ssoLogin(array $credentials, string $deviceName): array
+    {
+        return DB::transaction(function () use ($credentials, $deviceName): array {
+            $email = isset($credentials['email']) ? strtolower(trim((string) $credentials['email'])) : '';
+            $roleHint = $credentials['role'] ?? null;
+            $provider = (string) ($credentials['provider'] ?? 'undip');
+            $user = null;
+
+            if ($email !== '') {
+                $user = User::where('email', $email)->first();
+            }
+
+            if (! $user) {
+                $resolvedRole = match (true) {
+                    $roleHint === Role::Teacher->value || str_ends_with($email, '@lecturer.undip.ac.id') => Role::Teacher,
+                    $roleHint === Role::Student->value || str_ends_with($email, '@students.undip.ac.id') => Role::Student,
+                    default => null,
+                };
+
+                if ($resolvedRole !== null) {
+                    $user = User::where('role', $resolvedRole)->orderBy('id')->first();
+                }
+            }
+
+            if (! $user) {
+                logSystemActivity('auth.sso_login_failed');
+                throw new AuthenticationException;
+            }
+
+            $expiresAt = now()->addMinutes(config('auth.api_token_expiration', 120));
+            $token = $user->createToken($deviceName, ['*'], $expiresAt);
+
+            DB::afterCommit(fn () => logSystemActivity('auth.sso_login', $user->id, [
+                'entity_type' => 'api_token', 'entity_id' => $token->accessToken->id,
+            ]));
+
+            return [
+                'user' => $user,
+                'token' => $token->plainTextToken,
+                'expires_at' => $expiresAt->toIso8601String(),
+                'provider' => $provider,
+            ];
         });
     }
 

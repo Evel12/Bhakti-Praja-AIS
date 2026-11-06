@@ -3,20 +3,28 @@ import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { createNavigationLayout } from "../motion/navigation.js";
 import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "../stores/uiStore.js";
+import { useAuthStore } from "../stores/authStore.js";
 import AppSidebar from "../components/navigation/AppSidebar.vue";
-import RoleSwitcher from "../components/navigation/RoleSwitcher.vue";
 import Icon from "../components/ui/Icon.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
 import PageAtmosphere from "../components/motion/PageAtmosphere.vue";
 const route = useRoute(),
   router = useRouter(),
   ui = useUiStore(),
+  authStore = useAuthStore(),
   help = ref(false);
 const shell = ref();
 let layout,
   revision = 0;
+
+async function handleLogout() {
+  await authStore.logout();
+  router.push("/login");
+}
+
 onMounted(() => {
   layout = createNavigationLayout(shell.value);
+  authStore.restoreSession();
 });
 onBeforeUnmount(() => {
   revision++;
@@ -82,7 +90,15 @@ watch(
           }}</span>
         </div>
         <div class="topbar-actions">
-          <RoleSwitcher />
+          <button
+            type="button"
+            class="btn auth-header-pill"
+            aria-label="Keluar dari akun"
+            @click="handleLogout"
+          >
+            <Icon name="user" />
+            <span>{{ authStore.user?.email || "Akun" }} · Keluar</span>
+          </button>
           <button
             class="icon-btn"
             aria-label="Panduan penggunaan"
@@ -108,12 +124,12 @@ watch(
       <li>Buat assessment dan tentukan kelas.</li>
       <li>Susun soal atau pilih dari bank soal.</li>
       <li>Atur jadwal, cek, dan terbitkan.</li>
-      <li>Ganti tampilan menjadi Peserta untuk mengerjakan.</li>
-      <li>Kembali sebagai Pengajar untuk menilai dan merilis hasil.</li>
+      <li>Keluar lalu masuk sebagai Peserta untuk mengerjakan.</li>
+      <li>Masuk kembali sebagai Pengajar untuk menilai dan merilis hasil.</li>
     </ol>
     <p class="notice">
-      Ini versi demo. Data tersimpan di browser ini dan pilihan peran hanya
-      untuk mencoba tampilan. Login, sinkronisasi data, dan AI belum tersedia.
+      Gunakan halaman Login untuk masuk sebagai Pengajar (`teacher@example.test`)
+      atau Peserta (`student1@example.test`).
     </p></AppDialog
   >
 </template>

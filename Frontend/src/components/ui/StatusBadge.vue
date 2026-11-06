@@ -5,8 +5,10 @@ const styles = {
   Draft: "draft",
   Terjadwal: "scheduled",
   Ditutup: "closed",
+  Terkirim: "submitted",
+  "Waktu habis": "expired",
 };
 </script>
 <template>
-  <span class="badge" :class="styles[status]">{{ status }}</span>
+  <span class="status-label" :class="styles[status]">{{ status }}</span>
 </template>

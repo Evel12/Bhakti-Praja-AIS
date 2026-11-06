@@ -23,13 +23,25 @@ const routes = [
 export default createRouter({
   history: createWebHashHistory(),
   routes: [
-    { path: "/", redirect: "/dashboard" },
+    { path: "/", redirect: "/login" },
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("../views/auth/LoginView.vue"),
+      meta: { auth: true },
+    },
+    {
+      path: "/reset-password",
+      name: "reset-password",
+      component: () => import("../views/auth/ResetPasswordView.vue"),
+      meta: { auth: true },
+    },
     {
       path: "/motion-lab",
       component: () => import("../views/MotionLabView.vue"),
     },
     ...routes,
-    { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
+    { path: "/:pathMatch(.*)*", redirect: "/login" },
   ],
   scrollBehavior: (to, from) =>
     (to.meta.assessmentList && from.meta.assessmentList)

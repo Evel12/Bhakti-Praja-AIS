@@ -5,6 +5,12 @@ import Icon from "../ui/Icon.vue";
 import { date, time } from "../../utils/format.js";
 
 const props = defineProps({ entry: { type: Object, required: true } });
+const displayedStatus = computed(() => {
+  const { attempt, expired, status } = props.entry;
+  if (attempt?.status === "submitted") return "Terkirim";
+  if (expired) return "Waktu habis";
+  return ["Aktif", "Terjadwal"].includes(status) ? "" : status;
+});
 const action = computed(() => {
   const { assessment, attempt, permission, status } = props.entry;
   if (attempt?.status === "submitted")
@@ -24,7 +30,7 @@ const action = computed(() => {
     <div class="student-card-body">
       <div class="student-card-status">
         <span class="student-card-type">{{ entry.assessment.type }}</span>
-        <StatusBadge :status="entry.attempt?.status === 'submitted' ? 'Terkirim' : entry.expired ? 'Waktu habis' : entry.status" />
+        <StatusBadge v-if="displayedStatus" :status="displayedStatus" />
       </div>
       <h3 :id="'assessment-title-' + entry.assessment.id" class="student-card-title">{{ entry.assessment.title }}</h3>
       <p v-if="entry.assessment.description" class="student-card-description">{{ entry.assessment.description }}</p>

@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\AuthenticatedRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Requests\Auth\SsoLoginRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use App\Support\ApiResponse;
@@ -28,6 +29,24 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_at' => $result['expires_at'],
         ], 'Logged in.');
+    }
+
+    public function sso(SsoLoginRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $result = $this->auth->ssoLogin(
+            $request->safe()->only(['provider', 'email', 'role']),
+            $data['device_name'] ?? ('sso-'.$data['provider']),
+        );
+
+        return ApiResponse::success([
+            'user' => new UserResource($result['user']),
+            'token' => $result['token'],
+            'token_type' => 'Bearer',
+            'expires_at' => $result['expires_at'],
+            'auth_method' => 'sso',
+            'provider' => $result['provider'],
+        ], 'Logged in via Institutional SSO.');
     }
 
     public function me(AuthenticatedRequest $request): JsonResponse

@@ -30,7 +30,8 @@ const draft = ref(found ? clone(found) : null),
   publishAttempted = ref(false),
   validationNow = ref(Date.now()),
   dialog = ref(""),
-  selected = ref([]);
+  selected = ref([]),
+  uploadedPdf = ref(null);
 const steps = ["Identitas", "Konten", "Pengaturan", "Preview"];
 const errors = computed(() => draft.value
   ? assessmentIssues(draft.value, { forPublish: publishAttempted.value || previewVisited.value, now: validationNow.value })
@@ -116,6 +117,9 @@ function addBank(ai = false) {
     draft.value.questions = [];
   index.value = draft.value.questions.length;
   draft.value.questions.push(...qs);
+  if (ai && typeof store.generateQuestionsFromPdf === "function") {
+    store.generateQuestionsFromPdf(draft.value, uploadedPdf.value).catch(() => {});
+  }
   dialog.value = "";
   selected.value = [];
 }
@@ -154,8 +158,11 @@ function pdf(e) {
     (!f.name.toLowerCase().endsWith(".pdf") || f.size > 10 * 1024 * 1024)
   ) {
     e.target.value = "";
+    uploadedPdf.value = null;
     ui.toast("Pilih PDF maksimal 10 MB.", true);
+    return;
   }
+  uploadedPdf.value = f || null;
 }
 </script>
 <template>

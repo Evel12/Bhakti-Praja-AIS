@@ -74,6 +74,16 @@ function reload() {
       ><button class="btn" @click="reload">Muat ulang</button>
     </div>
   </section>
+  <main
+    v-else-if="route.meta.auth"
+    id="main-content"
+    class="auth-standalone"
+    tabindex="-1"
+  >
+    <div id="route-scene" class="route-scene">
+      <RouterView :key="route.path" />
+    </div>
+  </main>
   <component v-else :is="route.meta.exam ? ExamLayout : AppShell"
     ><RouterView :key="route.meta.assessmentList ? 'assessment-list' : route.path"
   /></component>

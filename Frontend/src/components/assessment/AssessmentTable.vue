@@ -9,6 +9,7 @@ import Icon from "../ui/Icon.vue";
 defineProps({
   items: Array,
   compact: Boolean,
+  showStatus: { type: Boolean, default: true },
   motion: { type: Boolean, default: true },
 });
 const store = useAssessmentStore(),
@@ -24,7 +25,7 @@ function duplicate(a) {
       <thead>
         <tr>
           <th>Assessment</th>
-          <th>Status</th>
+          <th v-if="showStatus">Status</th>
           <th>Tenggat</th>
           <th v-if="!compact">Terkirim</th>
           <th scope="col"><span class="sr-only">Tindakan</span></th>
@@ -49,7 +50,7 @@ function duplicate(a) {
               </div>
             </div>
           </td>
-          <td data-label="Status"><StatusBadge :status="statusOf(a)" /></td>
+          <td v-if="showStatus" data-label="Status"><StatusBadge :status="statusOf(a)" /></td>
           <td data-label="Tenggat">
             <span>{{ date(a.closeAt) }}</span>
             <div class="table-secondary">{{ time(a.closeAt) }} WIB</div>

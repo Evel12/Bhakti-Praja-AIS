@@ -100,4 +100,35 @@ class AuthenticationTest extends TestCase
     {
         $this->postJson('/api/auth/register', ['role' => 'admin'])->assertNotFound();
     }
+
+    public function test_sso_login_issues_token_for_institutional_provider_and_role_or_email(): void
+    {
+        $teacher = User::factory()->create(['role' => Role::Teacher, 'email' => 'teacher@example.test']);
+        $student = User::factory()->create(['role' => Role::Student, 'email' => 'student@example.test']);
+
+        $teacherRes = $this->postJson('/api/auth/sso', [
+            'provider' => 'undip',
+            'email' => 'dosen@lecturer.undip.ac.id',
+            'role' => 'teacher',
+            'device_name' => 'sso-browser',
+        ])->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.auth_method', 'sso')
+            ->assertJsonPath('data.provider', 'undip')
+            ->assertJsonPath('data.user.id', $teacher->id)
+            ->assertJsonPath('data.user.role', 'teacher');
+
+        $this->assertNotEmpty($teacherRes->json('data.token'));
+
+        $studentRes = $this->postJson('/api/auth/sso', [
+            'provider' => 'microsoft',
+            'email' => $student->email,
+        ])->assertOk()
+            ->assertJsonPath('data.auth_method', 'sso')
+            ->assertJsonPath('data.provider', 'microsoft')
+            ->assertJsonPath('data.user.id', $student->id)
+            ->assertJsonPath('data.user.role', 'student');
+
+        $this->assertNotEmpty($studentRes->json('data.token'));
+    }
 }

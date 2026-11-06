@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AttemptController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClassModuleController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\QuizController;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->name('auth.')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
+    Route::post('sso', [AuthController::class, 'sso'])->middleware('throttle:login')->name('sso');
     Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset')->name('forgot-password');
     Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('reset-password');
 
@@ -21,6 +23,8 @@ Route::prefix('auth')->name('auth.')->group(function (): void {
 });
 
 Route::middleware(['auth:sanctum', 'role:teacher,student', 'throttle:assessment-api'])->group(function (): void {
+    Route::get('classes', [ClassModuleController::class, 'index'])->name('classes.index');
+    Route::get('classes/{schoolClass}/modules', [ClassModuleController::class, 'modules'])->name('classes.modules.index');
     Route::get('classes/{schoolClass}/quizzes', [QuizController::class, 'index'])->name('classes.quizzes.index');
 });
 
@@ -35,6 +39,7 @@ Route::middleware(['auth:sanctum', 'role:student', 'throttle:assessment-api'])->
 });
 
 Route::middleware(['auth:sanctum', 'role:teacher', 'throttle:assessment-api'])->scopeBindings()->group(function (): void {
+    Route::post('classes/{schoolClass}/modules', [ClassModuleController::class, 'storeModule'])->middleware('throttle:quiz-writes')->name('classes.modules.store');
     Route::post('modules/{module}/generate-quiz', [QuizGenerationController::class, 'store'])->middleware('throttle:quiz-generation')->name('quiz-generations.store');
     Route::get('quiz-generations/{quizGeneration}', [QuizGenerationController::class, 'show'])->name('quiz-generations.show');
     Route::get('classes/{schoolClass}/gradebook', [ReportingController::class, 'gradebook'])->middleware('throttle:reports')->name('reports.gradebook');

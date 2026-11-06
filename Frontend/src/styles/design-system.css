@@ -277,9 +277,7 @@ button .icon {
   gap: 6px;
   font-size: 10px;
   color: var(--muted);
-  padding: 4px 7px;
-  border: 1px solid #dde0d3;
-  border-radius: 6px;
+  padding-block: 4px;
 }
 .demo-dot {
   width: 5px;
@@ -630,38 +628,18 @@ td.title-cell {
   gap: 11px;
   align-items: center;
 }
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
+.status-label {
+  font-size: 12px;
   font-weight: 500;
-  padding: 4px 8px;
   white-space: nowrap;
-  background: #eceee6;
-  border-radius: 6px;
-  color: #67715e;
-}
-.badge.active,
-.badge.released {
-  background: #edf5ed;
-  color: #37704e;
-}
-.badge.draft {
-  background: #fff0e4;
-  color: #936336;
-}
-.badge.scheduled {
-  background: #eceff5;
-  color: #5b6f8d;
-}
-.badge.closed {
-  background: #efefec;
   color: var(--text-closed);
 }
-.badge.warning {
-  background: #fff0e4;
-  color: #936336;
+.status-label.active,
+.status-label.submitted {
+  color: var(--green);
+}
+.status-label.expired {
+  color: var(--amber);
 }
 .help-card {
   background: #e7ebdf;
@@ -986,18 +964,16 @@ input[type="checkbox"] {
   padding-left: 18px;
 }
 .notice {
-  padding: 13px 16px;
-  background: #eef2e7;
-  border: 1px solid #e1e7d7;
-  color: #637451;
+  color: var(--text-closed);
   font-size: 12px;
-  border-radius: 12px;
   margin: 16px 0;
   line-height: 1.7;
 }
 .notice.warning {
+  padding: 13px 16px;
   background: #fff1e4;
-  border-color: #f1dcc3;
+  border: 1px solid #f1dcc3;
+  border-radius: 12px;
   color: #876033;
 }
 .preview-list {
@@ -2207,7 +2183,6 @@ dialog::backdrop {
 .timer-label,
 .bank-card .bank-topic,
 .bank-card p,
-.badge,
 .type-icon,
 .role-switch select {
   font-size: 11px;
