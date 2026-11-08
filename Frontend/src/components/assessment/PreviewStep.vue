@@ -38,7 +38,7 @@ function schedule(value) {
   <h3>Ringkasan assessment</h3>
   <dl class="detail-grid publication-summary">
     <div><dt>Judul</dt><dd>{{ draft.title.trim() || "Belum diisi" }}</dd></div>
-    <div><dt>Mata kuliah</dt><dd>{{ draft.course || "Belum dipilih" }}</dd></div>
+    <div><dt>Mata pelajaran</dt><dd>{{ draft.course || "Belum dipilih" }}</dd></div>
     <div><dt>Kelas</dt><dd>{{ draft.className || "Belum dipilih" }}</dd></div>
     <div><dt>Jenis</dt><dd>{{ draft.type }}</dd></div>
     <div>

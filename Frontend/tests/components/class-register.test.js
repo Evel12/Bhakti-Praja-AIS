@@ -49,7 +49,7 @@ describe("class comparison and class register", () => {
     const router = await open("/dashboard");
     expect(wrapper.find(".sparkline").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("Siap dikerjakan");
-    await chooseSoftSelect(wrapper, "Mata kuliah", "Jaringan Komputer");
+    await chooseSoftSelect(wrapper, "Mata pelajaran", "Jaringan Komputer");
     expect(wrapper.get('.class-grade-average').text()).toBe("84/100");
     expect(wrapper.findAll('.class-grades-table tbody tr')).toHaveLength(1);
     await wrapper.get('.class-grades-table .register-link').trigger("click");
@@ -69,7 +69,7 @@ describe("class comparison and class register", () => {
     expect(document.activeElement).toBe(select.element);
     expect(wrapper.findAll('.result-register-row')).toHaveLength(1);
     expect(wrapper.get('.result-register-row').text()).toContain("Ujian Tengah Semester");
-    await chooseSoftSelect(wrapper, "Mata kuliah", "Basis Data");
+    await chooseSoftSelect(wrapper, "Mata pelajaran", "Basis Data");
     await flushPromises();
     expect(wrapper.get('[role="status"]').text()).toContain("Tidak ada hasil untuk pilihan ini");
     expect(router.currentRoute.value.query).toEqual({ class: "Kelas B", course: "Basis Data" });
@@ -127,7 +127,7 @@ describe("class comparison and class register", () => {
   });
 
   it("recovers from a stale class link instead of silently broadening the results", async () => {
-    await open({ path: '/results', query: { class: 'Kelas lama', course: 'Mata kuliah lama' } });
+    await open({ path: '/results', query: { class: 'Kelas lama', course: 'Mata pelajaran lama' } });
     expect(wrapper.find('.result-register-table').exists()).toBe(false);
     expect(wrapper.get('[role="status"]').text()).toContain('Tidak ada hasil untuk pilihan ini');
     expect(wrapper.findAll('.register-filters [role="combobox"]')[0].text()).toContain('Kelas lama (tidak tersedia)');

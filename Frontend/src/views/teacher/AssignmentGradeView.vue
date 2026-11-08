@@ -1,6 +1,6 @@
 <script setup>
 import MotionField from "../../components/motion/MotionField.vue";
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
@@ -18,7 +18,13 @@ const at = computed(() =>
     store.db.assessments.find((x) => x.id === at.value?.assessmentId),
   );
 const { score, feedback, dirty, error: draftError, restored, persist, markCommitted } = useGradingDraft(at);
-const saveError = ref("");
+const saveError = ref(""),
+  instructionsOpen = ref(true);
+onMounted(() => {
+  if (typeof matchMedia === "function" && matchMedia("(max-width: 768px)").matches) {
+    instructionsOpen.value = false;
+  }
+});
 watch(() => route.params.id, () => { saveError.value = ""; });
 const scope = computed(() => resultContext(route.query));
 const pending = computed(() => gradingQueue(store.db)
@@ -87,8 +93,10 @@ function save(event) {
         <p v-else class="notice">
           File contoh tidak memiliki lampiran untuk didownload.
         </p>
-        <h3 class="mt">Instruksi tugas</h3>
-        <p class="body-copy mt">{{ a.instructions }}</p>
+        <details class="grading-instructions" :open="instructionsOpen">
+          <summary>Instruksi tugas</summary>
+          <p class="body-copy mt">{{ a.instructions }}</p>
+        </details>
       </section>
       <form class="panel" @submit.prevent="save">
         <h2>Nilai & feedback</h2>

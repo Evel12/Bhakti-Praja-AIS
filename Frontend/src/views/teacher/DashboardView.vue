@@ -58,7 +58,7 @@ function create() {
           }}</span>
         </div>
         <div class="metric-foot">
-          <RouterLink to="/assessments/Aktif">Lihat assessment →</RouterLink>
+          <RouterLink to="/assessments/Aktif" class="btn small minimal-box-btn">Lihat assessment →</RouterLink>
         </div>
       </div>
       <div class="metric">
@@ -69,7 +69,7 @@ function create() {
           }}</span>
         </div>
         <div class="metric-foot">
-          <RouterLink to="/results?filter=pending">Cek sekarang</RouterLink>
+          <RouterLink to="/results?filter=pending" class="btn small minimal-box-btn">Cek sekarang</RouterLink>
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@ function create() {
           <h2>Perlu dicek</h2>
           <p>Penilaian tertunda, tenggat terdekat, lalu draft yang bisa dilanjutkan.</p>
         </div>
-        <RouterLink :to="pending ? '/results?filter=pending' : '/assessments/all'" class="btn ghost small"
+        <RouterLink :to="pending ? '/results?filter=pending' : '/assessments/all'" class="btn small minimal-box-btn"
           >{{ pending ? 'Semua penilaian tertunda' : 'Semua assessment' }} →</RouterLink
         >
       </div>
@@ -92,7 +92,7 @@ function create() {
             <p class="table-secondary">{{ task.assessment.course }} · {{ task.assessment.className }}</p>
             <p class="task-reason">{{ task.reason }}<template v-if="task.kind === 'deadline'"> · {{ date(task.assessment.closeAt) }} · {{ time(task.assessment.closeAt) }} WIB</template></p>
           </div>
-          <RouterLink :to="task.to" class="btn small">{{ task.action }} →<span class="sr-only"> {{ task.assessment.title || 'Draft tanpa judul' }}</span></RouterLink>
+          <RouterLink :to="task.to" class="btn small minimal-box-btn">{{ task.action }} →<span class="sr-only"> {{ task.assessment.title || 'Draft tanpa judul' }}</span></RouterLink>
         </li>
       </ul>
       <div v-else class="empty">
@@ -123,7 +123,7 @@ function create() {
       <section class="help-card">
         <h3>Soal yang baik dimulai dari ide sederhana.</h3>
         <p>Pakai lagi soal yang sudah ada supaya lebih cepat.</p>
-        <RouterLink to="/bank" class="btn small"
+        <RouterLink to="/bank" class="btn small minimal-box-btn"
           >Buka bank soal →</RouterLink
         >
       </section>
@@ -135,7 +135,7 @@ function create() {
         <h2 id="class-grades-title">Nilai per kelas</h2>
         <p>Rata-rata pengumpulan yang sudah dinilai · skala 0–100.</p>
       </div>
-      <SoftSelect v-if="courses.length" label="Mata kuliah" class="class-course-picker" :model-value="course" :options="courseOptions" @update:model-value="selectedCourse = $event" />
+      <SoftSelect v-if="courses.length" label="Mata pelajaran" class="class-course-picker" :model-value="course" :options="courseOptions" @update:model-value="selectedCourse = $event" />
     </div>
     <table v-if="classGrades.length" class="lecturer-table class-grades-table">
       <caption class="sr-only">Perbandingan nilai kelas untuk {{ course }}</caption>
@@ -150,7 +150,7 @@ function create() {
         </tr>
       </tbody>
     </table>
-    <p v-if="classGrades.length && classGrades.every((row) => row.average === null)" class="section-caption class-grade-note">Belum ada hasil dinilai untuk mata kuliah ini.</p>
+    <p v-if="classGrades.length && classGrades.every((row) => row.average === null)" class="section-caption class-grade-note">Belum ada hasil dinilai untuk mata pelajaran ini.</p>
     <div v-if="!courses.length" class="empty">
       <h3>Belum ada assessment terbit</h3>
       <p>Perbandingan kelas muncul setelah assessment diterbitkan. Nilai ditampilkan setelah pengumpulan dinilai.</p>

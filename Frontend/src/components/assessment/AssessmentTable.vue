@@ -64,7 +64,7 @@ function duplicate(a) {
             peserta
           </td>
           <td>
-            <div class="action-row">
+            <div class="action-row table-action-buttons">
               <RouterLink
                 class="icon-btn"
                 :to="(a.state === 'draft' ? '/builder/' : '/results/') + a.id"

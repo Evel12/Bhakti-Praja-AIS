@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import { getStoredSession, getStoredToken } from "../services/apiClient.js";
 const routes = [
   ["/dashboard", () => import("../views/teacher/DashboardView.vue")],
   ["/assessments/:status?", () => import("../views/teacher/AssessmentListView.vue")],
@@ -20,7 +21,7 @@ const routes = [
     exam: path.startsWith("/attempt"),
   },
 }));
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: "/", redirect: "/login" },
@@ -48,3 +49,27 @@ export default createRouter({
       || (to.path === from.path && to.path.startsWith('/results'))
       ? false : { top: 0 },
 });
+
+router.beforeEach((to) => {
+  if (to.meta.auth || to.path === "/motion-lab") {
+    return true;
+  }
+
+  const token = getStoredToken();
+  if (!token) {
+    return "/login";
+  }
+
+  const session = getStoredSession();
+  const role = session?.user?.role;
+  if (role === "student" && !to.meta.student) {
+    return "/student";
+  }
+  if (role === "teacher" && to.meta.student) {
+    return "/dashboard";
+  }
+
+  return true;
+});
+
+export default router;

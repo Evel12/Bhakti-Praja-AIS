@@ -12,7 +12,7 @@ export function assessmentIssues(a, { forPublish = false, now = Date.now() } = {
     issues.push({ step, field, message, questionId, target });
   };
   if (!a.title.trim()) add(0, "title", "Judul assessment wajib diisi.");
-  if (!a.course) add(0, "course", "Pilih mata kuliah.");
+  if (!a.course) add(0, "course", "Pilih mata pelajaran.");
   if (!a.className) add(0, "className", "Pilih kelas.");
   if (a.type === "Tugas") {
     if (!a.instructions.trim()) add(1, "instructions", "Tuliskan instruksi tugas.");

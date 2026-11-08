@@ -1,6 +1,6 @@
 <script setup>
 import MotionField from "../../components/motion/MotionField.vue";
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import Icon from "../ui/Icon.vue";
 import QuestionEditor from "./QuestionEditor.vue";
 import FieldError from "../ui/FieldError.vue";
@@ -8,7 +8,17 @@ import { useAssessmentFields } from "../../composables/useAssessmentFields.js";
 const props = defineProps({ draft: Object, index: Number, issues: { type: Array, default: () => [] } });
 const { field, issue } = useAssessmentFields(() => props.issues);
 defineEmits(["add", "bank", "ai", "remove", "select"]);
+const navRef = ref();
 const question = computed(() => props.draft.questions[props.index]);
+watch(
+  () => props.index,
+  () => {
+    navRef.value
+      ?.querySelector("button.active")
+      ?.scrollIntoView?.({ block: "nearest", inline: "center" });
+  },
+  { flush: "post" },
+);
 </script>
 <template>
   <div class="panel-header">
@@ -41,7 +51,7 @@ const question = computed(() => props.draft.questions[props.index]);
     </div>
     <FieldError :issue="issue('questions')" />
     <div class="question-layout">
-      <nav class="question-nav" aria-label="Daftar soal">
+      <nav ref="navRef" class="question-nav" aria-label="Daftar soal">
         <button
           v-for="(q, i) in draft.questions"
           :key="q.id"

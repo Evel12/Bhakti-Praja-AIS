@@ -5,6 +5,7 @@ import { createRouter, createMemoryHistory } from "vue-router";
 import {
   createNavigationScope,
   createNavigationLayout,
+  createSidebarMotion,
 } from "../../src/motion/navigation.js";
 import { createMotionEngine, motionEngine } from "../../src/motion/engine.js";
 import AppSidebar from "../../src/components/navigation/AppSidebar.vue";
@@ -217,4 +218,161 @@ describe("phase 7 navigation", () => {
     expect(w.find(".nav-popover").exists()).toBe(false);
     expect(w.get('[aria-label="Assessment"]').attributes("aria-current")).toBe("page");
   });
+  it("anchors the desktop collapse button inside .brand-row and prevents stale tooltip overlap", async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: "/dashboard", component: { template: "<div/>" } },
+      ],
+    });
+    await router.push("/dashboard");
+    const w = mount(AppSidebar, {
+      attachTo: document.body,
+      global: { plugins: [pinia, router] },
+    });
+    cleanup.push(() => w.unmount());
+    await flushPromises();
+
+    const headerToggle = w.get(".brand-row > .collapse-control");
+    expect(w.find(".brand-row > .sidebar-close").exists()).toBe(false);
+    expect(headerToggle.attributes("aria-label")).toBe("Tutup navigasi");
+    expect(headerToggle.attributes("aria-expanded")).toBe("true");
+    expect(headerToggle.find('[role="tooltip"]').exists()).toBe(false);
+
+    await headerToggle.trigger("click");
+    await flushPromises();
+    expect(headerToggle.attributes("aria-label")).toBe("Lebarkan navigasi");
+    expect(headerToggle.attributes("aria-expanded")).toBe("false");
+    expect(headerToggle.get('[role="tooltip"]').text()).toBe("Lebarkan navigasi");
+
+    const { link, tip, root } = scope();
+    link.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));
+    expect(tip.hasAttribute("data-liquid-visible")).toBe(true);
+    link.dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+    expect(tip.hasAttribute("data-liquid-visible")).toBe(false);
+
+    root.setAttribute("data-sidebar-animating", "");
+    link.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));
+    expect(tip.hasAttribute("data-liquid-visible")).toBe(false);
+  });
+  it("synchronizes sidebar track width and toggle button smoothly, reverses mid-flight, and reads zero styles in RAF", () => {
+    const root = element();
+    root.innerHTML =
+      '<aside id="sidebar"><div class="brand-row"><a class="brand"><img alt="logo" /></a><button class="collapse-control"></button></div></aside><main id="main-content"></main>';
+    const sidebar = root.querySelector("#sidebar"),
+      collapseBtn = root.querySelector(".collapse-control"),
+      brandImg = root.querySelector(".brand img"),
+      content = root.querySelector("#main-content");
+    let collapsed = false;
+    sidebar.getBoundingClientRect = () => ({
+      left: 0,
+      top: 0,
+      width: collapsed ? 80 : 264,
+      height: 720,
+    });
+    collapseBtn.getBoundingClientRect = () => ({
+      left: collapsed ? 21 : 210,
+      top: collapsed ? 70 : 29,
+      width: 38,
+      height: 38,
+    });
+    brandImg.getBoundingClientRect = () => ({
+      left: 20,
+      top: collapsed ? 20 : 28,
+      width: 40,
+      height: 40,
+    });
+
+    const c = clock(),
+      engine = createMotionEngine({ ...c, getTokens: () => tokens() }),
+      motion = createSidebarMotion(root, { engine, ...c });
+    cleanup.push(() => motion.dispose());
+
+    motion.capture();
+    collapsed = true;
+    motion.play(true);
+
+    expect(sidebar.hasAttribute("data-sidebar-animating")).toBe(true);
+    expect(root.style.getPropertyValue("--sidebar-width")).toBe("264px");
+    expect(content.style.transform).toBe("");
+
+    const styleSpy = vi.spyOn(window, "getComputedStyle");
+    const rectSpy = vi.spyOn(sidebar, "getBoundingClientRect");
+    styleSpy.mockClear();
+    rectSpy.mockClear();
+
+    c.step(68);
+    expect(styleSpy).not.toHaveBeenCalled();
+    expect(rectSpy).not.toHaveBeenCalled();
+
+    const midWidth = Number.parseFloat(
+      root.style.getPropertyValue("--sidebar-width"),
+    );
+    expect(midWidth).toBeLessThan(264);
+    expect(midWidth).toBeGreaterThan(80);
+    expect(collapseBtn.style.transform).toContain("translate3d");
+
+    rectSpy.mockRestore();
+
+    motion.capture();
+    collapsed = false;
+    motion.play(false);
+    expect(
+      Number.parseFloat(root.style.getPropertyValue("--sidebar-width")),
+    ).toBeCloseTo(midWidth, 1);
+    expect(root.style.getPropertyValue("--sidebar-copy-opacity")).toBe("0");
+
+    c.flush();
+    expect(c.pending()).toBe(0);
+    expect(engine.stats().active).toBe(0);
+    expect(sidebar.hasAttribute("data-sidebar-animating")).toBe(false);
+    expect(root.style.getPropertyValue("--sidebar-width")).toBe("");
+    expect(root.style.getPropertyValue("--sidebar-copy-opacity")).toBe("");
+    expect(collapseBtn.style.transform).toBe("");
+    expect(content.style.transform).toBe("");
+  });
+  it.each(["reduced", "off"])(
+    "honors %s motion policy in createSidebarMotion without spatial width springs",
+    (mode) => {
+      const root = element();
+      root.dataset.motion = mode;
+      root.innerHTML =
+        '<aside id="sidebar"><div class="brand-row"><a class="brand"><img alt="logo" /></a><button class="collapse-control"></button></div></aside><main id="main-content"></main>';
+      const sidebar = root.querySelector("#sidebar"),
+        collapseBtn = root.querySelector(".collapse-control");
+      let collapsed = true;
+      sidebar.getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: collapsed ? 80 : 264,
+        height: 720,
+      });
+      collapseBtn.getBoundingClientRect = () => ({
+        left: collapsed ? 21 : 210,
+        top: collapsed ? 70 : 29,
+        width: 38,
+        height: 38,
+      });
+      const c = clock(),
+        engine = createMotionEngine({ ...c, getTokens: () => tokens(mode) }),
+        motion = createSidebarMotion(root, { engine, ...c });
+      cleanup.push(() => motion.dispose());
+
+      motion.capture();
+      collapsed = false;
+      motion.play(false);
+
+      expect(root.style.getPropertyValue("--sidebar-width")).toBe("");
+      expect(collapseBtn.style.transform).toBe("");
+      if (mode === "off") {
+        expect(c.pending()).toBe(0);
+      } else {
+        expect(root.style.getPropertyValue("--sidebar-copy-opacity")).toBe("0");
+        c.flush();
+        expect(root.style.getPropertyValue("--sidebar-copy-opacity")).toBe("");
+      }
+    },
+  );
 });

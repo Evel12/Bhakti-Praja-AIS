@@ -24,6 +24,7 @@
 }
 .soft-field-value {
   min-width: 0;
+  font-family: var(--font-content);
   overflow-wrap: anywhere;
 }
 .soft-field-trigger .icon {
@@ -54,6 +55,7 @@
   min-height: 44px;
   padding: 10px 12px;
   border-radius: 7px;
+  font-family: var(--font-content);
   font-size: 14px;
   overflow-wrap: anywhere;
   cursor: pointer;

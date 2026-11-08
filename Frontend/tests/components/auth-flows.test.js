@@ -47,6 +47,13 @@ describe("Opsi A Unified Login Card & Email Authentication", () => {
     const authStore = useAuthStore();
 
     expect(wrapper.find(".auth-unified-card").exists()).toBe(true);
+    expect(wrapper.get(".brand-name").text()).toBe("SMK Bhakti Praja Batang");
+    expect(wrapper.get(".brand img").attributes("src")).toBe(
+      "/brand/smk-bhakti-praja-batang.png",
+    );
+    expect(wrapper.get("#login-heading").text()).toBe(
+      "Masuk ke SMK Bhakti Praja Batang",
+    );
     const ssoBtn = wrapper.get(".auth-sso-btn");
     expect(ssoBtn.text()).toBe("SSO");
 

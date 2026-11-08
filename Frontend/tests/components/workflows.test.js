@@ -47,7 +47,7 @@ describe("navigation and reactive workflow safeguards", () => {
     await router.push("/dashboard");
     const wrapper = mount(AppSidebar, { global: { plugins: [pinia, router] } });
     await flushPromises();
-    await wrapper.get('[aria-label="Ciutkan navigasi"]').trigger("click");
+    await wrapper.get('[aria-label="Tutup navigasi"]').trigger("click");
     expect(localStorage.getItem(SIDEBAR_KEY)).toBe("true");
     expect(
       wrapper

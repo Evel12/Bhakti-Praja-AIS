@@ -77,27 +77,34 @@ function start() {
         dan tidak diulang saat keluar atau memuat ulang halaman.
       </p>
       <template v-if="permission.allowed"
-        ><label class="check-label"
+        ><label class="check-label instructions-check-card"
           ><input v-model="accepted" type="checkbox" />Saya sudah baca petunjuk
           dan siap mengerjakan secara mandiri.</label
-        ><button class="btn primary mt" :disabled="!accepted" @click="start">
-          {{ prior ? "Lanjutkan pengerjaan" : "Mulai assessment" }}
-        </button></template
+        >
+        <div class="action-row instructions-actions">
+          <button class="btn primary" :disabled="!accepted" @click="start">
+            {{ prior ? "Lanjutkan pengerjaan" : "Mulai assessment" }}
+          </button>
+          <RouterLink to="/student" class="btn">Kembali</RouterLink>
+        </div></template
       ><template v-else
         ><p class="notice warning" role="status">{{ unavailableReason }}</p>
-        <RouterLink
-          v-if="prior"
-          class="btn"
-          :to="
-            (prior.status === 'submitted' ? '/review/' : '/attempt/') + prior.id
-          "
-          >{{
-            prior.status === "submitted"
-              ? "Lihat pengumpulan"
-              : "Buka sesi tersimpan"
-          }}</RouterLink
-        ></template
-      ><RouterLink to="/student" class="btn mt">Kembali</RouterLink>
+        <div class="action-row instructions-actions">
+          <RouterLink
+            v-if="prior"
+            class="btn primary"
+            :to="
+              (prior.status === 'submitted' ? '/review/' : '/attempt/') + prior.id
+            "
+            >{{
+              prior.status === "submitted"
+                ? "Lihat pengumpulan"
+                : "Buka sesi tersimpan"
+            }}</RouterLink
+          >
+          <RouterLink to="/student" class="btn">Kembali</RouterLink>
+        </div></template
+      >
     </section></template
   >
   <div v-else class="empty">

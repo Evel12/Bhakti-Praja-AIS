@@ -144,7 +144,7 @@ describe("publication readiness", () => {
     const { id, store } = await openDraft((a) => { a.releaseMode = mode; });
     await preview();
     expect(summary()).toEqual({
-      Judul: "Evaluasi basis data", "Mata kuliah": "Basis Data", Kelas: "Kelas C", Jenis: "Ujian",
+      Judul: "Evaluasi basis data", "Mata pelajaran": "Basis Data", Kelas: "Kelas C", Jenis: "Ujian",
       Durasi: "35 menit", "Jumlah soal": "2 soal", "Total poin": "5 poin",
       "Waktu buka (WIB)": "2 Nov 2026 · 08.00 WIB", "Waktu tutup (WIB)": "2 Nov 2026 · 10.00 WIB",
       "Rilis nilai": policy,

@@ -14,7 +14,7 @@ const root = ref(), trigger = ref(), popup = ref();
 const open = ref(false), activeIndex = ref(-1), position = ref({});
 const selected = computed(() => props.options.find(option => option.value === props.modelValue));
 const optionId = index => `${id}-option-${index}`;
-let search = "", searchedAt = 0;
+let search = "", searchedAt = 0, openWidth = 0;
 
 function close(restoreFocus = false) {
   open.value = false;
@@ -26,6 +26,7 @@ function place() {
   const rect = trigger.value.getBoundingClientRect();
   const gap = 8, margin = 12;
   const desired = Math.min(320, props.options.length * 44 + 12);
+  const minVisible = Math.min(desired, 132);
   const below = window.innerHeight - rect.bottom - gap - margin;
   const above = rect.top - gap - margin;
   const up = below < desired && above > below;
@@ -33,7 +34,7 @@ function place() {
   position.value = {
     width: `${width}px`,
     left: `${Math.max(margin, Math.min(rect.left, window.innerWidth - width - margin))}px`,
-    maxHeight: `${Math.max(44, Math.min(320, up ? above : below))}px`,
+    maxHeight: `${Math.max(minVisible, Math.min(320, up ? above : below))}px`,
     ...(up ? { bottom: `${window.innerHeight - rect.top + gap}px` } : { top: `${rect.bottom + gap}px` }),
   };
 }
@@ -42,6 +43,7 @@ async function show(index) {
   document.dispatchEvent(new CustomEvent("examnia:soft-field-open", { detail: id }));
   const selectedIndex = props.options.findIndex(option => option.value === props.modelValue && !option.disabled);
   activeIndex.value = index ?? (selectedIndex >= 0 ? selectedIndex : props.options.findIndex(option => !option.disabled));
+  openWidth = window.innerWidth;
   place();
   open.value = true;
   await nextTick();
@@ -101,6 +103,18 @@ function outside(event) { if (open.value && !contains(event.target)) close(); }
 function scroll(event) { if (open.value && !popup.value?.contains(event.target)) close(); }
 function otherOpened(event) { if (event.detail !== id) close(); }
 function dismiss() { close(); }
+function handleResize() {
+  if (!open.value) return;
+  if (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(pointer: coarse)").matches &&
+    Math.abs(window.innerWidth - openWidth) < 8
+  ) {
+    place();
+    return;
+  }
+  close();
+}
 watch(() => props.modelValue, () => close());
 watch(() => props.disabled, value => { if (value) close(); });
 watch(() => props.options, () => {
@@ -113,7 +127,7 @@ onMounted(() => {
   document.addEventListener("pointerdown", outside, true);
   document.addEventListener("focusin", outside);
   document.addEventListener("examnia:soft-field-open", otherOpened);
-  window.addEventListener("resize", dismiss);
+  window.addEventListener("resize", handleResize);
   window.addEventListener("scroll", scroll, true);
   window.addEventListener("blur", dismiss);
 });
@@ -122,7 +136,7 @@ onBeforeUnmount(() => {
   document.removeEventListener("pointerdown", outside, true);
   document.removeEventListener("focusin", outside);
   document.removeEventListener("examnia:soft-field-open", otherOpened);
-  window.removeEventListener("resize", dismiss);
+  window.removeEventListener("resize", handleResize);
   window.removeEventListener("scroll", scroll, true);
   window.removeEventListener("blur", dismiss);
 });

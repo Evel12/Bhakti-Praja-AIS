@@ -5,7 +5,7 @@ import AppBrand from "../components/brand/AppBrand.vue";
   <div class="shell exam-shell">
     <main id="main-content" class="content">
       <header class="topbar">
-        <AppBrand /><RouterLink to="/student" class="btn"
+        <AppBrand :interactive="false" /><RouterLink to="/student" class="btn"
           >Simpan & keluar</RouterLink
         >
       </header>

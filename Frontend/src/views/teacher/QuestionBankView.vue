@@ -66,7 +66,7 @@ function use(q) {
           v-model="search"
           class="input"
           aria-label="Cari bank soal"
-          placeholder="Cari pertanyaan atau mata kuliah..." /></MotionField></label
+          placeholder="Cari pertanyaan atau mata pelajaran..." /></MotionField></label
     ><span class="section-caption">{{ questions.length }} soal tersedia</span>
   </div>
   <MotionList class="bank-grid" :item-keys="questions.map((q) => q.id)">
@@ -92,7 +92,7 @@ function use(q) {
     @close="editing = null"
     ><template v-if="editing"
       ><label class="field mb"
-        ><span class="field-label">Mata kuliah</span
+        ><span class="field-label">Mata pelajaran</span
         ><MotionField
           ><select v-model="editing.topic" class="input">
             <option v-for="c in COURSES" :key="c">{{ c }}</option>

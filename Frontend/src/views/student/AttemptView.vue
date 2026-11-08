@@ -19,6 +19,7 @@ const store = useAssessmentStore(),
 const index = ref(0),
   questionTitle = ref(),
   confirm = ref(false),
+  mapOpen = ref(false),
   uploading = ref(false),
   submissionError = ref(false);
 const at = computed(() =>
@@ -52,6 +53,7 @@ const timeWarning = computed(() => remaining.value > 0 && remaining.value <= 600
 async function goToQuestion(position) {
   index.value = position;
   confirm.value = false;
+  mapOpen.value = false;
   await nextTick();
   questionTitle.value?.focus({ preventScroll: true });
   questionTitle.value?.scrollIntoView?.({ block: "start" });
@@ -191,6 +193,15 @@ async function upload(e) {
           <span class="timer-label">Sisa waktu</span>
           <p class="timer" :class="{ warning: remaining <= 300000 }" aria-label="Sisa waktu pengerjaan">{{ display }}</p>
         </div>
+        <button
+          type="button"
+          class="btn small exam-map-trigger"
+          aria-haspopup="dialog"
+          @click="mapOpen = true"
+        >
+          <span>Daftar soal ({{ answeredCount }}/{{ a.questions.length }})</span>
+          <Icon name="grid" class="sm" />
+        </button>
         <p class="sr-only exam-time-warning" role="status" aria-live="polite" aria-atomic="true">{{ timeWarning }}</p>
       </div>
       <section class="panel exam-question-panel">
@@ -227,11 +238,18 @@ async function upload(e) {
               <button class="btn" :disabled="index === 0" @click="goToQuestion(index - 1)">
                 Sebelumnya</button
               ><button
+                v-if="index < a.questions.length - 1"
                 class="btn primary"
-                :disabled="index === a.questions.length - 1"
                 @click="goToQuestion(index + 1)"
               >
-                Berikutnya
+                Berikutnya</button
+              ><button
+                v-else
+                class="btn primary"
+                :disabled="locked"
+                @click="confirm = true"
+              >
+                Cek & kirim
               </button>
             </div>
           </div></template
@@ -275,6 +293,51 @@ async function upload(e) {
         </button>
       </aside>
     </div>
+    <AppDialog
+      v-if="a.type !== 'Tugas'"
+      :open="mapOpen"
+      title="Daftar soal"
+      @close="mapOpen = false"
+    >
+      <div class="number-grid">
+        <button
+          v-for="(question, n) in a.questions"
+          :key="'map-' + question.id"
+          type="button"
+          :class="{
+            current: index === n,
+            answered: at.answers[question.id] !== undefined,
+          }"
+          :aria-current="index === n ? 'step' : undefined"
+          :aria-label="
+            'Soal ' +
+            (n + 1) +
+            (at.answers[question.id] !== undefined ? ', terjawab' : ', belum dijawab') +
+            (at.flags.includes(question.id) ? ', ragu' : '')
+          "
+          @click="goToQuestion(n)"
+        >
+          {{ n + 1
+          }}<span v-if="at.flags.includes(question.id)" class="flag-dot">●</span>
+        </button>
+      </div>
+      <p class="number-legend">
+        {{ answeredCount }} / {{ a.questions.length }} terjawab · Hijau: terjawab · Titik: ragu
+      </p>
+      <template #footer
+        ><button class="btn" @click="mapOpen = false">Tutup</button
+        ><button
+          class="btn primary"
+          :disabled="locked"
+          @click="
+            mapOpen = false;
+            confirm = true;
+          "
+        >
+          Cek & kirim
+        </button></template
+      >
+    </AppDialog>
     <AppDialog
       :open="confirm"
       :title="a.type === 'Tugas' ? 'Kirim tugas?' : 'Cek jawaban kamu'"

@@ -56,7 +56,7 @@ it("dismisses with Escape or Tab without changing the committed selection", asyn
   expect(popup()).toBeNull();
 });
 it("supports type-ahead and Space confirmation", async () => {
-  const { wrapper, trigger } = setup({ label: 'Mata kuliah', modelValue: 'db', options: [{ value: 'db', label: 'Basis Data' }, { value: 'net', label: 'Jaringan Komputer' }, { value: 'os', label: 'Sistem Operasi' }] });
+  const { wrapper, trigger } = setup({ label: 'Mata pelajaran', modelValue: 'db', options: [{ value: 'db', label: 'Basis Data' }, { value: 'net', label: 'Jaringan Komputer' }, { value: 'os', label: 'Sistem Operasi' }] });
   await trigger.trigger('keydown', { key: 's' });
   expect(active(trigger).dataset.value).toBe('os');
   expect(wrapper.emitted('update:modelValue')).toBeUndefined();
@@ -64,7 +64,7 @@ it("supports type-ahead and Space confirmation", async () => {
   expect(wrapper.emitted('update:modelValue')).toEqual([['os']]);
 });
 it("allows only one popup at a time and gives each instance unique ARIA IDs", async () => {
-  const Host = defineComponent({ components: { SoftSelect }, setup: () => ({ options }), template: '<div><SoftSelect label="Kelas" :options="options" /><SoftSelect label="Mata kuliah" :options="options" /></div>' });
+  const Host = defineComponent({ components: { SoftSelect }, setup: () => ({ options }), template: '<div><SoftSelect label="Kelas" :options="options" /><SoftSelect label="Mata pelajaran" :options="options" /></div>' });
   const wrapper = mount(Host, { attachTo: document.body }); wrappers.push(wrapper);
   const buttons = wrapper.findAll('[role="combobox"]');
   expect(buttons[0].attributes('id')).not.toBe(buttons[1].attributes('id'));

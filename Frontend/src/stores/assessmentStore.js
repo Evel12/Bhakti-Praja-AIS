@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { repository } from "../repositories/assessmentRepository.js";
 import { validateDatabase } from "../repositories/localAssessmentRepository.js";
 import {
+  CLASSES,
   clone,
   saveAssessment,
   newAssessment,
@@ -28,8 +29,22 @@ function mapBackendQuizToFrontend(backendQuiz, classItem, existingAssessment = n
   base.backendQuizId = backendQuiz.id;
   base.backendClassId = backendQuiz.class_id || classItem?.id || 1;
   base.title = backendQuiz.title || base.title;
-  base.course = classItem?.name || base.course || "Pemrograman Dasar";
-  base.className = classItem?.name || base.className || "IF-A";
+
+  const rawClassName = String(classItem?.name || "").trim();
+  if (CLASSES.includes(rawClassName)) {
+    base.className = rawClassName;
+    base.course =
+      existingAssessment?.course && existingAssessment.course !== rawClassName
+        ? existingAssessment.course
+        : "Pemrograman Dasar";
+  } else {
+    base.course = rawClassName || existingAssessment?.course || "Pemrograman Dasar";
+    base.className =
+      existingAssessment?.className && CLASSES.includes(existingAssessment.className)
+        ? existingAssessment.className
+        : "Kelas A";
+  }
+
   base.instructions =
     backendQuiz.description ||
     base.instructions ||
@@ -55,7 +70,7 @@ function mapBackendQuizToFrontend(backendQuiz, classItem, existingAssessment = n
         );
         fq.options = sorted.map((opt) => opt.option_text || "");
         const correctIdx = sorted.findIndex((opt) => opt.is_correct === true);
-        fq.answer = correctIdx >= 0 ? correctIdx : 0;
+        fq.correct = correctIdx >= 0 ? correctIdx : 0;
         fq.backendOptionIds = sorted.map((opt) => opt.id);
       }
       return fq;
@@ -210,7 +225,7 @@ export const useAssessmentStore = defineStore("assessment", () => {
           const options = labels.map((label, idx) => ({
             option_label: label,
             option_text: q.options?.[idx]?.trim() || `Opsi ${label}`,
-            is_correct: Number(q.answer) === idx,
+            is_correct: Number(q.correct) === idx,
           }));
           try {
             const createdQ = await apiClient.createQuestion(backendQuizId, {
@@ -235,7 +250,7 @@ export const useAssessmentStore = defineStore("assessment", () => {
   async function generateQuestionsFromPdf(draft, pdfFile = null) {
     const fileLabel = pdfFile?.name
       ? pdfFile.name.replace(/\.pdf$/i, "")
-      : draft?.course || "Materi Perkuliahan";
+      : draft?.course || "Materi Pelajaran";
 
     if (hasLiveBackendToken()) {
       try {
@@ -262,11 +277,11 @@ export const useAssessmentStore = defineStore("assessment", () => {
                   return {
                     id: uid(),
                     topic: fileLabel,
-                    type: "Pilihan ganda",
-                    points: 10,
                     text: q.question_text,
                     options: sorted.map((o) => o.option_text),
-                    answer: correctIdx >= 0 ? correctIdx : 0,
+                    correct: correctIdx >= 0 ? correctIdx : 0,
+                    points: 1,
+                    explanation: "",
                     source: "ai",
                     reviewed: false,
                   };

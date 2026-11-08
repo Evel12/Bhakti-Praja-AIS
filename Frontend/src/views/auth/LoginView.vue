@@ -56,7 +56,7 @@ function fillDemoEmail(role) {
 
       <div class="auth-form-header">
         <span class="eyebrow">Autentikasi Akun</span>
-        <h1 id="login-heading">Masuk ke EXAMNIA</h1>
+        <h1 id="login-heading">Masuk ke SMK Bhakti Praja Batang</h1>
         <p>Masukkan alamat email dan kata sandi akun Anda untuk melanjutkan.</p>
       </div>
 
@@ -83,33 +83,37 @@ function fillDemoEmail(role) {
 
       <!-- Form Login Email -->
       <form class="auth-email-form" @submit.prevent="handleEmailSubmit">
-        <label class="auth-field">
-          <span class="auth-field-label">Email</span>
+        <div class="auth-field">
+          <label for="login-email" class="auth-field-label">Email</label>
           <input
+            id="login-email"
             ref="emailInput"
             v-model="email"
+            class="input auth-input"
             type="email"
             autocomplete="email"
             placeholder="teacher@example.test"
             required
           />
-        </label>
+        </div>
 
-        <label class="auth-field">
+        <div class="auth-field">
           <div class="auth-field-row">
-            <span class="auth-field-label">Kata Sandi</span>
+            <label for="login-password" class="auth-field-label">Kata Sandi</label>
             <RouterLink to="/reset-password" class="auth-inline-link">
               Lupa kata sandi?
             </RouterLink>
           </div>
           <input
+            id="login-password"
             v-model="password"
+            class="input auth-input"
             type="password"
             autocomplete="current-password"
             placeholder="Masukkan kata sandi"
             required
           />
-        </label>
+        </div>
 
         <button
           type="submit"
@@ -145,17 +149,20 @@ function fillDemoEmail(role) {
 
 <style scoped>
 .auth-page-shell {
-  min-height: calc(100dvh - 4rem);
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 1rem;
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    1rem
+    max(1.5rem, env(safe-area-inset-bottom));
 }
 
 .auth-unified-card {
   width: 100%;
   max-width: 440px;
-  padding: 2rem;
+  padding: clamp(1.25rem, 5vw, 2rem);
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
@@ -168,20 +175,22 @@ function fillDemoEmail(role) {
 
 .auth-form-header h1 {
   margin: 0.25rem 0;
-  font-size: 1.45rem;
+  font-size: clamp(1.3rem, 1.1rem + 1vw, 1.5rem);
 }
 
 .auth-form-header p {
   margin: 0;
-  font-size: 0.86rem;
+  font-family: var(--font-content);
+  font-size: 0.875rem;
   color: var(--muted);
 }
 
 .auth-alert {
   padding: 0.75rem 0.95rem;
   border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .auth-alert.is-error {
@@ -198,14 +207,14 @@ function fillDemoEmail(role) {
 
 .auth-sso-btn {
   width: 100%;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0.75rem 1rem;
   border-radius: 12px;
   border: 1px solid #1b365d;
   background: #1b365d;
   color: #ffffff;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.875rem;
   letter-spacing: 0.04em;
   cursor: pointer;
   display: flex;
@@ -222,7 +231,7 @@ function fillDemoEmail(role) {
   align-items: center;
   gap: 0.75rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -238,7 +247,7 @@ function fillDemoEmail(role) {
 .auth-email-form {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 0.9rem;
 }
 
 .auth-field {
@@ -247,92 +256,82 @@ function fillDemoEmail(role) {
   gap: 0.35rem;
 }
 
+.auth-input {
+  min-height: 48px;
+  padding: 11px 14px;
+}
+
 .auth-field-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .auth-field-label {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
 .auth-inline-link {
-  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-block: -8px;
+  padding-inline: 4px;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #1f6b4f;
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .auth-submit-btn {
   width: 100%;
+  min-height: 48px;
   justify-content: center;
+  font-size: 0.875rem;
 }
 
 .auth-quick-demo {
-  padding-top: 0.75rem;
+  padding-top: 0.85rem;
   border-top: 1px dashed #dce2d5;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .auth-quick-label {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
 .auth-quick-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
 
 .auth-quick-pill {
+  min-height: 44px;
   border: 1px solid #dce2d5;
   background: #f1f2eb;
-  color: var(--muted);
-  padding: 0.32rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.74rem;
-  font-weight: 600;
+  color: var(--ink);
+  padding: 0.5rem 0.85rem;
+  border-radius: 12px;
+  font-family: var(--font-content);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .auth-quick-pill:hover {
   border-color: #1f6b4f;
   color: #1f6b4f;
   background: #e6f4ec;
-}
-
-.auth-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 0.65rem;
-  border-top: 1px solid #dce2d5;
-  font-size: 0.78rem;
-}
-
-.auth-back-link {
-  color: var(--muted);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.auth-back-link:hover {
-  color: var(--ink);
-  text-decoration: underline;
-}
-
-.auth-logout-link {
-  border: none;
-  background: transparent;
-  color: #b42318;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
 }
 </style>

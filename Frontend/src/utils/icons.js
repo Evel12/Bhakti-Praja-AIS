@@ -15,6 +15,10 @@ export const paths = {
   help: '<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 5 2c-1 1-2 1-2 3m0 3h.01"/>',
   arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
   back: '<path d="M20 12H4m6-6-6 6 6 6"/>',
+  panelClose:
+    '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M16 9l-3 3 3 3"/>',
+  panelOpen:
+    '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M14 9l3 3-3 3"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   check: '<path d="m5 12 4 4L19 6"/>',
   checkCircle: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
@@ -40,5 +44,7 @@ export const paths = {
   save: '<path d="M4 3h13l4 4v14H3V3Zm3 0v6h10V3M7 21v-8h10v8"/>',
   alert: '<path d="m12 3 10 18H2L12 3Zm0 6v5m0 3h.01"/>',
   send: '<path d="m22 2-7 20-4-9-9-4L22 2ZM22 2 11 13"/>',
+  logout:
+    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9"/>',
   leaf: '<path d="M20 3C8 2 2 8 5 15s16 6 15-12ZM5 20 17 7"/>',
 };

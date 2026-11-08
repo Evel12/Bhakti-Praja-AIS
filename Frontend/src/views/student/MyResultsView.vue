@@ -23,7 +23,7 @@ const rows = computed(() =>
   />
   <section class="panel">
     <div class="table-wrap">
-      <table>
+      <table class="mobile-cards">
         <thead>
           <tr>
             <th>Assessment</th>
@@ -34,21 +34,23 @@ const rows = computed(() =>
         </thead>
         <MotionList as="tbody" :item-keys="rows.map((x) => x.at.id)">
           <tr v-for="{ at, a } in rows" :key="at.id" :data-motion-key="at.id">
-            <td>
+            <td class="title-cell">
               <strong>{{ a.title }}</strong>
               <p class="table-secondary">{{ a.course }}</p>
             </td>
-            <td>{{ date(at.submittedAt) }}</td>
-            <td>
+            <td data-label="Dikirim">{{ date(at.submittedAt) }}</td>
+            <td data-label="Nilai">
               {{
                 visibleScore(a, at) ??
                 (at.graded ? "Belum dirilis" : "Menunggu penilaian")
               }}
             </td>
             <td>
-              <RouterLink :to="'/review/' + at.id" class="btn small"
-                >Lihat hasil</RouterLink
-              >
+              <div class="table-action-buttons">
+                <RouterLink :to="'/review/' + at.id" class="btn small"
+                  >Lihat hasil</RouterLink
+                >
+              </div>
             </td>
           </tr>
         </MotionList>

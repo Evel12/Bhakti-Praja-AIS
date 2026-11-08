@@ -37,7 +37,7 @@ const classOptions = computed(() => [
   ...classes.value.map(name => ({ value: name, label: name })),
 ]);
 const courseOptions = computed(() => [
-  { value: "", label: "Semua mata kuliah" },
+  { value: "", label: "Semua mata pelajaran" },
   ...(courseFilter.value && !courses.value.includes(courseFilter.value) ? [{ value: courseFilter.value, label: courseFilter.value + " (tidak tersedia)" }] : []),
   ...courses.value.map(name => ({ value: name, label: name })),
 ]);
@@ -127,7 +127,7 @@ function closeAssessment() {
     />
     <div class="register-filters">
       <SoftSelect label="Kelas" :model-value="classFilter" :options="classOptions" @update:model-value="setFilter('class', $event)" />
-      <SoftSelect label="Mata kuliah" :model-value="courseFilter" :options="courseOptions" @update:model-value="setFilter('course', $event)" />
+      <SoftSelect label="Mata pelajaran" :model-value="courseFilter" :options="courseOptions" @update:model-value="setFilter('course', $event)" />
     </div>
     <nav class="grading-filters" aria-label="Filter penilaian">
       <RouterLink :to="modeDestination(false)" class="btn small" :class="{ primary: !pendingOnly }" :aria-current="!pendingOnly ? 'page' : undefined">Semua hasil</RouterLink>
@@ -167,7 +167,7 @@ function closeAssessment() {
     </section>
     <div v-else class="empty panel" role="status">
       <h2>{{ filtered ? 'Tidak ada hasil untuk pilihan ini' : pendingOnly ? 'Semua pengumpulan sudah dinilai' : 'Belum ada assessment terbit' }}</h2>
-      <p>{{ filtered ? 'Coba kelas atau mata kuliah lain, atau tampilkan semua hasil.' : pendingOnly ? 'Pengumpulan baru yang memerlukan penilaian akan muncul di sini.' : 'Lanjutkan draft dan terbitkan assessment untuk menerima pengumpulan.' }}</p>
+      <p>{{ filtered ? 'Coba kelas atau mata pelajaran lain, atau tampilkan semua hasil.' : pendingOnly ? 'Pengumpulan baru yang memerlukan penilaian akan muncul di sini.' : 'Lanjutkan draft dan terbitkan assessment untuk menerima pengumpulan.' }}</p>
       <RouterLink :to="filtered || pendingOnly ? '/results' : '/assessments/Draft'" class="btn mt">{{ filtered || pendingOnly ? 'Lihat semua hasil' : 'Lanjutkan draft' }}</RouterLink>
     </div></template
   ><template v-else-if="a"
@@ -214,7 +214,7 @@ function closeAssessment() {
         Nilai semua pengumpulan dulu untuk merilis hasil.
       </p>
       <div class="table-wrap">
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Peserta</th>
@@ -226,15 +226,17 @@ function closeAssessment() {
           </thead>
           <MotionList as="tbody" :item-keys="visibleAttempts.map((x) => x.id)">
             <tr v-for="at in visibleAttempts" :key="at.id" :data-motion-key="at.id">
-              <td>
+              <td class="title-cell">
                 <strong>{{ at.studentName }}</strong>
                 <div class="table-secondary">{{ at.className }}</div>
               </td>
-              <td>
-                {{ date(at.submittedAt) }}
-                <div class="table-secondary">{{ time(at.submittedAt) }}</div>
+              <td data-label="Dikirim">
+                <div>
+                  {{ date(at.submittedAt) }}
+                  <div class="table-secondary">{{ time(at.submittedAt) }}</div>
+                </div>
               </td>
-              <td>
+              <td data-label="Status">
                 {{
                   at.status === "submitted"
                     ? at.graded
@@ -243,23 +245,25 @@ function closeAssessment() {
                     : "Mengerjakan"
                 }}
               </td>
-              <td>{{ at.graded ? at.score : "—" }}</td>
+              <td data-label="Nilai">{{ at.graded ? at.score : "—" }}</td>
               <td>
-                <RouterLink
-                  v-if="a.type === 'Tugas' && at.status === 'submitted'"
-                  class="btn small"
-                  :to="gradeDestination(at)"
-                  >{{ at.graded ? "Edit nilai" : "Nilai tugas" }}</RouterLink
-                ><button
-                  v-else
-                  class="btn small"
-                  @click="
-                    detail = at;
-                    dialog = 'detail';
-                  "
-                >
-                  Review
-                </button>
+                <div class="table-action-buttons">
+                  <RouterLink
+                    v-if="a.type === 'Tugas' && at.status === 'submitted'"
+                    class="btn small"
+                    :to="gradeDestination(at)"
+                    >{{ at.graded ? "Edit nilai" : "Nilai tugas" }}</RouterLink
+                  ><button
+                    v-else
+                    class="btn small"
+                    @click="
+                      detail = at;
+                      dialog = 'detail';
+                    "
+                  >
+                    Review
+                  </button>
+                </div>
               </td>
             </tr>
           </MotionList>

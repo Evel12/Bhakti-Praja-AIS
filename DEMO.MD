@@ -1,6 +1,6 @@
-# EXAMNIA — Panduan Pengujian & Demo Website
+# SMK Bhakti Praja Batang — Panduan Pengujian & Demo Website
 
-Dokumen ini berisi panduan lengkap untuk menjalankan, menguji, dan mendemokan **EXAMNIA** (*Sistem Pembelajaran E-Learning Interaktif Berbasis Web dengan Fitur Pembuatan Kuis Otomatis Menggunakan AI*), baik dalam mode **Full-Stack (Frontend Vue 3 + Backend Laravel 13 API)** maupun **Mode Mandiri (Frontend Local Fallback)**.
+Dokumen ini berisi panduan lengkap untuk menjalankan, menguji, dan mendemokan website assessment **SMK Bhakti Praja Batang** (*Sistem Pembelajaran E-Learning Interaktif Berbasis Web dengan Fitur Pembuatan Kuis Otomatis Menggunakan AI*), baik dalam mode **Full-Stack (Frontend Vue 3 + Backend Laravel 13 API)** maupun **Mode Mandiri (Frontend Local Fallback)**.
 
 ---
 
@@ -64,7 +64,7 @@ Seeder Backend (`DemoAssessmentSeeder`) dan akses cepat di halaman `/#/login` me
 
 ### Skenario 1: Pengujian Sistem Login Opsi A (Email & Tombol SSO) (`/#/login`)
 1. Saat pertama kali membuka **`http://127.0.0.1:4173/`**, aplikasi langsung mengarahkan pengguna ke **`http://127.0.0.1:4173/#/login`**.
-2. Halaman menampilkan desain **Opsi A (Unified Card)** secara mandiri tanpa *sidebar* maupun dropdown peran, berisi identitas **EXAMNIA**, tombol **`SSO`**, pemisah `"ATAU MASUK DENGAN EMAIL"`, dan formulir **Email & Kata Sandi**.
+2. Halaman menampilkan desain **Opsi A (Unified Card)** secara mandiri tanpa *sidebar* maupun dropdown peran, berisi logo & identitas **SMK Bhakti Praja Batang**, tombol **`SSO`**, pemisah `"ATAU MASUK DENGAN EMAIL"`, dan formulir **Email & Kata Sandi**.
 3. **Uji Tombol `SSO`**:
    - Klik tombol **`SSO`** — muncul pemberitahuan bahwa fitur SSO sedang disiapkan dan fokus kursor diarahkan ke kolom input Email.
 4. **Uji Login Email & Kata Sandi (`POST /api/auth/login`)**:
@@ -82,11 +82,11 @@ Seeder Backend (`DemoAssessmentSeeder`) dan akses cepat di halaman `/#/login` me
    - Pastikan *dashboard* menampilkan ringkasan assessment aktif, antrean tugas yang perlu dinilai (**Cek sekarang**), tenggat terdekat, dan rata-rata nilai per kelas.
 2. **Membuat Assessment / Kuis Baru (`/#/builder/:id`)**:
    - Klik **`Buat assessment`** di *dashboard* atau halaman **Assessment**.
-   - **Langkah 1 (Identitas)**: Isi judul (mis. `"Kuis Evaluasi Jaringan & Protokol"`), pilih jenis **`Kuis`**, mata kuliah **`Jaringan Komputer`**, dan kelas **`IF-A`**.
+   - **Langkah 1 (Identitas)**: Isi judul (mis. `"Kuis Evaluasi Jaringan & Protokol"`), pilih jenis **`Kuis`**, mata pelajaran **`Jaringan Komputer`**, dan kelas **`Kelas A`**.
    - **Langkah 2 (Konten — Manual, Bank Soal, & AI PDF)**:
      - Klik **`Tambah soal`** untuk menulis butir soal pilihan ganda beserta kunci jawaban dan bobot poin.
      - Klik **`Dari bank soal`** untuk menyalin soal dari bank soal ke draft.
-     - Klik **`Bantu dengan AI`**, unggah file PDF materi perkuliahan (maksimal 10 MB, memicu `POST /api/classes/{id}/modules` & `POST /api/modules/{id}/generate-quiz`), lalu klik **`Gunakan 3 soal contoh`**.
+     - Klik **`Bantu dengan AI`**, unggah file PDF materi pelajaran (maksimal 10 MB, memicu `POST /api/classes/{id}/modules` & `POST /api/modules/{id}/generate-quiz`), lalu klik **`Gunakan 3 soal contoh`**.
      - Perhatikan bahwa soal berlabel **AI** wajib ditinjau terlebih dahulu: buka soal hasil AI, periksa teks/opsi, lalu centang kotak **`Saya sudah mengecek soal dan kunci jawaban ini`** (mengubah teks atau kunci otomatis mereset status tinjauan agar tetap aman).
    - **Langkah 3 (Pengaturan)**:
      - Atur **Durasi** (mis. `30` menit), **Waktu buka (WIB)** (pilih waktu yang sudah lewat agar kuis langsung aktif), **Waktu tutup (WIB)** (pilih waktu di masa depan), dan kebijakan rilis nilai (**Manual oleh pengajar** atau **Langsung setelah peserta mengirim jawaban**).

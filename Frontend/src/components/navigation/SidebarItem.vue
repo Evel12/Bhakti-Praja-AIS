@@ -18,6 +18,7 @@ defineProps({
     :aria-current="active ? 'page' : undefined"
     ><MotionActiveIndicator v-if="active" /><Icon :name="icon" /><span
       v-if="!compact"
+      class="nav-item-label sidebar-copy"
       >{{ label }}</span
     ><span v-else class="rail-tooltip" role="tooltip">{{
       label

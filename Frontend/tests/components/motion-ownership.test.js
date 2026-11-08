@@ -76,7 +76,7 @@ it('keeps the entire dashboard still while repeatedly changing class-grade cours
   await open('/dashboard');
   for (const course of ['Jaringan Komputer', 'Basis Data', 'Sistem Operasi', 'Jaringan Komputer']) {
     animate.mockClear();
-    await chooseSoftSelect(wrapper, 'Mata kuliah', course);
+    await chooseSoftSelect(wrapper, 'Mata pelajaran', course);
     await deliverObservers();
     expectNoBroadMotion();
     expect(animate).not.toHaveBeenCalled();
@@ -88,7 +88,7 @@ it('keeps result filters local and cancels route effects before input changes', 
   animate.mockClear();
   await chooseSoftSelect(wrapper, 'Kelas', 'Kelas B');
   await deliverObservers(); expectNoBroadMotion();
-  await chooseSoftSelect(wrapper, 'Mata kuliah', 'Basis Data');
+  await chooseSoftSelect(wrapper, 'Mata pelajaran', 'Basis Data');
   await deliverObservers(); expectNoBroadMotion();
   expect(wrapper.text()).toContain('Tidak ada hasil untuk pilihan ini');
 });

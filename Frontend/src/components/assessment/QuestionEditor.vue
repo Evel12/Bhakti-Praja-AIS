@@ -31,20 +31,22 @@ function invalidate() {
       <legend class="field-label">
         Pilihan jawaban · tandai kunci yang benar
       </legend>
-      <label v-for="(_, i) in question.options" :key="i" class="option-editor"
-        ><input
-          v-model="question.correct"
-          :id="i === 0 ? field('correct').id : field('correct').id + '-' + i"
-          :aria-invalid="field('correct')['aria-invalid']"
-          :aria-describedby="field('correct')['aria-describedby']"
-          type="radio"
-          :value="i"
-          :name="'correct-' + question.id"
-          :aria-label="'Kunci jawaban ' + String.fromCharCode(65 + i)"
-          @change="invalidate" /><span class="option-letter">{{
-          String.fromCharCode(65 + i)
-        }}</span
-        ><div class="option-content"><MotionField
+      <div v-for="(_, i) in question.options" :key="i" class="option-editor">
+        <label class="option-key-pill" :title="'Tandai ' + String.fromCharCode(65 + i) + ' sebagai kunci jawaban'"
+          ><input
+            v-model="question.correct"
+            :id="i === 0 ? field('correct').id : field('correct').id + '-' + i"
+            :aria-invalid="field('correct')['aria-invalid']"
+            :aria-describedby="field('correct')['aria-describedby']"
+            type="radio"
+            :value="i"
+            :name="'correct-' + question.id"
+            :aria-label="'Kunci jawaban ' + String.fromCharCode(65 + i)"
+            @change="invalidate" /><span class="option-letter">{{
+            String.fromCharCode(65 + i)
+          }}</span></label
+        >
+        <div class="option-content"><MotionField
           ><input
             v-model="question.options[i]"
             v-bind="field('option-' + i)"
@@ -52,7 +54,7 @@ function invalidate() {
             :aria-label="'Pilihan ' + String.fromCharCode(65 + i)"
             maxlength="1000"
             @input="invalidate" /></MotionField><FieldError :issue="issue('option-' + i)" /></div
-      ></label>
+      ></div>
       <FieldError :issue="issue('correct')" />
       <button v-if="question.options.length < 2" v-bind="field('options')" class="btn small" type="button" @click="question.options.push(''); invalidate()">Tambahkan pilihan</button>
       <FieldError :issue="issue('options')" />

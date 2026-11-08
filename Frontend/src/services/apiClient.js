@@ -203,7 +203,7 @@ export const apiClient = {
 
     return apiRequest(`/classes/${classId}/modules`, {
       method: 'POST',
-      body: { file_name: fileName || 'modul-perkuliahan.pdf', visibility },
+      body: { file_name: fileName || 'modul-pembelajaran.pdf', visibility },
     })
   },
 

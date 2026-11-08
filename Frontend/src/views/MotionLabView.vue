@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
           <button
             class="btn"
             @click="
-              overlayMessage = 'Preview notifikasi EXAMNIA';
+              overlayMessage = 'Preview notifikasi SMK Bhakti Praja Batang';
               overlaySequence++;
             "
           >

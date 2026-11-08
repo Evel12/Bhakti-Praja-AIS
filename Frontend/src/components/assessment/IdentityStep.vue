@@ -30,7 +30,7 @@ const { field, issue } = useAssessmentFields(() => props.issues);
         </select></MotionField
       ></label
     ><label class="field"
-      ><span class="field-label">Mata kuliah</span
+      ><span class="field-label">Mata pelajaran</span
       ><MotionField
         ><select v-model="draft.course" v-bind="field('course')" class="input">
           <option v-for="v in COURSES" :key="v">{{ v }}</option>

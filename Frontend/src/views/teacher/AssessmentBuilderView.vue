@@ -25,6 +25,7 @@ const found = store.db.assessments.find((a) => a.id === route.params.id);
 const draft = ref(found ? clone(found) : null),
   step = ref(0),
   index = ref(0),
+  stepNav = ref(),
   validatedSteps = ref([]),
   previewVisited = ref(false),
   publishAttempted = ref(false),
@@ -42,6 +43,11 @@ watch(step, (value) => {
     validationNow.value = Date.now();
     previewVisited.value = true;
   }
+  nextTick(() => {
+    stepNav.value
+      ?.querySelector(".step.active")
+      ?.scrollIntoView?.({ block: "nearest", inline: "center" });
+  });
 }, { flush: "sync" });
 const stepErrors = (value) => errors.value.filter((issue) => issue.step === value).length;
 async function goToError(issue) {
@@ -195,7 +201,7 @@ function pdf(e) {
       {{ saveError }} Perubahan kamu masih ada di halaman ini. Coba lagi dengan tombol Simpan draft sebelum menutup halaman.
     </p>
     <div class="builder-grid">
-      <nav class="step-nav" aria-label="Langkah pembuatan">
+      <nav ref="stepNav" class="step-nav" aria-label="Langkah pembuatan">
         <button
           v-for="(s, i) in steps"
           :key="s"
