@@ -1,0 +1,78 @@
+# EXAMNIA Phase 6 - assessment backend generation queue and polling.
+# VS Code REST Client variables; copy requests into Postman if preferred.
+# Apply migrations and start the dedicated worker from Backend/:
+# php artisan queue:work quiz-generation --queue=quiz-generation --tries=3 --timeout=75
+# A module row and its PDF must already exist; the demo seeder creates no modules.
+# See phase-6-implementation.md for a manual local fixture and adapter configuration.
+# The Python service is developed separately; its actual contract remains to be confirmed.
+# Replace all PASTE_* values with IDs/tokens from your local API/database context.
+
+@baseUrl = http://127.0.0.1:8000/api
+@teacherToken = PASTE_TEACHER_LOGIN_DATA_TOKEN
+@moduleId = PASTE_MODULE_ID_OWNED_BY_THIS_TEACHER
+@generationId = PASTE_GENERATION_ID_FROM_POST_DATA_ID
+@generatedQuizId = PASTE_COMPLETED_POLL_DATA_QUIZ_ID
+
+### Teacher login - 200. Copy data.token into teacherToken.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "teacher@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-six-teacher"
+}
+
+### Enqueue generation - 202; only the owner of the module's class.
+# This request persists a queued status and job; it does not call the AI synchronously.
+# question_count is optional, integer 1..50, default 5.
+# Copy data.id into generationId, then poll GET below.
+# Client-supplied status, class/teacher IDs, service URLs, file paths, scores and keys
+# cannot override server-side ownership, integration configuration or grading.
+POST {{baseUrl}}/modules/{{moduleId}}/generate-quiz
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "question_count": 5
+}
+
+### Enqueue with the default five questions - 202.
+# Each POST is a new request; choose one enqueue example when testing.
+POST {{baseUrl}}/modules/{{moduleId}}/generate-quiz
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{}
+
+### Poll generation - 200; requesting teacher must still own the module's class.
+# Repeat while data.status is queued|processing; stop at completed|failed.
+# completed => data.quiz_id identifies a DRAFT to review with the existing teacher API.
+# failed => data.error_code is safe metadata; no raw AI response or credentials are exposed.
+# A worker and valid service configuration/source PDF are required for progress.
+# Polling never returns questions, answer keys or module storage paths.
+# Students/admins/another teacher receive 403; missing credentials 401; missing ID 404.
+GET {{baseUrl}}/quiz-generations/{{generationId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Review the completed draft using the existing Phase 3 teacher endpoint - 200.
+# Copy completed poll data.quiz_id into generatedQuizId first.
+# Review/edit questions, options and keys before publishing with a future deadline.
+# See phase-3-api.http for every authoring/publish request.
+GET {{baseUrl}}/quizzes/{{generatedQuizId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Invalid question count - 422 with the existing JSON VALIDATION_ERROR envelope.
+POST {{baseUrl}}/modules/{{moduleId}}/generate-quiz
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "question_count": 0
+}

@@ -1,0 +1,67 @@
+# EXAMNIA Phase 1 - examples for every auth endpoint.
+# Variables use the VS Code REST Client syntax. In Postman, use environment variables.
+@baseUrl = http://127.0.0.1:8000/api
+@email = teacher@example.test
+@password = DemoPassword123!
+@token = paste-the-data.token-returned-by-login
+@resetToken = paste-the-token-from-the-development-reset-email
+
+### Login - 200. Unknown or incorrect credentials: 401. Invalid body: 422. Limit: 429.
+# Extra fields such as role are ignored; account role always comes from MySQL.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "device_name": "local-browser"
+}
+
+# Response:
+# {"success":true,"message":"Logged in.","data":{"user":{"id":2,"name":"Demo Teacher","email":"teacher@example.test","role":"teacher"},"token":"1|...","token_type":"Bearer","expires_at":"..."}}
+
+### Current user - 200. Missing, expired or revoked bearer token: 401.
+GET {{baseUrl}}/auth/me
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Response:
+# {"success":true,"message":"OK","data":{"id":2,"name":"Demo Teacher","email":"teacher@example.test","role":"teacher"}}
+
+### Logout current token - 200. A second call with the revoked token returns 401.
+POST {{baseUrl}}/auth/logout
+Accept: application/json
+Authorization: Bearer {{token}}
+
+# Response: {"success":true,"message":"Logged out.","data":null}
+
+### Request password reset - same 200 response whether or not the account exists.
+# Development mail is written to Backend/storage/logs/laravel.log.
+POST {{baseUrl}}/auth/forgot-password
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+# Response:
+# {"success":true,"message":"If the account exists, a password reset link will be sent.","data":null}
+
+### Reset password - 200; revokes every API token. Invalid/expired/reused token: 422.
+# The example new password replaces the original local password above.
+POST {{baseUrl}}/auth/reset-password
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "token": "{{resetToken}}",
+  "password": "NewPassword123!",
+  "password_confirmation": "NewPassword123!"
+}
+
+# Response: {"success":true,"message":"Password reset. Please log in again.","data":null}
+# Example error:
+# {"success":false,"message":"The given data was invalid.","error":{"code":"VALIDATION_ERROR","details":{"email":["The password reset token is invalid or expired."]}}}

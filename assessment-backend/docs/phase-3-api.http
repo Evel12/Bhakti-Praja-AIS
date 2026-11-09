@@ -1,0 +1,232 @@
+# EXAMNIA Phase 3 - teacher authoring and safe class quiz listing.
+# This file uses VS Code REST Client variables; copy requests into Postman if preferred.
+# First configure MySQL, run php artisan migrate and php artisan db:seed in Backend/.
+# Replace ALL PASTE_* values before sending dependent requests. IDs are local data,
+# not assumed to start at 1. Find class_id from the seeded class in your local DB.
+# Copy quiz/question/option IDs from the corresponding create/read responses.
+# Keep DELETE examples on a separate disposable draft. Publishing locks content edits.
+
+@baseUrl = http://127.0.0.1:8000/api
+@teacherToken = PASTE_TEACHER_LOGIN_DATA_TOKEN
+@studentToken = PASTE_STUDENT_LOGIN_DATA_TOKEN
+@classId = PASTE_CLASS_ID
+@quizId = PASTE_CREATED_DRAFT_QUIZ_ID
+@questionId = PASTE_CREATED_QUESTION_ID
+@optionId = PASTE_CURRENT_OPTION_ID
+@disposableQuizId = PASTE_SEPARATE_DRAFT_QUIZ_ID
+@disposableQuestionId = PASTE_DISPOSABLE_QUESTION_ID
+
+### Obtain a teacher token - 200. Copy data.token into teacherToken above.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "teacher@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-three-teacher"
+}
+
+### Obtain a student token - 200. Copy data.token into studentToken above.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "student1@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-three-student"
+}
+
+### Teacher class quiz listing - 200; own classes only, all quiz statuses.
+# Optional filters: page >= 1, per_page 1..100, status=draft|published|closed.
+# data.items holds summaries; data.pagination holds current_page/last_page/per_page/total.
+GET {{baseUrl}}/classes/{{classId}}/quizzes?page=1&per_page=20
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Student class quiz listing - 200; enrolled classes, published summaries only.
+# Asking for status=draft does not grant access to drafts. No response includes answer keys.
+GET {{baseUrl}}/classes/{{classId}}/quizzes?page=1&per_page=20&status=published
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Create draft quiz - 201. Copy data.id into quizId above.
+# class_id must identify a class owned by the authenticated teacher.
+# status, teacher_id and score are not client-controlled fields.
+POST {{baseUrl}}/quizzes
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "class_id": {{classId}},
+  "title": "Phase 3 arithmetic practice",
+  "description": "Teacher-reviewed arithmetic practice."
+}
+
+### Read teacher authoring detail - 200; includes questions, options and answer keys.
+# Restricted to the owning teacher. Students cannot use this authoring endpoint.
+GET {{baseUrl}}/quizzes/{{quizId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Update draft metadata with PATCH - 200.
+PATCH {{baseUrl}}/quizzes/{{quizId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "title": "Reviewed arithmetic practice",
+  "description": "Ready for question review."
+}
+
+### Update draft metadata with PUT - 200; also accepts partial metadata.
+# A draft may omit its deadline. Publication requires a future deadline.
+PUT {{baseUrl}}/quizzes/{{quizId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "description": "The teacher has checked this draft.",
+  "deadline": null
+}
+
+### Create a complete question and four options atomically - 201.
+# Copy data.id into questionId; copy a returned option ID into optionId.
+# Labels A-D are unique, all text is nonempty, and exactly one is_correct is true.
+POST {{baseUrl}}/quizzes/{{quizId}}/questions
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "question_text": "Berapakah 2 + 3?",
+  "question_type": "multiple_choice",
+  "options": [
+    {"option_label": "A", "option_text": "4", "is_correct": false},
+    {"option_label": "B", "option_text": "5", "is_correct": true},
+    {"option_label": "C", "option_text": "6", "is_correct": false},
+    {"option_label": "D", "option_text": "7", "is_correct": false}
+  ]
+}
+
+### List teacher questions - 200; owning teacher only, keys included for review.
+GET {{baseUrl}}/quizzes/{{quizId}}/questions
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Read one teacher question - 200.
+# A question ID belonging to a different quiz returns 404.
+GET {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Edit question wording with PATCH - 200; existing options remain unchanged.
+PATCH {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "question_text": "Hitung hasil dari 2 + 3."
+}
+
+### Edit question with PUT - 200; accepts partial fields, like PATCH.
+# If options is supplied, it must contain the complete valid four-option set.
+# Replacing options changes their IDs; fetch the current options afterwards.
+PUT {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "question_text": "Hitung hasil dari 2 + 3.",
+  "options": [
+    {"option_label": "A", "option_text": "3", "is_correct": false},
+    {"option_label": "B", "option_text": "4", "is_correct": false},
+    {"option_label": "C", "option_text": "5", "is_correct": true},
+    {"option_label": "D", "option_text": "6", "is_correct": false}
+  ]
+}
+
+### List current options - 200; use these current IDs after any full replacement.
+GET {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}/options
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Read one current option - 200; owning teacher only.
+# The option must belong to the question in the URL; otherwise 404.
+GET {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}/options/{{optionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Replace the entire option set - 200; atomic option create/delete/replacement.
+# All previous option rows are removed and four new rows are created with new IDs.
+# There is no standalone POST/DELETE option endpoint, which would break the four-option rule.
+PUT {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}/options
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "options": [
+    {"option_label": "A", "option_text": "2", "is_correct": false},
+    {"option_label": "B", "option_text": "3", "is_correct": false},
+    {"option_label": "C", "option_text": "4", "is_correct": false},
+    {"option_label": "D", "option_text": "5", "is_correct": true}
+  ]
+}
+
+### Edit one option in place - 200; update optionId from the latest options response first.
+# is_correct:true atomically selects this option and clears the previous correct flag.
+# is_correct:false on the sole correct option returns 422; select its replacement instead.
+PATCH {{baseUrl}}/quizzes/{{quizId}}/questions/{{questionId}}/options/{{optionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "option_text": "5",
+  "is_correct": true
+}
+
+### Publish reviewed draft - 200. Requires at least one complete valid question.
+# Use an ISO-8601 timestamp with an explicit offset. The server checks that it is future.
+# This locks quiz, question and option content against further changes.
+POST {{baseUrl}}/quizzes/{{quizId}}/publish
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "deadline": "2030-01-01T23:59:00+07:00"
+}
+
+### Close published quiz - 200; owning teacher only.
+# A closed quiz stays closed and content cannot be edited.
+POST {{baseUrl}}/quizzes/{{quizId}}/close
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Delete a question from a separate disposable draft - 200.
+# This also removes its options. Do not use a published/closed quiz: those return 403.
+DELETE {{baseUrl}}/quizzes/{{disposableQuizId}}/questions/{{disposableQuestionId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+### Delete a separate disposable draft quiz - 200; cascades its questions/options.
+# A draft with attempt history is protected and returns 409.
+DELETE {{baseUrl}}/quizzes/{{disposableQuizId}}
+Accept: application/json
+Authorization: Bearer {{teacherToken}}
+
+# Success envelope: {"success":true,"message":"...","data":...}
+# Failure envelope: {"success":false,"message":"...","error":{"code":"...","details":{}}}
+# 401: missing/expired/revoked token; 403: role/ownership/state policy denial;
+# 404: resource missing or not under its URL parent; 409: draft has attempt history;
+# 422: invalid fields, incomplete options, zero/two correct answers, or invalid deadline.
+# Changing question/option IDs to another teacher's data never grants access.
+# Student attempt/answer/finish endpoints and scoring arrive in Phase 4.

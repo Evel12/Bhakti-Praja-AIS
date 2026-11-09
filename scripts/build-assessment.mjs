@@ -1,11 +1,13 @@
+// Builds the standalone assessment app (assessment-frontend/) into the
+// main AIS frontend so it can be embedded at /assessment-app/ behind
+// the "Assessment" navigation item.
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-const root = fileURLToPath(new URL('../', import.meta.url));
-const vite = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url));
-if (!existsSync(vite)) {
-  console.error('Jalankan npm ci pada root repository untuk memasang dependensi assessment.');
-  process.exit(1);
-}
-const result = spawnSync(process.execPath, [vite, 'build', '--base=/assessment-app/', '--outDir=frontend/public/assessment-app'], { cwd: root, stdio: 'inherit' });
+
+const frontendDir = fileURLToPath(new URL('../assessment-frontend', import.meta.url));
+const result = spawnSync(
+  'npm',
+  ['run', 'build', '--', '--base=/assessment-app/', '--outDir=../frontend/public/assessment-app'],
+  { cwd: frontendDir, stdio: 'inherit', shell: true },
+);
 process.exit(result.status ?? 1);

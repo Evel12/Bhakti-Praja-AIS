@@ -22,7 +22,7 @@ auth.json
 *.bak
 
 # Dependencies and generated output
-/frontend/public/assessment-app/
+/Frontend/public/assessment-app/
 node_modules/
 vendor/
 dist/
@@ -32,20 +32,19 @@ test-results/
 *.log
 .phpunit.result.cache
 .phpunit.cache/
-/backend/bootstrap/cache/*.php
+/Backend/bootstrap/cache/*.php
+
+# New layout (Backend/ and Frontend/)
+# Assessment app (embedded inside the main AIS frontend)
+/assessment-backend/vendor/
+/assessment-backend/.env
+/assessment-backend/.phpunit.cache/
+/assessment-frontend/node_modules/
+/assessment-frontend/dist/
+/frontend/public/assessment-app/
 
 # Local editor and OS files
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
-node_modules/
-.DS_Store
-*.log
-.sites-local/
-playwright-report/
-test-results/
-
-dist/
-coverage/
-.sites-runtime/

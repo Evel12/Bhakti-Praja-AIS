@@ -1,0 +1,127 @@
+# EXAMNIA Phase 4 - student attempts and server-side grading.
+# VS Code REST Client variables; copy method, headers and JSON into Postman if preferred.
+# From Backend/, configure MySQL, run php artisan migrate, then php artisan db:seed.
+# The seeded quiz starts with a deadline 30 days after initial seeding. Rerunning the
+# seeder does not extend an expired deadline. Use a newly published teacher draft if needed.
+# See phase-3-api.http for teacher authoring and publication (example future date: 2030).
+# Replace every PASTE_* value before sending dependent requests. Never assume IDs start at 1.
+
+@baseUrl = http://127.0.0.1:8000/api
+@studentToken = PASTE_STUDENT_LOGIN_DATA_TOKEN
+@classId = PASTE_ENROLLED_CLASS_ID
+@quizId = PASTE_PUBLISHED_QUIZ_ID
+@attemptId = PASTE_CREATED_ATTEMPT_ID
+@questionId = PASTE_QUESTION_ID_FROM_ATTEMPT_QUESTIONS
+@optionId = PASTE_OPTION_ID_FROM_THAT_SAME_QUESTION
+
+### Student login - 200. Copy data.token into studentToken.
+POST {{baseUrl}}/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "student1@example.test",
+  "password": "DemoPassword123!",
+  "device_name": "phase-four-student"
+}
+
+### Discover published quizzes in an enrolled class - 200.
+# classId comes from your local seeded class or existing class context.
+# Copy one data.items[].id into quizId. Summaries contain no questions or answer keys.
+GET {{baseUrl}}/classes/{{classId}}/quizzes?status=published
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Start an attempt - 201. Copy data.id into attemptId.
+# Both modes are required. game_mode: boss|expedition.
+# challenge_mode: normal|time|accuracy|survival|team.
+# boss_id/map_id may be omitted or null; supplied values must be positive integers.
+# They are references only until their parent game tables are defined.
+# A second start while this student has an ongoing attempt on this quiz returns 409.
+POST {{baseUrl}}/quizzes/{{quizId}}/attempts
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "game_mode": "boss",
+  "challenge_mode": "normal",
+  "boss_id": null,
+  "map_id": null
+}
+
+# data is attempt metadata. It includes server score/state, question_count and
+# answered_count. final_grade is absent while the attempt is ongoing.
+# The request cannot set student_id, score, streak, correctness, rules or timestamps.
+
+### Read the owning student's current attempt state - 200.
+# Other students, teachers and administrators cannot use these student attempt routes.
+GET {{baseUrl}}/attempts/{{attemptId}}
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Fetch safe attempt questions - 200.
+# data.attempt contains metadata; data.questions contains the quiz questions.
+# Each option has id, option_label and option_text. There is no options.is_correct.
+# Copy questionId and an optionId from that same question into the variables above.
+# This endpoint does not reveal answer keys, including after completion.
+GET {{baseUrl}}/attempts/{{attemptId}}/questions
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+### Submit one answer - 201.
+# Send a question and one of THAT question's options. Client scores/correctness are ignored.
+# data.answer.is_correct evaluates only the submitted choice; no correct-option ID/key is sent.
+# data.attempt contains updated score, current_streak/current_multiplier, maxima and progress.
+# Repeat for each question with a new questionId. A duplicate answer returns 409.
+POST {{baseUrl}}/attempts/{{attemptId}}/answers
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "question_id": {{questionId}},
+  "chosen_option_id": {{optionId}}
+}
+
+# Example success shape (values depend on the selected option and saved history):
+# {"success":true,"message":"...","data":{"answer":{"id":1,"question_id":1,"chosen_option_id":2,"is_correct":true,"answered_at":"..."},"attempt":{"id":1,"score":"10.00","current_streak":1,"current_multiplier":"1.00","streak_max":1,"multiplier_max":"1.00","progress_percentage":"20.00","status":"ongoing"}}}
+# The numeric IDs in this response illustration are not request variables or seed assumptions.
+
+### Finish and receive the persisted final result - 200.
+# An empty body is sufficient. The server recomputes from saved answers inside a transaction.
+# Finishing early is allowed: unanswered questions count as incorrect for final_grade.
+# Progress remains answered_count / question_count, rather than being forced to 100.
+# Finish remains available after the quiz expires/closes, but new answers are then blocked.
+POST {{baseUrl}}/attempts/{{attemptId}}/finish
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{}
+
+# data is the finished attempt metadata, including final_grade and finished_at.
+# Game score and final_grade are separate decimal strings.
+
+### Retry finish safely - 200, returning the stored result without awarding points again.
+# The finished timestamp, score and final_grade remain unchanged, even if config changed.
+POST {{baseUrl}}/attempts/{{attemptId}}/finish
+Accept: application/json
+Authorization: Bearer {{studentToken}}
+
+# Default scoring: first correct answer = 10 points, next consecutive correct = 11,
+# then 12, etc., with a 2.00 multiplier cap. A wrong answer earns zero and resets the streak.
+# final_grade = correct answers / all quiz questions * 100, rounded to two decimals.
+# Configured rules are copied to the attempt when it starts; the client never supplies them.
+# Time/accuracy/survival/team are recorded mode labels here, without additional mode mechanics.
+#
+# Errors use the existing envelope:
+# {"success":false,"message":"...","error":{"code":"...","details":{}}}
+# 401: missing/invalid/expired token.
+# 403: wrong role, foreign attempt, or a quiz whose class the student has not joined.
+# 404: an attempt or quiz ID does not exist.
+# 409: unavailable quiz, ongoing duplicate attempt, duplicate answer, finished attempt answer,
+#      or a legacy attempt without a valid scoring-rules snapshot on the new attempt endpoints.
+# 422: invalid modes/fields, question outside the quiz, option outside the question,
+#      or quiz content that cannot support a valid attempt.
+# Student attempt review/answer-key reporting arrives in Phase 5.
