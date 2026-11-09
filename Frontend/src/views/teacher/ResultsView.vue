@@ -123,7 +123,6 @@ function closeAssessment() {
   <template v-if="!route.params.id"
     ><PageTitle
       title="Hasil & penilaian"
-      description="Cek pengumpulan, beri feedback, dan rilis hasil."
     />
     <div class="register-filters">
       <SoftSelect label="Kelas" :model-value="classFilter" :options="classOptions" @update:model-value="setFilter('class', $event)" />

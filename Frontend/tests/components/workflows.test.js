@@ -57,6 +57,7 @@ describe("navigation and reactive workflow safeguards", () => {
     await wrapper.get('[aria-label="Assessment"]').trigger("click");
     await flushPromises();
     expect(router.currentRoute.value.path).toBe("/assessments/all");
+    expect(wrapper.get('[aria-label="Home"]').attributes("href")).toBe("/dashboard");
     expect(wrapper.get('[aria-label="Assessment"]').attributes("href")).toBe("/assessments/all");
     expect(wrapper.find("#assessment-submenu").exists()).toBe(false);
     expect(wrapper.find(".nav-popover").exists()).toBe(false);

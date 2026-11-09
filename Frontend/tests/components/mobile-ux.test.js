@@ -129,7 +129,7 @@ describe("mobile UI/UX seamless improvements", () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
-        { path: "/dashboard", component: { template: "<p>Ringkasan</p>" } },
+        { path: "/dashboard", component: { template: "<p>Home</p>" } },
         { path: "/assessments/:status", component: { template: "<p>Assessment</p>" } },
         { path: "/bank", component: { template: "<p>Bank</p>" } },
         { path: "/results", component: { template: "<p>Hasil</p>" } },
@@ -154,6 +154,7 @@ describe("mobile UI/UX seamless improvements", () => {
 
     const quickLinks = wrapper.findAll(".mobile-bottom-nav .mobile-bottom-link");
     expect(quickLinks).toHaveLength(4);
+    expect(quickLinks[0].text()).toBe("Home");
     expect(wrapper.get(".mobile-nav-badge").text()).toBe("3");
 
     await wrapper.get(".auth-header-pill").trigger("click");

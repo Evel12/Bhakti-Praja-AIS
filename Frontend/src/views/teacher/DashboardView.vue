@@ -38,8 +38,7 @@ function create() {
 </script>
 <template>
   <PageTitle
-    title="Ringkasan assessment"
-    description="Halo lagi! Yuk, cek kelas dan siapkan assessment berikutnya."
+    title="Home"
     ><button class="btn primary" @click="create">
       <Icon name="plus" />Buat assessment
     </button></PageTitle

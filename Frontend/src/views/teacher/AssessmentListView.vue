@@ -55,13 +55,11 @@ function create() {
 }
 </script>
 <template>
-  <PageTitle
-    title="Assessment"
-    description="Semua kuis, tugas, dan ujian kamu ada di sini."
-    ><button class="btn primary" @click="create">
+  <PageTitle title="Assessment">
+    <button class="btn primary" @click="create">
       <Icon name="plus" />Buat assessment
-    </button></PageTitle
-  >
+    </button>
+  </PageTitle>
   <section class="panel">
     <div class="filters">
       <div class="tabs" aria-label="Filter status">

@@ -19,7 +19,6 @@ const rows = computed(() =>
 <template>
   <PageTitle
     title="Hasil saya"
-    description="Cek nilai dan feedback dari pengajar di sini."
   />
   <section class="panel">
     <div class="table-wrap">

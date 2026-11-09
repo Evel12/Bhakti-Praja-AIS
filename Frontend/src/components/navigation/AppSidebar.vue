@@ -176,10 +176,10 @@ onBeforeUnmount(() => {
       <template v-if="!route.meta.student">
         <SidebarItem
           to="/dashboard"
-          label="Ringkasan"
+          label="Home"
           icon="grid"
           :compact="compact"
-          :active="route.path === '/dashboard'"
+          :active="route.path === '/dashboard' || route.path === '/home'"
         />
         <SidebarItem
           to="/assessments/all"

@@ -39,7 +39,7 @@ const current = computed(() => entries.value
 </script>
 
 <template>
-  <PageTitle title="Assessment saya" description="Yuk, lanjut belajar. Pilih assessment yang mau dikerjakan." />
+  <PageTitle title="Assessment saya"/>
   <div v-if="!entries.length" class="panel empty">Belum ada assessment untuk kelas kamu.</div>
   <template v-else>
     <section class="student-section" aria-labelledby="student-current-title" data-assessment-group="current">

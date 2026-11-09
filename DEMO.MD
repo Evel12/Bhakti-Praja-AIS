@@ -78,10 +78,10 @@ Seeder Backend (`DemoAssessmentSeeder`) dan akses cepat di halaman `/#/login` me
 ---
 
 ### Skenario 2: Pengujian Alur Pengajar (Dosen)
-1. **Dashboard Prioritas Pengajar (`/#/dashboard`)**:
-   - Pastikan *dashboard* menampilkan ringkasan assessment aktif, antrean tugas yang perlu dinilai (**Cek sekarang**), tenggat terdekat, dan rata-rata nilai per kelas.
+1. **Home Pengajar (`/#/dashboard`)**:
+   - Pastikan halaman **Home** menampilkan ringkasan assessment aktif, antrean tugas yang perlu dinilai (**Cek sekarang**), tenggat terdekat, dan rata-rata nilai per kelas.
 2. **Membuat Assessment / Kuis Baru (`/#/builder/:id`)**:
-   - Klik **`Buat assessment`** di *dashboard* atau halaman **Assessment**.
+   - Klik **`Buat assessment`** di halaman **Home** atau halaman **Assessment**.
    - **Langkah 1 (Identitas)**: Isi judul (mis. `"Kuis Evaluasi Jaringan & Protokol"`), pilih jenis **`Kuis`**, mata pelajaran **`Jaringan Komputer`**, dan kelas **`Kelas A`**.
    - **Langkah 2 (Konten — Manual, Bank Soal, & AI PDF)**:
      - Klik **`Tambah soal`** untuk menulis butir soal pilihan ganda beserta kunci jawaban dan bobot poin.

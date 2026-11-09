@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
       title="Liquid Motion Lab"
       description="Liquid motion · Preview interaksi, navigasi, media, dan transisi bersama. Hover tombol tetap diam."
       ><RouterLink to="/dashboard" class="btn"
-        >Kembali ke dashboard</RouterLink
+        >Kembali ke Home</RouterLink
       ></PageTitle
     >
     <div class="liquid-lab-toolbar">

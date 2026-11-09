@@ -54,7 +54,6 @@ function use(q) {
 <template>
   <PageTitle
     title="Bank soal"
-    description="Simpan ide yang baik. Gunakan kembali untuk assessment berikutnya."
     ><button class="btn primary" @click="create">
       + Tambah soal
     </button></PageTitle

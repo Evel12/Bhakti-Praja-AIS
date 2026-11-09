@@ -14,6 +14,7 @@ const routes = [
   ["/my-results", () => import("../views/student/MyResultsView.vue")],
 ].map(([path, component]) => ({
   path,
+  ...(path === "/dashboard" ? { alias: "/home" } : {}),
   component,
   meta: {
     assessmentList: path === "/assessments/:status?",

@@ -10,7 +10,7 @@ const logo = "/brand/smk-bhakti-praja-batang.png";
     :is="interactive ? 'RouterLink' : 'div'"
     v-bind="
       interactive
-        ? { to: '/dashboard', 'aria-label': 'SMK Bhakti Praja Batang beranda' }
+        ? { to: '/dashboard', 'aria-label': 'SMK Bhakti Praja Batang Home' }
         : {}
     "
     class="brand"

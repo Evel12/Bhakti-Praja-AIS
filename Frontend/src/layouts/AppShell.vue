@@ -136,11 +136,11 @@ watch(
         <RouterLink
           to="/dashboard"
           class="mobile-bottom-link"
-          :class="{ active: route.path === '/dashboard' }"
-          :aria-current="route.path === '/dashboard' ? 'page' : undefined"
+          :class="{ active: route.path === '/dashboard' || route.path === '/home' }"
+          :aria-current="route.path === '/dashboard' || route.path === '/home' ? 'page' : undefined"
         >
           <Icon name="grid" class="sm" />
-          <span>Ringkasan</span>
+          <span>Home</span>
         </RouterLink>
         <RouterLink
           to="/assessments/all"

@@ -48,6 +48,7 @@ describe("clear dashboard data and deadlines", () => {
   it("uses a missing-value state instead of a zero score, while preserving real zero grades", async () => {
     const store = schedule(-1000, 100000);
     await open();
+    expect(wrapper.get("h1").text()).toBe("Home");
     expect(wrapper.get(".class-comparison").text()).toContain("Belum ada hasil dinilai");
     expect(wrapper.get(".class-grade-average").text()).toBe("—");
     store.transaction((db) => {
