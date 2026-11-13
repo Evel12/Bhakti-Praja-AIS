@@ -33,6 +33,7 @@ class QuizValidationRules
         return [
             'question_text' => [$partial ? 'sometimes' : 'required', 'required', 'string', 'max:10000'],
             'question_type' => ['sometimes', 'required', Rule::enum(QuestionType::class)],
+            ...($partial ? ['reviewed' => ['sometimes', 'boolean']] : []),
             ...self::options($partial ? 'sometimes' : 'required'),
         ];
     }

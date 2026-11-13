@@ -55,7 +55,6 @@ function fillDemoEmail(role) {
       </div>
 
       <div class="auth-form-header">
-        <span class="eyebrow">Autentikasi Akun</span>
         <h1 id="login-heading">Masuk ke SMK Bhakti Praja Batang</h1>
         <p>Masukkan alamat email dan kata sandi akun Anda untuk melanjutkan.</p>
       </div>

@@ -1,0 +1,77 @@
+.soft-field {
+  min-width: 0;
+}
+.soft-field .field-label {
+  display: block;
+  color: var(--table-heading);
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+.soft-field-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  text-align: left;
+}
+.soft-field-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.soft-field-trigger .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--muted);
+}
+.soft-field-trigger[aria-expanded="true"] {
+  border-color: var(--green);
+}
+.soft-field-popup {
+  position: fixed;
+  z-index: 70;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 8px 24px #28351e20;
+}
+.soft-field-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.soft-field-option .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.soft-field-option.is-active {
+  background: #f1f4ed;
+}
+.soft-field-option[aria-selected="true"] {
+  background: #e2eee4;
+  color: #285d43;
+  font-weight: 500;
+}
+.soft-field-option[aria-disabled="true"] {
+  opacity: .5;
+  cursor: not-allowed;
+}

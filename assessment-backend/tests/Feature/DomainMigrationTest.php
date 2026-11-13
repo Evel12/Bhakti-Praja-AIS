@@ -12,9 +12,9 @@ class DomainMigrationTest extends TestCase
 
     public function test_domain_migrations_can_be_rolled_back_and_reapplied_without_removing_auth(): void
     {
-        $tables = ['classes', 'class_members', 'modules', 'quizzes', 'questions', 'options', 'attempts', 'attempt_answers', 'quiz_generations'];
+        $tables = ['classes', 'class_members', 'modules', 'quizzes', 'questions', 'options', 'attempts', 'attempt_answers', 'quiz_generations', 'assignments', 'announcements', 'notifications', 'module_reads'];
         $this->seed();
-        $this->artisan('migrate:rollback', ['--step' => 10, '--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 16, '--force' => true])->assertSuccessful();
 
         foreach ($tables as $table) {
             $this->assertFalse(Schema::hasTable($table));

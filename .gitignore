@@ -1,50 +1,24 @@
-# Local tools, recovery copies, and private source-document extracts
-/.tools/
-/.recovery/
-/pdf-requirements.txt
-/.runtime/
-/.venv/
-
-# Credentials and local environments
-.env
-.env.*
-!.env.example
-auth.json
-*.key
-*.pem
-
-# Databases, exports, and backups
-*.sqlite
-*.sqlite-*
-*.sqlite3
-*.sql
-*.dump
-*.bak
-
-# Dependencies and generated output
-/Frontend/public/assessment-app/
-node_modules/
-vendor/
-dist/
-coverage/
-playwright-report/
-test-results/
+# Logs
+logs
 *.log
-.phpunit.result.cache
-.phpunit.cache/
-/Backend/bootstrap/cache/*.php
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# New layout (Backend/ and Frontend/)
-# Assessment app (embedded inside the main AIS frontend)
-/assessment-backend/vendor/
-/assessment-backend/.env
-/assessment-backend/.phpunit.cache/
-/assessment-frontend/node_modules/
-/assessment-frontend/dist/
-/frontend/public/assessment-app/
+node_modules
+dist
+dist-ssr
+*.local
 
-# Local editor and OS files
-.idea/
-.vscode/
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

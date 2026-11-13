@@ -263,6 +263,9 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
   contain: layout paint;
   border-radius: 24px;
 }
+.liquid-overlay-ghost.is-sheet {
+  border-radius: 24px 24px 0 0;
+}
 .liquid-overlay-ghost > * {
   position: static;
   margin: 0;
@@ -298,6 +301,12 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
 }
 .nav-item.active {
   background: transparent;
+  box-shadow: none;
+}
+.mobile-bottom-link .liquid-nav-indicator {
+  inset: 3px 2px;
+  border-radius: 12px;
+  background: #e9eee2;
   box-shadow: none;
 }
 .liquid-loading {

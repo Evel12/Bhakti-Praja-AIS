@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from "vue";
 import Icon from "./Icon.vue";
+import { animateSheet } from "../../motion/presence.js";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -10,18 +11,26 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:modelValue"]);
 const id = `soft-field-${useId()}`;
-const root = ref(), trigger = ref(), popup = ref();
-const open = ref(false), activeIndex = ref(-1), position = ref({});
+const root = ref(), trigger = ref(), popup = ref(), backdrop = ref();
+const open = ref(false), activeIndex = ref(-1), position = ref({}), isSheet = ref(false);
 const selected = computed(() => props.options.find(option => option.value === props.modelValue));
 const optionId = index => `${id}-option-${index}`;
 let search = "", searchedAt = 0, openWidth = 0;
 
+function detectSheet() {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches;
+}
 function close(restoreFocus = false) {
   open.value = false;
   search = "";
   if (restoreFocus && trigger.value?.isConnected) trigger.value.focus({ preventScroll: true });
 }
 function place() {
+  isSheet.value = detectSheet();
+  if (isSheet.value) {
+    position.value = {};
+    return;
+  }
   if (!trigger.value) return;
   const rect = trigger.value.getBoundingClientRect();
   const gap = 8, margin = 12;
@@ -48,6 +57,7 @@ async function show(index) {
   open.value = true;
   await nextTick();
   revealActive();
+  if (isSheet.value && popup.value) animateSheet(popup.value, { direction: "enter", preset: "smooth" });
 }
 function revealActive() {
   if (open.value) document.getElementById(optionId(activeIndex.value))?.scrollIntoView?.({ block: "nearest" });
@@ -98,7 +108,7 @@ function keydown(event) {
     if (match !== undefined) { if (open.value) activate(match); else show(match); }
   }
 }
-const contains = target => root.value?.contains(target) || popup.value?.contains(target);
+const contains = target => root.value?.contains(target) || popup.value?.contains(target) || backdrop.value?.contains(target);
 function outside(event) { if (open.value && !contains(event.target)) close(); }
 function scroll(event) { if (open.value && !popup.value?.contains(event.target)) close(); }
 function otherOpened(event) { if (event.detail !== id) close(); }
@@ -156,7 +166,14 @@ onBeforeUnmount(() => {
       <Icon name="down" />
     </button>
     <Teleport to="body">
-      <div v-if="open" :id="`${id}-list`" ref="popup" class="soft-field-popup" :style="position"
+      <div
+        v-if="open && isSheet"
+        ref="backdrop"
+        class="sheet-backdrop"
+        aria-hidden="true"
+        @click="close(true)"
+      ></div>
+      <div v-if="open" :id="`${id}-list`" ref="popup" class="soft-field-popup" :class="{ 'is-sheet': isSheet }" :style="position"
         role="listbox" :aria-labelledby="`${id}-label`" data-liquid-scope="local">
         <div v-for="(option, index) in options" :id="optionId(index)" :key="option.value"
           role="option" class="soft-field-option" :class="{ 'is-active': index === activeIndex }"

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, nextTick, onBeforeUnmount, useId } from "vue";
+import Icon from "./Icon.vue";
 import { createOverlayMotion } from "../../motion/overlays.js";
 const props = defineProps({ open: Boolean, title: String });
 const emit = defineEmits(["close"]);
@@ -55,7 +56,7 @@ onBeforeUnmount(() => {
     <div class="dialog-header">
       <h2 :id="headingId">{{ title }}</h2>
       <button class="icon-btn" aria-label="Tutup dialog" @click="emit('close')">
-        ✕
+        <Icon name="x" />
       </button>
     </div>
     <slot />

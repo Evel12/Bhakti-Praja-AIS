@@ -1,0 +1,13 @@
+import { launch, shot, sleep, clickText } from './lib.mjs';
+const b = await launch();
+const base = 'http://127.0.0.1:4173/';
+const page = await b.newPage();
+await page.goto(base + '#/login', { waitUntil: 'networkidle0' });
+await sleep(800);
+await Promise.all([page.click('button[type=submit]'), sleep(2500)]);
+const dump = async (label) => console.log(label, JSON.stringify(await page.evaluate(() => [...document.querySelectorAll('button, a, input, textarea, select')].filter((e) => e.offsetParent).map((e) => (e.tagName + ':' + (e.innerText || e.placeholder || e.name || e.type || '')).replace(/\s+/g, ' ').slice(0, 50))), null, 0), page.url());
+await clickText(page, 'Buat assessment');
+await sleep(1500);
+await shot(page, '_b-builder1');
+await dump('builder1');
+await b.close();

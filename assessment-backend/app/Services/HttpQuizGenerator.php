@@ -42,7 +42,10 @@ class HttpQuizGenerator implements QuizGenerator
                     },
                 ])
                 ->attach('file', $pdf, 'module-'.$module->id.'.pdf', ['Content-Type' => 'application/pdf'])
-                ->post($url, ['question_count' => (string) $questionCount]);
+                ->post($url, [
+                    'question_count' => (string) $questionCount,
+                    'language' => 'id',
+                ]);
 
             if (in_array($response->status(), [408, 425, 429], true) || $response->serverError()) {
                 throw new QuizGenerationException('ai_unavailable', true);

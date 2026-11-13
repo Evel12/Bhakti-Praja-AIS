@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuestionSource;
 use App\Enums\QuestionType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,9 +15,18 @@ class Question extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'source' => QuestionSource::Manual->value,
+        'reviewed' => true,
+    ];
+
     protected function casts(): array
     {
-        return ['question_type' => QuestionType::class];
+        return [
+            'question_type' => QuestionType::class,
+            'source' => QuestionSource::class,
+            'reviewed' => 'boolean',
+        ];
     }
 
     public function quiz(): BelongsTo

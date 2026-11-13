@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { useAttemptStore } from "../../stores/attemptStore.js";
@@ -7,6 +7,7 @@ import { useUiStore } from "../../stores/uiStore.js";
 import { STUDENT_ID, statusOf } from "../../domain/assessment.js";
 import { useCountdown } from "../../composables/useCountdown.js";
 import { date, time } from "../../utils/format.js";
+import { animateSlide } from "../../motion/presence.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import AppDialog from "../../components/ui/AppDialog.vue";
 import Icon from "../../components/ui/Icon.vue";
@@ -18,10 +19,12 @@ const store = useAssessmentStore(),
   router = useRouter();
 const index = ref(0),
   questionTitle = ref(),
+  questionStage = ref(),
   confirm = ref(false),
   mapOpen = ref(false),
   uploading = ref(false),
   submissionError = ref(false);
+let slideMotion;
 const at = computed(() =>
     store.db.attempts.find(
       (x) => x.id === route.params.id && x.studentId === STUDENT_ID,
@@ -51,18 +54,29 @@ const timeWarning = computed(() => remaining.value > 0 && remaining.value <= 600
     ? "Sisa waktu lima menit atau kurang. Jawaban akan dikirim saat waktu habis."
     : "");
 async function goToQuestion(position) {
+  const prev = index.value;
   index.value = position;
   confirm.value = false;
   mapOpen.value = false;
   await nextTick();
   questionTitle.value?.focus({ preventScroll: true });
   questionTitle.value?.scrollIntoView?.({ block: "start" });
+  if (position !== prev && questionStage.value) {
+    slideMotion?.stop?.();
+    slideMotion = animateSlide(questionStage.value, {
+      direction: position > prev ? 1 : -1,
+      preset: "snappy",
+    });
+  }
 }
 onMounted(() => {
   if (at.value?.status === "submitted")
     router.replace("/review/" + at.value.id);
   else if (a.value?.state === "closed" && a.value.type !== "Tugas")
     submit(true);
+});
+onBeforeUnmount(() => {
+  slideMotion?.stop?.();
 });
 function answer(value) {
   if (locked.value) return;
@@ -144,7 +158,7 @@ async function upload(e) {
         <h2>Pengumpulan tugas</h2>
         <p class="body-copy mt">{{ a.instructions }}</p>
         <p class="notice">
-          Tenggat: {{ date(at.expiresAt) }} · {{ time(at.expiresAt) }} WIB
+          Deadline: {{ date(at.expiresAt) }} · {{ time(at.expiresAt) }} WIB
         </p>
         <p v-if="locked" class="notice warning">
           Pengumpulan tugas sudah ditutup. File tersimpan tetap tersedia.
@@ -206,23 +220,25 @@ async function upload(e) {
       </div>
       <section class="panel exam-question-panel">
         <template v-if="q"
-          ><h2 ref="questionTitle" class="exam-question" tabindex="-1">{{ q.text }}</h2>
-          <fieldset :disabled="locked">
-            <legend class="sr-only">Pilih jawaban soal {{ index + 1 }}</legend>
-            <label
-              v-for="(option, n) in q.options"
-              :key="q.id + '-' + n"
-              class="answer-option"
-              ><input
-                :checked="at.answers[q.id] === n"
-                type="radio"
-                :name="'answer-' + q.id"
-                :value="n"
-                @change="answer(n)"
-              /><span>{{ String.fromCharCode(65 + n) }}.</span
-              ><span>{{ option }}</span></label
-            >
-          </fieldset>
+          ><div ref="questionStage" class="exam-question-stage">
+            <h2 ref="questionTitle" class="exam-question" tabindex="-1">{{ q.text }}</h2>
+            <fieldset :disabled="locked">
+              <legend class="sr-only">Pilih jawaban soal {{ index + 1 }}</legend>
+              <label
+                v-for="(option, n) in q.options"
+                :key="q.id + '-' + n"
+                class="answer-option"
+                ><input
+                  :checked="at.answers[q.id] === n"
+                  type="radio"
+                  :name="'answer-' + q.id"
+                  :value="n"
+                  @change="answer(n)"
+                /><span>{{ String.fromCharCode(65 + n) }}.</span
+                ><span>{{ option }}</span></label
+              >
+            </fieldset>
+          </div>
           <div class="exam-bottom">
             <button
               class="btn"

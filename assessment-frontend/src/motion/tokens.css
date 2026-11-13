@@ -26,6 +26,8 @@
   --motion-magnetic-distance: 4px;
   --motion-reveal-distance: 12px;
   --motion-page-lift: 6px;
+  --motion-sheet-distance: 28px;
+  --motion-slide-distance: 24px;
   --motion-goo-blur: 8px;
   --motion-press-opacity: 0.88;
   --motion-ripple-opacity: 0.18;
@@ -62,7 +64,7 @@
 /* Capability flags for later primitives; no effect is attached in this phase. */
 @media (max-width: 1023px), (hover: none), (pointer: coarse) {
   :root {
-    --motion-max-concurrent: 3;
+    --motion-max-concurrent: 6;
     --motion-hover-enabled: 0;
     --motion-goo-enabled: 0;
     --motion-hover-scale: 1;
@@ -93,6 +95,8 @@
     --motion-magnetic-distance: 0px;
     --motion-reveal-distance: 0px;
     --motion-page-lift: 0px;
+    --motion-sheet-distance: 0px;
+    --motion-slide-distance: 0px;
     --motion-goo-blur: 0px;
     --motion-overshoot-limit: 0;
     --motion-hover-enabled: 0;
@@ -123,6 +127,8 @@
   --motion-magnetic-distance: 0px;
   --motion-reveal-distance: 0px;
   --motion-page-lift: 0px;
+  --motion-sheet-distance: 0px;
+  --motion-slide-distance: 0px;
   --motion-goo-blur: 0px;
   --motion-overshoot-limit: 0;
   --motion-hover-enabled: 0;

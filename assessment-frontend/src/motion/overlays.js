@@ -1,15 +1,23 @@
 import { motionEngine } from "./engine.js";
-import { animatePresence } from "./presence.js";
+import { animatePresence, animateSheet } from "./presence.js";
 import { safeTokens, observeMotionPolicy } from "./policy.js";
 
 /** Real overlays close immediately. Exit copies never hold focus or delay actions. */
-export function createOverlayMotion(root, { engine = motionEngine } = {}) {
+export function createOverlayMotion(
+  root,
+  { engine = motionEngine, variant = "auto" } = {},
+) {
   let handle,
     ghost,
     target,
     disposed = false;
   const doc = root.ownerDocument,
     win = doc.defaultView;
+  function isSheet() {
+    if (variant === "sheet") return true;
+    if (variant === "dialog") return false;
+    return Boolean(win.matchMedia?.("(max-width: 768px)")?.matches);
+  }
   function stop() {
     handle?.cancel();
     handle = undefined;
@@ -45,8 +53,11 @@ export function createOverlayMotion(root, { engine = motionEngine } = {}) {
     enter(el) {
       stop();
       const tokens = enabled(el);
-      if (tokens)
-        track(el, animatePresence(el, { tokens, engine, preset: "smooth" }));
+      if (!tokens) return;
+      const h = isSheet()
+        ? animateSheet(el, { direction: "enter", tokens, engine, preset: "smooth" })
+        : animatePresence(el, { tokens, engine, preset: "smooth" });
+      track(el, h);
     },
     exit(el) {
       stop();
@@ -56,8 +67,9 @@ export function createOverlayMotion(root, { engine = motionEngine } = {}) {
       const rect = el.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       // Static geometry is captured once, never tweened.
+      const sheet = isSheet();
       const copy = doc.createElement("div");
-      copy.className = "liquid-overlay-ghost";
+      copy.className = sheet ? "liquid-overlay-ghost is-sheet" : "liquid-overlay-ghost";
       copy.setAttribute("aria-hidden", "true");
       copy.setAttribute("inert", "");
       Object.assign(copy.style, {
@@ -107,12 +119,19 @@ export function createOverlayMotion(root, { engine = motionEngine } = {}) {
       ghost = copy;
       track(
         copy,
-        animatePresence(copy, {
-          direction: "exit",
-          tokens,
-          engine,
-          preset: "smooth",
-        }),
+        sheet
+          ? animateSheet(copy, {
+              direction: "exit",
+              tokens,
+              engine,
+              preset: "smooth",
+            })
+          : animatePresence(copy, {
+              direction: "exit",
+              tokens,
+              engine,
+              preset: "smooth",
+            }),
         copy,
       );
     },

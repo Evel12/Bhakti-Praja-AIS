@@ -76,7 +76,7 @@ describe("clear dashboard data and deadlines", () => {
     await vi.advanceTimersByTimeAsync(3000);
     expect(activeCount()).toBe("00");
     expect(wrapper.find(".deadline-entry").exists()).toBe(false);
-    expect(wrapper.text()).toContain("Belum ada tenggat mendatang");
+    expect(wrapper.text()).toContain("Belum ada deadline mendatang");
   });
 
   it("refreshes immediately after an interrupted tab returns and reschedules edited deadlines", async () => {

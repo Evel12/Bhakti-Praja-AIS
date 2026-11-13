@@ -38,7 +38,7 @@ export function dashboardWork(db, now = Date.now()) {
     .sort((a, b) => timestamp(a.closeAt) - timestamp(b.closeAt) || a.id.localeCompare(b.id))
     .map((assessment) => ({
       assessment,
-      reason: "Tenggat terdekat",
+      reason: "Deadline terdekat",
       action: "Pantau assessment",
       to: `/results/${assessment.id}`,
       kind: "deadline",

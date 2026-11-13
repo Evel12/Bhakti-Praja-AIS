@@ -15,6 +15,8 @@ class SchoolClassFactory extends Factory
         return [
             'teacher_id' => User::factory()->state(['role' => Role::Teacher]),
             'name' => 'Class '.fake()->bothify('##??'),
+            'description' => fake()->sentence(),
+            'class_code' => SchoolClass::generateUniqueClassCode(),
         ];
     }
 }

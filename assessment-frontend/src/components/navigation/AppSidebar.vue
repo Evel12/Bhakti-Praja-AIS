@@ -13,14 +13,15 @@ import { useAuthStore } from "../../stores/authStore.js";
 import AppBrand from "../brand/AppBrand.vue";
 import SidebarItem from "./SidebarItem.vue";
 import Icon from "../ui/Icon.vue";
-import { createOverlayMotion } from "../../motion/overlays.js";
 import { motionEngine } from "../../motion/engine.js";
 import { safeTokens } from "../../motion/policy.js";
-const emit = defineEmits(["logout"]);
+const emit = defineEmits(["logout", "help"]);
 const route = useRoute(),
   ui = useUiStore(),
   authStore = useAuthStore(),
   panel = ref(),
+  overlayEl = ref(),
+  closing = ref(false),
   mobile = ref(false);
 const compact = computed(() => ui.collapsed && !mobile.value);
 const profileName = computed(() => {
@@ -44,20 +45,31 @@ const profileRole = computed(() => {
   return route.meta.student ? "Peserta · Kelas A" : "Pengajar";
 });
 let media,
-  overlay,
   drawer,
+  overlayAnim,
   revision = 0,
   disposed = false;
+function stopDrawer() {
+  drawer?.cancel();
+  overlayAnim?.cancel();
+  drawer = undefined;
+  overlayAnim = undefined;
+}
 function resize() {
   mobile.value = media.matches;
-  if (!media.matches) ui.mobileOpen = false;
+  if (!media.matches) {
+    ui.mobileOpen = false;
+    closing.value = false;
+    stopDrawer();
+    if (panel.value) motionEngine.reset(panel.value);
+    if (overlayEl.value) motionEngine.reset(overlayEl.value);
+  }
 }
 function close(restore = true) {
   ui.mobileOpen = false;
   if (restore) nextTick(() => document.getElementById("menu-trigger")?.focus());
 }
 function keydown(e) {
-  drawer?.cancel();
   if (e.key === "Escape") {
     if (ui.mobileOpen) close();
   }
@@ -76,32 +88,135 @@ function keydown(e) {
     }
   }
 }
-function cancelDrawer() {
-  drawer?.cancel();
+function cancelDrawer(e) {
+  if (closing.value) return;
+  if (e?.target?.closest?.(".drawer-overlay, .sidebar-close, #menu-trigger")) return;
+  stopDrawer();
+}
+let swipeStartX = 0,
+  swipeStartY = 0,
+  swiping = false,
+  swipeOffset = 0;
+function onTouchStart(e) {
+  if (!mobile.value || !ui.mobileOpen || closing.value || !e.touches?.length) return;
+  const touch = e.touches[0];
+  swipeStartX = touch.clientX;
+  swipeStartY = touch.clientY;
+  swipeOffset = 0;
+  swiping = true;
+}
+function onTouchMove(e) {
+  if (!swiping || !panel.value || !e.touches?.length) return;
+  const touch = e.touches[0];
+  const dx = touch.clientX - swipeStartX;
+  const dy = touch.clientY - swipeStartY;
+  if (Math.abs(dy) > Math.abs(dx) * 1.2 && Math.abs(swipeOffset) < 8) {
+    swiping = false;
+    return;
+  }
+  if (dx < 0) {
+    swipeOffset = Math.max(-288, dx);
+    panel.value.style.transform = `translate3d(${swipeOffset}px, 0, 0)`;
+  }
+}
+function onTouchEnd() {
+  if (!swiping || !panel.value) return;
+  swiping = false;
+  if (swipeOffset < -56) {
+    panel.value.style.transform = "";
+    close(false);
+  } else if (swipeOffset < 0) {
+    panel.value.style.transform = "";
+    const tokens = safeTokens(panel.value);
+    if (tokens && tokens.mode !== "off" && !document.hidden) {
+      motionEngine.animate(
+        panel.value,
+        { x: 0 },
+        { from: { x: swipeOffset }, tokens, preset: "snappy" },
+      );
+    }
+  }
+  swipeOffset = 0;
 }
 watch(
   () => ui.mobileOpen,
   async (open) => {
     const ticket = ++revision;
-    drawer?.cancel();
-    motionEngine.reset(panel.value);
-    if (!open && mobile.value) overlay?.exit(panel.value);
+    stopDrawer();
     document.body.style.overflow = open ? "hidden" : "";
     if (open) {
+      closing.value = false;
+      if (panel.value) motionEngine.reset(panel.value);
+      if (overlayEl.value) motionEngine.reset(overlayEl.value);
       await nextTick();
       if (disposed || ticket !== revision || !ui.mobileOpen) return;
       panel.value?.querySelector(".sidebar-close")?.focus();
       const tokens = safeTokens(panel.value);
-      if (tokens && !document.hidden)
+      if (tokens && tokens.mode !== "off" && !document.hidden) {
+        const width = panel.value?.getBoundingClientRect().width || 288;
         drawer = motionEngine.animate(
           panel.value,
           { x: 0, opacity: 1 },
           {
-            from: { x: -panel.value.getBoundingClientRect().width, opacity: 0 },
+            from: { x: -width, opacity: 0 },
             tokens,
             preset: "smooth",
           },
         );
+        if (overlayEl.value) {
+          overlayAnim = motionEngine.animate(
+            overlayEl.value,
+            { opacity: 1 },
+            {
+              from: { opacity: 0 },
+              tokens,
+              preset: "smooth",
+            },
+          );
+        }
+      }
+    } else {
+      if (mobile.value && panel.value) {
+        const tokens = safeTokens(panel.value);
+        if (tokens && tokens.mode !== "off" && !document.hidden) {
+          closing.value = true;
+          const width = panel.value.getBoundingClientRect().width || 288;
+          drawer = motionEngine.animate(
+            panel.value,
+            { opacity: 0, x: -width },
+            {
+              from: { opacity: 1, x: 0 },
+              tokens,
+              preset: "smooth",
+            },
+          );
+          if (overlayEl.value) {
+            overlayAnim = motionEngine.animate(
+              overlayEl.value,
+              { opacity: 0 },
+              {
+                from: { opacity: 1 },
+                tokens,
+                preset: "smooth",
+              },
+            );
+          }
+          drawer.finished.then(() => {
+            if (ticket === revision && !ui.mobileOpen) {
+              closing.value = false;
+              if (panel.value) motionEngine.reset(panel.value);
+              if (overlayEl.value) motionEngine.reset(overlayEl.value);
+            }
+          });
+        } else {
+          closing.value = false;
+          if (panel.value) motionEngine.reset(panel.value);
+          if (overlayEl.value) motionEngine.reset(overlayEl.value);
+        }
+      } else {
+        closing.value = false;
+        if (panel.value) motionEngine.reset(panel.value);
+      }
     }
   },
 );
@@ -110,7 +225,6 @@ watch(
   () => close(false),
 );
 onMounted(() => {
-  overlay = createOverlayMotion(panel.value);
   media = matchMedia("(max-width: 1023px)");
   resize();
   media.addEventListener("change", resize);
@@ -120,8 +234,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   disposed = true;
   revision++;
-  drawer?.cancel();
-  overlay?.dispose();
+  stopDrawer();
+  closing.value = false;
+  if (panel.value) motionEngine.reset(panel.value);
+  if (overlayEl.value) motionEngine.reset(overlayEl.value);
   media?.removeEventListener("change", resize);
   document.removeEventListener("keydown", keydown);
   document.removeEventListener("pointerdown", cancelDrawer);
@@ -130,8 +246,10 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <button
-    v-if="mobile && ui.mobileOpen"
+    v-if="mobile && (ui.mobileOpen || closing)"
+    ref="overlayEl"
     class="drawer-overlay"
+    :class="{ 'is-closing': closing }"
     aria-label="Tutup navigasi"
     @click="close()"
   ></button>
@@ -139,11 +257,15 @@ onBeforeUnmount(() => {
     id="sidebar"
     ref="panel"
     class="sidebar"
-    :class="{ 'is-compact': compact, 'is-open': ui.mobileOpen }"
+    :class="{ 'is-compact': compact, 'is-open': ui.mobileOpen || closing, 'is-closing': closing }"
     :inert="mobile && !ui.mobileOpen"
     :role="mobile && ui.mobileOpen ? 'dialog' : undefined"
     :aria-modal="mobile && ui.mobileOpen ? 'true' : undefined"
     aria-label="Navigasi utama"
+    @touchstart.passive="onTouchStart"
+    @touchmove.passive="onTouchMove"
+    @touchend.passive="onTouchEnd"
+    @touchcancel.passive="onTouchEnd"
   >
     <div class="brand-row">
       <AppBrand :compact="compact" />
@@ -189,6 +311,13 @@ onBeforeUnmount(() => {
           :active="/assessments|builder/.test(route.path)"
         />
         <SidebarItem
+          to="/classes"
+          label="Kelas"
+          icon="people"
+          :compact="compact"
+          :active="/^\/classes/.test(route.path)"
+        />
+        <SidebarItem
           to="/bank"
           label="Bank soal"
           icon="book"
@@ -209,7 +338,12 @@ onBeforeUnmount(() => {
           label="Assessment saya"
           icon="book"
           :compact="compact"
-          :active="route.path !== '/my-results'" /><SidebarItem
+          :active="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" /><SidebarItem
+          to="/student/classes"
+          label="Kelas & Materi"
+          icon="people"
+          :compact="compact"
+          :active="/^\/student\/classes/.test(route.path)" /><SidebarItem
           to="/my-results"
           label="Hasil saya"
           icon="chart"
@@ -225,6 +359,19 @@ onBeforeUnmount(() => {
           <p>{{ profileRole }}</p>
         </div>
       </div>
+      <button
+        v-if="mobile"
+        type="button"
+        class="btn sidebar-help-btn"
+        aria-label="Panduan penggunaan"
+        @click="
+          close(false);
+          emit('help');
+        "
+      >
+        <Icon name="help" class="sm" />
+        <span class="sidebar-btn-label sidebar-copy">Panduan penggunaan</span>
+      </button>
       <button
         v-if="authStore.isAuthenticated"
         type="button"

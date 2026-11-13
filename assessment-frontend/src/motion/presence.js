@@ -40,3 +40,53 @@ export function animatePresence(
     },
   );
 }
+
+export function animateSheet(
+  element,
+  {
+    direction = "enter",
+    preset = "smooth",
+    tokens = safeTokens(element),
+    engine = motionEngine,
+  } = {},
+) {
+  if (!tokens) return completed();
+  const enter = direction === "enter";
+  const opacity = engine.prepare(element).base.opacity;
+  return engine.animate(
+    element,
+    enter
+      ? { x: 0, y: 0, opacity }
+      : { y: tokens.distances.sheet, opacity: 0 },
+    {
+      from: enter
+        ? { y: tokens.distances.sheet, opacity: 0 }
+        : undefined,
+      preset,
+      tokens,
+    },
+  );
+}
+
+export function animateSlide(
+  element,
+  {
+    direction = 1,
+    preset = "snappy",
+    tokens = safeTokens(element),
+    engine = motionEngine,
+  } = {},
+) {
+  if (!tokens) return completed();
+  const opacity = engine.prepare(element).base.opacity;
+  const offset = (direction >= 0 ? 1 : -1) * tokens.distances.slide;
+  return engine.animate(
+    element,
+    { x: 0, y: 0, opacity },
+    {
+      from: { x: offset, opacity: 0 },
+      preset,
+      tokens,
+    },
+  );
+}

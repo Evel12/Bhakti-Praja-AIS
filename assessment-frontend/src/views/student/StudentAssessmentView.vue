@@ -45,7 +45,7 @@ const current = computed(() => entries.value
     <section class="student-section" aria-labelledby="student-current-title" data-assessment-group="current">
       <div class="student-section-heading">
         <h2 id="student-current-title">Perlu dikerjakan</h2>
-        <p>{{ current.length ? 'Lanjutkan sesi kamu atau mulai dari tenggat terdekat.' : 'Tidak ada tugas aktif saat ini.' }}</p>
+        <p>{{ current.length ? '' : 'Tidak ada tugas aktif saat ini.' }}</p>
       </div>
       <MotionList v-if="current.length" class="student-grid" :item-keys="current.map((entry) => entry.assessment.id)">
         <StudentAssessmentCard v-for="entry in current" :key="entry.assessment.id" :data-motion-key="entry.assessment.id" :entry="entry" />
@@ -60,7 +60,6 @@ const current = computed(() => entries.value
     </section>
     <details v-if="history.length" class="student-history student-section" data-assessment-group="history">
       <summary><span>Selesai & ditutup</span><span class="history-count">{{ history.length }} assessment</span></summary>
-      <p class="student-history-description">Lihat pengumpulan, hasil yang sudah dirilis, atau sesi yang waktunya berakhir.</p>
       <MotionList class="student-grid" :item-keys="history.map((entry) => entry.assessment.id)">
         <StudentAssessmentCard v-for="entry in history" :key="entry.assessment.id" :data-motion-key="entry.assessment.id" :entry="entry" />
       </MotionList>

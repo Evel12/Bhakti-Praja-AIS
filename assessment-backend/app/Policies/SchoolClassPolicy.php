@@ -33,4 +33,14 @@ class SchoolClassPolicy
     {
         return $this->update($user, $schoolClass);
     }
+
+    public function join(User $user): bool
+    {
+        return $user->role === Role::Student;
+    }
+
+    public function leave(User $user, SchoolClass $schoolClass): bool
+    {
+        return $user->role === Role::Student && $schoolClass->students()->whereKey($user->id)->exists();
+    }
 }

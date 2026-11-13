@@ -16,9 +16,10 @@
     "check": "npm run check:motion && npm run test && npm run build"
   },
   "dependencies": {
+    "@primeicons/vue": "^8.0.2",
+    "pinia": "^3.0.0",
     "vue": "^3.5.0",
-    "vue-router": "^4.5.0",
-    "pinia": "^3.0.0"
+    "vue-router": "^4.5.0"
   },
   "overrides": {
     "js-beautify": {
@@ -30,12 +31,12 @@
     }
   },
   "devDependencies": {
-    "vite": "^7.0.0",
-    "@vitejs/plugin-vue": "^6.0.0",
-    "tailwindcss": "^4.1.0",
     "@tailwindcss/vite": "^4.1.0",
-    "vitest": "^4.1.12",
+    "@vitejs/plugin-vue": "^6.0.0",
     "@vue/test-utils": "^2.4.6",
-    "jsdom": "^26.1.0"
+    "jsdom": "^26.1.0",
+    "tailwindcss": "^4.1.0",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.12"
   }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\QuestionSource;
 use App\Enums\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -17,6 +18,8 @@ class TeacherQuestionResource extends JsonResource
             'quiz_id' => $this->quiz_id,
             'question_text' => $this->question_text,
             'question_type' => $this->question_type->value,
+            'source' => $this->source?->value ?? QuestionSource::Manual->value,
+            'reviewed' => (bool) $this->reviewed,
             'options' => TeacherOptionResource::collection($this->whenLoaded('options')),
         ];
     }

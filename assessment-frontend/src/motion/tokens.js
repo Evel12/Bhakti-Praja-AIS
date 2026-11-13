@@ -190,6 +190,8 @@ export function readMotionTokens(
       magnetic: length("--motion-magnetic-distance"),
       reveal: length("--motion-reveal-distance"),
       pageLift: length("--motion-page-lift"),
+      sheet: length("--motion-sheet-distance"),
+      slide: length("--motion-slide-distance"),
       gooBlur: length("--motion-goo-blur"),
     },
     springs,

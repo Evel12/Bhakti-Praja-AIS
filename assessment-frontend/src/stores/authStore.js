@@ -8,6 +8,7 @@ import {
   setStoredToken,
 } from "../services/apiClient.js";
 import { useAssessmentStore } from "./assessmentStore.js";
+import { useLmsStore } from "./lmsStore.js";
 
 const EMAIL_ACCOUNTS = [
   {
@@ -82,6 +83,10 @@ export const useAuthStore = defineStore("auth", () => {
 
     if (connected && nextToken && typeof assessmentStore.syncFromApi === "function") {
       await assessmentStore.syncFromApi();
+      const lmsStore = useLmsStore();
+      if (typeof lmsStore.loadNotifications === "function") {
+        lmsStore.loadNotifications().catch(() => {});
+      }
     }
   }
 
@@ -185,6 +190,12 @@ export const useAuthStore = defineStore("auth", () => {
       apiConnected.value = false;
       setStoredToken(null);
       setStoredSession(null);
+      const lmsStore = useLmsStore();
+      lmsStore.notifications = [];
+      lmsStore.unreadCount = 0;
+      lmsStore.classes = [];
+      lmsStore.activeClassId = null;
+      lmsStore.activeClass = null;
       loading.value = false;
       error.value = "";
       notice.value = "Anda telah keluar dari sesi.";

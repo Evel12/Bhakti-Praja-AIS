@@ -78,7 +78,7 @@ function create() {
       <div class="panel-header">
         <div>
           <h2>Perlu dicek</h2>
-          <p>Penilaian tertunda, tenggat terdekat, lalu draft yang bisa dilanjutkan.</p>
+          <p>Penilaian tertunda, deadline terdekat, lalu draft yang bisa dilanjutkan.</p>
         </div>
         <RouterLink :to="pending ? '/results?filter=pending' : '/assessments/all'" class="btn small minimal-box-btn"
           >{{ pending ? 'Semua penilaian tertunda' : 'Semua assessment' }} →</RouterLink
@@ -103,7 +103,7 @@ function create() {
     <aside class="dashboard-aside">
       <section class="panel">
         <div class="panel-header">
-          <div><h2>Tenggat terdekat</h2><p>Waktu tutup assessment · WIB</p></div>
+          <div><h2>Deadline terdekat</h2><p>Waktu tutup assessment · WIB</p></div>
           <Icon name="calendar" />
         </div>
         <ul v-if="upcoming.length" class="deadline-list">
@@ -117,7 +117,7 @@ function create() {
             </RouterLink>
           </li>
         </ul>
-        <p v-else class="muted">Belum ada tenggat mendatang.</p>
+        <p v-else class="muted">Belum ada deadline mendatang.</p>
       </section>
       <section class="help-card">
         <h3>Soal yang baik dimulai dari ide sederhana.</h3>
@@ -145,7 +145,7 @@ function create() {
           <td data-label="Rata-rata" class="class-grade-average">{{ row.average === null ? '—' : row.average + '/100' }}</td>
           <td data-label="Dinilai">{{ row.graded }}</td>
           <td data-label="Perlu dinilai"><span :class="{ 'pending-count': row.pending }">{{ row.pending }}</span></td>
-          <td><RouterLink class="register-link" :to="{ path: '/results', query: { class: row.className, course } }" :aria-label="'Rincian ' + course + ' · ' + row.className">Rincian <Icon name="arrow" /></RouterLink></td>
+          <td class="register-actions"><RouterLink class="register-link" :to="{ path: '/results', query: { class: row.className, course } }" :aria-label="'Rincian ' + course + ' · ' + row.className">Rincian <Icon name="arrow" /></RouterLink></td>
         </tr>
       </tbody>
     </table>

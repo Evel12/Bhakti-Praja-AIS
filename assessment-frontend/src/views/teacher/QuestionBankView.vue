@@ -13,6 +13,7 @@ import {
 } from "../../domain/assessment.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import AppDialog from "../../components/ui/AppDialog.vue";
+import Icon from "../../components/ui/Icon.vue";
 import QuestionEditor from "../../components/assessment/QuestionEditor.vue";
 import QuestionPreview from "../../components/assessment/QuestionPreview.vue";
 const store = useAssessmentStore(),
@@ -55,7 +56,8 @@ function use(q) {
   <PageTitle
     title="Bank soal"
     ><button class="btn primary" @click="create">
-      + Tambah soal
+      <Icon name="plus" />
+      Tambah soal
     </button></PageTitle
   >
   <div class="filters">

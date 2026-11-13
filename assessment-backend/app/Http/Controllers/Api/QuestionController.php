@@ -42,4 +42,20 @@ class QuestionController extends Controller
 
         return ApiResponse::success(message: 'Question deleted.');
     }
+
+    public function review(AuthenticatedRequest $request, Quiz $quiz, Question $question): JsonResponse
+    {
+        $validated = $request->validate([
+            'reviewed' => ['sometimes', 'boolean'],
+        ]);
+
+        $updated = $this->quizzes->reviewQuestion(
+            $request->user(),
+            $quiz->id,
+            $question->id,
+            (bool) ($validated['reviewed'] ?? true),
+        );
+
+        return ApiResponse::success(new TeacherQuestionResource($updated), 'Question review updated.');
+    }
 }

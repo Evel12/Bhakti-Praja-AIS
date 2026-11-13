@@ -35,7 +35,7 @@ const action = computed(() => {
       <h3 :id="'assessment-title-' + entry.assessment.id" class="student-card-title">{{ entry.assessment.title }}</h3>
       <p v-if="entry.assessment.description" class="student-card-description">{{ entry.assessment.description }}</p>
       <ul class="student-card-meta" aria-label="Informasi assessment">
-        <li><Icon name="calendar" class="sm" /><span><span class="sr-only">Tenggat: </span><time :datetime="entry.assessment.closeAt">{{ date(entry.assessment.closeAt) }}, {{ time(entry.assessment.closeAt) }} WIB</time></span></li>
+        <li><Icon name="calendar" class="sm" /><span><span class="sr-only">Deadline: </span><time :datetime="entry.assessment.closeAt">{{ date(entry.assessment.closeAt) }}, {{ time(entry.assessment.closeAt) }} WIB</time></span></li>
         <template v-if="entry.assessment.type === 'Tugas'">
           <li><Icon name="upload" class="sm" /><span>Upload file</span></li>
           <li><Icon name="file" class="sm" /><span>Maks. 2 MB</span></li>

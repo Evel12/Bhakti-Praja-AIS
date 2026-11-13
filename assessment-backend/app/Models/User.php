@@ -41,6 +41,16 @@ class User extends Authenticatable
         return $this->hasMany(Attempt::class, 'student_id');
     }
 
+    public function lmsNotifications(): HasMany
+    {
+        return $this->hasMany(LmsNotification::class, 'user_id');
+    }
+
+    public function moduleReads(): HasMany
+    {
+        return $this->hasMany(ModuleRead::class, 'student_id');
+    }
+
     /**
      * Get the attributes that should be cast.
      *

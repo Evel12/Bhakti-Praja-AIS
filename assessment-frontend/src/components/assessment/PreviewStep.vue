@@ -43,7 +43,7 @@ function schedule(value) {
     <div><dt>Jenis</dt><dd>{{ draft.type }}</dd></div>
     <div>
       <dt>Durasi</dt>
-      <dd>{{ task ? "Sampai tenggat pengumpulan" : issues.some((issue) => issue.field === 'duration') ? "Belum valid" : `${draft.duration} menit` }}</dd>
+      <dd>{{ task ? "Sampai deadline pengumpulan" : issues.some((issue) => issue.field === 'duration') ? "Belum valid" : `${draft.duration} menit` }}</dd>
     </div>
     <div><dt>Jumlah soal</dt><dd>{{ task ? "Tidak berlaku untuk tugas" : `${draft.questions.length} soal` }}</dd></div>
     <div><dt>Total poin</dt><dd>{{ task ? "Penilaian manual · nilai 0–100" : totalPoints }}</dd></div>

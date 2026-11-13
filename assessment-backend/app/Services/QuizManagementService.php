@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\NotificationType;
+use App\Enums\QuestionSource;
 use App\Enums\QuestionType;
 use App\Enums\QuizStatus;
 use App\Enums\Role;
@@ -24,6 +26,8 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class QuizManagementService
 {
+    public function __construct(private readonly LmsNotificationService $notifications) {}
+
     public function list(User $actor, SchoolClass $schoolClass, array $filters): LengthAwarePaginator
     {
         Gate::forUser($actor)->authorize('viewAny', [Quiz::class, $schoolClass]);
@@ -90,10 +94,22 @@ class QuizManagementService
             }
             foreach ($quiz->questions as $question) {
                 $this->assertComplete($question);
+                if ($question->source === QuestionSource::Ai && ! $question->reviewed) {
+                    throw ValidationException::withMessages([
+                        'questions' => ['All AI-generated questions must be reviewed by a teacher before publishing.'],
+                    ]);
+                }
             }
             $quiz->status = QuizStatus::Published;
             $quiz->deadline = $expiresAt;
             $quiz->save();
+            $this->notifications->notifyClassStudents(
+                $quiz->schoolClass,
+                NotificationType::QuizPublished,
+                "Kuis baru dipublish: {$quiz->title}",
+                "Kuis \"{$quiz->title}\" telah dibuka untuk kelas {$quiz->schoolClass->name}.",
+                ['quiz_id' => $quiz->id, 'deadline' => $quiz->deadline?->toIso8601String()],
+            );
             $this->logAfterCommit('quiz.published', $actor, 'quiz', $quiz->id);
 
             return $this->details($quiz);
@@ -129,10 +145,14 @@ class QuizManagementService
     {
         return $this->mutate($actor, $quizId, 'update', function (Quiz $quiz) use ($actor, $data): Question {
             Gate::forUser($actor)->authorize('create', [Question::class, $quiz]);
-            $question = $quiz->questions()->create([
+            $question = $quiz->questions()->make([
                 'question_text' => $data['question_text'],
                 'question_type' => $data['question_type'] ?? QuestionType::MultipleChoice,
             ]);
+            $question->forceFill([
+                'source' => QuestionSource::Manual,
+                'reviewed' => true,
+            ])->save();
             $this->writeOptions($question, $data['options']);
             $this->assertComplete($question);
             $this->logAfterCommit('question.created', $actor, 'question', $question->id);
@@ -146,12 +166,31 @@ class QuizManagementService
         return $this->mutate($actor, $quizId, 'update', function (Quiz $quiz) use ($actor, $questionId, $data): Question {
             $question = $quiz->questions()->findOrFail($questionId);
             Gate::forUser($actor)->authorize('update', $question);
-            $question->fill(Arr::only($data, ['question_text', 'question_type']))->save();
+            $question->fill(Arr::only($data, ['question_text', 'question_type']));
+            if (array_key_exists('reviewed', $data)) {
+                $question->reviewed = (bool) $data['reviewed'];
+            } elseif ($question->source === QuestionSource::Ai && (array_key_exists('question_text', $data) || array_key_exists('options', $data))) {
+                $question->reviewed = false;
+            }
+            $question->save();
             if (array_key_exists('options', $data)) {
                 $this->writeOptions($question, $data['options']);
             }
             $this->assertComplete($question);
             $this->logAfterCommit('question.updated', $actor, 'question', $question->id);
+
+            return $question;
+        });
+    }
+
+    public function reviewQuestion(User $actor, int $quizId, int $questionId, bool $reviewed = true): Question
+    {
+        return $this->mutate($actor, $quizId, 'update', function (Quiz $quiz) use ($actor, $questionId, $reviewed): Question {
+            $question = $quiz->questions()->findOrFail($questionId);
+            Gate::forUser($actor)->authorize('update', $question);
+            $this->assertComplete($question);
+            $question->forceFill(['reviewed' => $reviewed])->save();
+            $this->logAfterCommit('question.reviewed', $actor, 'question', $question->id);
 
             return $question;
         });
@@ -173,6 +212,9 @@ class QuizManagementService
             $question = $quiz->questions()->findOrFail($questionId);
             Gate::forUser($actor)->authorize('update', $question);
             $this->writeOptions($question, $options);
+            if ($question->source === QuestionSource::Ai) {
+                $question->forceFill(['reviewed' => false])->save();
+            }
             $this->assertComplete($question);
             $this->logAfterCommit('options.replaced', $actor, 'question', $questionId);
 
@@ -199,6 +241,9 @@ class QuizManagementService
                 $question->options()->whereKeyNot($optionId)->update(['is_correct' => false]);
             }
             $option->fill(Arr::only($data, ['option_text', 'is_correct']))->save();
+            if ($question->source === QuestionSource::Ai) {
+                $question->forceFill(['reviewed' => false])->save();
+            }
             $this->assertComplete($question);
             $this->logAfterCommit('option.updated', $actor, 'option', $optionId);
 

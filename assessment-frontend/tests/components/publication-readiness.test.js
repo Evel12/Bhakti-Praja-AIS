@@ -159,7 +159,7 @@ describe("publication readiness", () => {
   it("shows missing-task instructions as an actionable issue without previewing irrelevant answer keys", async () => {
     await openDraft((a) => { a.type = "Tugas"; a.instructions = ""; });
     await preview();
-    expect(summary().Durasi).toBe("Sampai tenggat pengumpulan");
+    expect(summary().Durasi).toBe("Sampai deadline pengumpulan");
     expect(summary()["Jumlah soal"]).toBe("Tidak berlaku untuk tugas");
     expect(summary()["Total poin"]).toBe("Penilaian manual · nilai 0–100");
     expect(wrapper.find(".preview-list").exists()).toBe(false);

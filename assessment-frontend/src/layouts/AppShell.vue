@@ -5,8 +5,10 @@ import { useRoute, useRouter } from "vue-router";
 import { useUiStore } from "../stores/uiStore.js";
 import { useAuthStore } from "../stores/authStore.js";
 import { useAssessmentStore } from "../stores/assessmentStore.js";
+import { useLmsStore } from "../stores/lmsStore.js";
 import { gradingQueue } from "../domain/teacherWork.js";
 import AppSidebar from "../components/navigation/AppSidebar.vue";
+import MotionActiveIndicator from "../components/motion/MotionActiveIndicator.vue";
 import Icon from "../components/ui/Icon.vue";
 import AppDialog from "../components/ui/AppDialog.vue";
 const route = useRoute(),
@@ -14,6 +16,7 @@ const route = useRoute(),
   ui = useUiStore(),
   authStore = useAuthStore(),
   assessmentStore = useAssessmentStore(),
+  lmsStore = useLmsStore(),
   help = ref(false),
   logoutConfirm = ref(false);
 const shell = ref();
@@ -75,7 +78,7 @@ watch(
     >Lewati ke konten</a
   >
   <div ref="shell" class="shell" :class="{ 'sidebar-collapsed': ui.collapsed }">
-    <AppSidebar @logout="logoutConfirm = true" />
+    <AppSidebar @logout="logoutConfirm = true" @help="help = true" />
     <main
       id="main-content"
       ref="main"
@@ -99,6 +102,20 @@ watch(
           }}</span>
         </div>
         <div class="topbar-actions">
+          <RouterLink
+            :to="route.meta.student ? '/student/notifications' : '/notifications'"
+            class="icon-btn lms-bell-btn"
+            aria-label="Notifikasi LMS"
+          >
+            <Icon name="bell" />
+            <span
+              v-if="lmsStore.unreadCount > 0"
+              class="lms-bell-badge"
+              :aria-label="`${lmsStore.unreadCount} notifikasi belum dibaca`"
+            >
+              {{ lmsStore.unreadCount }}
+            </span>
+          </RouterLink>
           <button
             type="button"
             class="btn auth-header-pill"
@@ -112,7 +129,7 @@ watch(
             <Icon name="logout" class="sm" />
           </button>
           <button
-            class="icon-btn"
+            class="icon-btn topbar-help-btn"
             aria-label="Panduan penggunaan"
             @click="help = true"
           >
@@ -139,6 +156,7 @@ watch(
           :class="{ active: route.path === '/dashboard' || route.path === '/home' }"
           :aria-current="route.path === '/dashboard' || route.path === '/home' ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="route.path === '/dashboard' || route.path === '/home'" />
           <Icon name="grid" class="sm" />
           <span>Home</span>
         </RouterLink>
@@ -148,8 +166,19 @@ watch(
           :class="{ active: /assessments|builder/.test(route.path) }"
           :aria-current="/assessments|builder/.test(route.path) ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="/assessments|builder/.test(route.path)" />
           <Icon name="briefcase" class="sm" />
           <span>Assessment</span>
+        </RouterLink>
+        <RouterLink
+          to="/classes"
+          class="mobile-bottom-link"
+          :class="{ active: /^\/classes/.test(route.path) }"
+          :aria-current="/^\/classes/.test(route.path) ? 'page' : undefined"
+        >
+          <MotionActiveIndicator v-if="/^\/classes/.test(route.path)" />
+          <Icon name="people" class="sm" />
+          <span>Kelas</span>
         </RouterLink>
         <RouterLink
           to="/bank"
@@ -157,8 +186,9 @@ watch(
           :class="{ active: route.path === '/bank' }"
           :aria-current="route.path === '/bank' ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="route.path === '/bank'" />
           <Icon name="book" class="sm" />
-          <span>Bank soal</span>
+          <span>Bank</span>
         </RouterLink>
         <RouterLink
           to="/results"
@@ -166,6 +196,7 @@ watch(
           :class="{ active: /results|grade/.test(route.path) }"
           :aria-current="/results|grade/.test(route.path) ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="/results|grade/.test(route.path)" />
           <Icon name="chart" class="sm" />
           <span>Hasil</span>
           <em
@@ -180,11 +211,22 @@ watch(
         <RouterLink
           to="/student"
           class="mobile-bottom-link"
-          :class="{ active: route.path !== '/my-results' }"
-          :aria-current="route.path !== '/my-results' ? 'page' : undefined"
+          :class="{ active: !/^\/(my-results|student\/classes|student\/notifications)/.test(route.path) }"
+          :aria-current="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path) ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" />
           <Icon name="book" class="sm" />
           <span>Assessment</span>
+        </RouterLink>
+        <RouterLink
+          to="/student/classes"
+          class="mobile-bottom-link"
+          :class="{ active: /^\/student\/classes/.test(route.path) }"
+          :aria-current="/^\/student\/classes/.test(route.path) ? 'page' : undefined"
+        >
+          <MotionActiveIndicator v-if="/^\/student\/classes/.test(route.path)" />
+          <Icon name="people" class="sm" />
+          <span>Kelas</span>
         </RouterLink>
         <RouterLink
           to="/my-results"
@@ -192,8 +234,25 @@ watch(
           :class="{ active: route.path === '/my-results' }"
           :aria-current="route.path === '/my-results' ? 'page' : undefined"
         >
+          <MotionActiveIndicator v-if="route.path === '/my-results'" />
           <Icon name="chart" class="sm" />
-          <span>Hasil saya</span>
+          <span>Hasil</span>
+        </RouterLink>
+        <RouterLink
+          to="/student/notifications"
+          class="mobile-bottom-link"
+          :class="{ active: /^\/student\/notifications/.test(route.path) }"
+          :aria-current="/^\/student\/notifications/.test(route.path) ? 'page' : undefined"
+        >
+          <MotionActiveIndicator v-if="/^\/student\/notifications/.test(route.path)" />
+          <Icon name="bell" class="sm" />
+          <span>Notif</span>
+          <em
+            v-if="lmsStore.unreadCount > 0"
+            class="mobile-nav-badge"
+            :aria-label="`${lmsStore.unreadCount} notifikasi belum dibaca`"
+            >{{ lmsStore.unreadCount }}</em
+          >
         </RouterLink>
       </template>
     </nav>

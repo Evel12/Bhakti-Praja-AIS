@@ -185,8 +185,170 @@ export const apiClient = {
     return apiRequest('/classes')
   },
 
+  async getClass(classId) {
+    return apiRequest(`/classes/${classId}`)
+  },
+
+  async createClass({ name, description = '' }) {
+    return apiRequest('/classes', {
+      method: 'POST',
+      body: { name, description },
+    })
+  },
+
+  async updateClass(classId, payload) {
+    return apiRequest(`/classes/${classId}`, {
+      method: 'PATCH',
+      body: payload,
+    })
+  },
+
+  async joinClass(classCode) {
+    return apiRequest('/classes/join', {
+      method: 'POST',
+      body: { class_code: String(classCode || '').trim().toUpperCase() },
+    })
+  },
+
+  async leaveClass(classId) {
+    return apiRequest(`/classes/${classId}/leave`, {
+      method: 'DELETE',
+    })
+  },
+
   async listModules(classId) {
     return apiRequest(`/classes/${classId}/modules`)
+  },
+
+  async setModuleVisibility(moduleId, visibility) {
+    return apiRequest(`/modules/${moduleId}/visibility`, {
+      method: 'PATCH',
+      body: { visibility },
+    })
+  },
+
+  async deleteModule(moduleId) {
+    return apiRequest(`/modules/${moduleId}`, {
+      method: 'DELETE',
+    })
+  },
+
+  async downloadModule(moduleId) {
+    const url = `${getApiBaseUrl()}/modules/${moduleId}/download`
+    const token = getStoredToken()
+    const headers = {}
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    }
+
+    let response
+    try {
+      response = await fetch(url, { method: 'GET', headers })
+    } catch (networkErr) {
+      throw new ApiError('Tidak dapat terhubung ke server API Backend.', {
+        status: 0,
+        code: 'NETWORK_ERROR',
+        details: { cause: networkErr?.message || 'fetch_failed' },
+      })
+    }
+
+    if (!response.ok) {
+      let payload = null
+      try {
+        payload = await response.json()
+      } catch {
+        payload = null
+      }
+      throw new ApiError(payload?.message || `Gagal mengunduh materi (${response.status}).`, {
+        status: response.status,
+        code: payload?.error?.code || 'API_ERROR',
+        details: payload?.error?.details || {},
+      })
+    }
+
+    const disposition = response.headers?.get?.('Content-Disposition') || ''
+    const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";\n]+)/i)
+    const fileName = match ? decodeURIComponent(match[1].replace(/"/g, '').trim()) : `modul-${moduleId}.pdf`
+    const blob = await response.blob()
+    return { blob, fileName }
+  },
+
+  async markModuleRead(moduleId) {
+    return apiRequest(`/modules/${moduleId}/read`, {
+      method: 'POST',
+    })
+  },
+
+  async getClassProgress(classId) {
+    return apiRequest(`/classes/${classId}/progress`)
+  },
+
+  async listClassAssignments(classId) {
+    return apiRequest(`/classes/${classId}/assignments`)
+  },
+
+  async createAssignment(classId, payload) {
+    return apiRequest(`/classes/${classId}/assignments`, {
+      method: 'POST',
+      body: payload,
+    })
+  },
+
+  async updateAssignment(assignmentId, payload) {
+    return apiRequest(`/assignments/${assignmentId}`, {
+      method: 'PATCH',
+      body: payload,
+    })
+  },
+
+  async publishAssignment(assignmentId, payload = {}) {
+    return apiRequest(`/assignments/${assignmentId}/publish`, {
+      method: 'POST',
+      body: payload,
+    })
+  },
+
+  async deleteAssignment(assignmentId) {
+    return apiRequest(`/assignments/${assignmentId}`, {
+      method: 'DELETE',
+    })
+  },
+
+  async listClassAnnouncements(classId) {
+    return apiRequest(`/classes/${classId}/announcements`)
+  },
+
+  async createAnnouncement(classId, payload) {
+    return apiRequest(`/classes/${classId}/announcements`, {
+      method: 'POST',
+      body: payload,
+    })
+  },
+
+  async deleteAnnouncement(announcementId) {
+    return apiRequest(`/announcements/${announcementId}`, {
+      method: 'DELETE',
+    })
+  },
+
+  async listNotifications({ unread_only = false, per_page = 50 } = {}) {
+    const params = new URLSearchParams()
+    if (unread_only) params.set('unread_only', '1')
+    if (per_page) params.set('per_page', String(per_page))
+    const query = params.toString()
+    return apiRequest(`/notifications${query ? `?${query}` : ''}`)
+  },
+
+  async markNotificationRead(notificationId) {
+    return apiRequest(`/notifications/${notificationId}/read`, {
+      method: 'POST',
+    })
+  },
+
+  async markAllNotificationsRead() {
+    return apiRequest('/notifications/read-all', {
+      method: 'POST',
+    })
   },
 
   async uploadModule(classId, { file = null, fileName = '', visibility = 'public' } = {}) {
@@ -235,9 +397,10 @@ export const apiClient = {
     })
   },
 
-  async publishQuiz(quizId) {
+  async publishQuiz(quizId, { deadline } = {}) {
     return apiRequest(`/quizzes/${quizId}/publish`, {
       method: 'POST',
+      ...(deadline ? { body: { deadline } } : {}),
     })
   },
 
@@ -265,6 +428,13 @@ export const apiClient = {
     })
   },
 
+  async reviewQuestion(quizId, questionId, reviewed = true) {
+    return apiRequest(`/quizzes/${quizId}/questions/${questionId}/review`, {
+      method: 'POST',
+      body: { reviewed: Boolean(reviewed) },
+    })
+  },
+
   async deleteQuestion(quizId, questionId) {
     return apiRequest(`/quizzes/${quizId}/questions/${questionId}`, {
       method: 'DELETE',
@@ -278,10 +448,12 @@ export const apiClient = {
     })
   },
 
-  async requestQuizGeneration(moduleId, questionCount = 5) {
+  async requestQuizGeneration(moduleId, questionCount = 5, title = '') {
+    const body = { question_count: questionCount }
+    if (title) body.title = title
     return apiRequest(`/modules/${moduleId}/generate-quiz`, {
       method: 'POST',
-      body: { question_count: questionCount },
+      body,
     })
   },
 

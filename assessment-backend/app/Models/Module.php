@@ -28,4 +28,9 @@ class Module extends Model
     {
         return $this->hasMany(QuizGeneration::class);
     }
+
+    public function reads(): HasMany
+    {
+        return $this->hasMany(ModuleRead::class);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\QuestionSource;
 use App\Enums\QuestionType;
 use App\Enums\QuizGenerationStatus;
 use App\Enums\QuizStatus;
@@ -95,9 +96,14 @@ class QuizGenerationService
             ]);
             $quiz->forceFill(['status' => QuizStatus::Draft, 'deadline' => null])->save();
             foreach ($draft['questions'] as $item) {
-                $question = $quiz->questions()->create([
-                    'question_text' => $item['question_text'], 'question_type' => QuestionType::MultipleChoice,
+                $question = $quiz->questions()->make([
+                    'question_text' => $item['question_text'],
+                    'question_type' => QuestionType::MultipleChoice,
                 ]);
+                $question->forceFill([
+                    'source' => QuestionSource::Ai,
+                    'reviewed' => false,
+                ])->save();
                 foreach ($item['options'] as $option) {
                     $question->options()->create($option);
                 }

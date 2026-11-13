@@ -12,9 +12,12 @@ import ResultsView from "../../src/views/teacher/ResultsView.vue";
 import AssignmentGradeView from "../../src/views/teacher/AssignmentGradeView.vue";
 import QuestionEditor from "../../src/components/assessment/QuestionEditor.vue";
 import SoftSelect from "../../src/components/ui/SoftSelect.vue";
+import StatusFilterDropdown from "../../src/components/ui/StatusFilterDropdown.vue";
+import ClassCascadeSelect from "../../src/components/ui/ClassCascadeSelect.vue";
+import { motionEngine } from "../../src/motion/engine.js";
 import { useAssessmentStore } from "../../src/stores/assessmentStore.js";
 import { useAuthStore } from "../../src/stores/authStore.js";
-import { installMedia } from "./motion-fixture.js";
+import { installMedia, installTokenStyles } from "./motion-fixture.js";
 
 let pinia, wrapper;
 
@@ -131,6 +134,7 @@ describe("mobile UI/UX seamless improvements", () => {
       routes: [
         { path: "/dashboard", component: { template: "<p>Home</p>" } },
         { path: "/assessments/:status", component: { template: "<p>Assessment</p>" } },
+        { path: "/classes", component: { template: "<p>Kelas</p>" } },
         { path: "/bank", component: { template: "<p>Bank</p>" } },
         { path: "/results", component: { template: "<p>Hasil</p>" } },
         { path: "/login", component: { template: "<p>Login</p>" } },
@@ -153,8 +157,15 @@ describe("mobile UI/UX seamless improvements", () => {
     await flushPromises();
 
     const quickLinks = wrapper.findAll(".mobile-bottom-nav .mobile-bottom-link");
-    expect(quickLinks).toHaveLength(4);
-    expect(quickLinks[0].text()).toBe("Home");
+    expect(quickLinks).toHaveLength(5);
+    expect(quickLinks.map((l) => l.text())).toEqual([
+      "Home",
+      "Assessment",
+      "Kelas",
+      "Bank",
+      "Hasil3",
+    ]);
+    expect(quickLinks[0].find(".liquid-nav-indicator").exists()).toBe(true);
     expect(wrapper.get(".mobile-nav-badge").text()).toBe("3");
 
     await wrapper.get(".auth-header-pill").trigger("click");
@@ -256,5 +267,91 @@ describe("mobile UI/UX seamless improvements", () => {
     await flushPromises();
     const details = wrapper.get("details.grading-instructions");
     expect(details.element.open).toBe(false);
+  });
+
+  it("renders SoftSelect as a mobile bottom sheet with backdrop and vertical sheet animation", async () => {
+    installTokenStyles();
+    vi.stubGlobal("matchMedia", (query) => ({
+      matches: query === "(max-width: 768px)" || query === "(pointer: coarse)",
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    const spy = vi.spyOn(motionEngine, "animate");
+    wrapper = mount(SoftSelect, {
+      attachTo: document.body,
+      props: {
+        label: "Kelas",
+        modelValue: "",
+        options: [
+          { value: "", label: "Semua kelas" },
+          { value: "A", label: "Kelas A" },
+        ],
+      },
+    });
+    await wrapper.get('[role="combobox"]').trigger("click");
+    await flushPromises();
+
+    const popup = document.querySelector(".soft-field-popup");
+    const backdrop = document.querySelector(".sheet-backdrop");
+    expect(popup).not.toBeNull();
+    expect(popup.classList.contains("is-sheet")).toBe(true);
+    expect(backdrop).not.toBeNull();
+    expect(spy.mock.calls.some(([el]) => el === popup)).toBe(true);
+
+    backdrop.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await flushPromises();
+    expect(document.querySelector(".soft-field-popup")).toBeNull();
+  });
+
+  it("renders StatusFilterDropdown and ClassCascadeSelect as mobile bottom sheets on <= 768px", async () => {
+    installTokenStyles();
+    vi.stubGlobal("matchMedia", (query) => ({
+      matches: query === "(max-width: 768px)" || query === "(pointer: coarse)",
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    const spy = vi.spyOn(motionEngine, "animate");
+
+    wrapper = mount(StatusFilterDropdown, {
+      attachTo: document.body,
+      props: { modelValue: "all" },
+    });
+    await wrapper.get("button.status-dropdown-trigger").trigger("click");
+    await flushPromises();
+
+    const statusPopover = wrapper.find(".custom-dropdown-popover");
+    expect(statusPopover.exists()).toBe(true);
+    expect(statusPopover.classes()).toContain("is-sheet");
+    expect(wrapper.find(".sheet-backdrop").exists()).toBe(true);
+    expect(spy.mock.calls.some(([el]) => el === statusPopover.element)).toBe(true);
+
+    await wrapper.get(".sheet-backdrop").trigger("click");
+    await flushPromises();
+    expect(wrapper.find(".custom-dropdown-popover").exists()).toBe(false);
+    wrapper.unmount();
+
+    wrapper = mount(ClassCascadeSelect, {
+      attachTo: document.body,
+      props: {
+        modelValue: null,
+        options: [
+          {
+            name: "Basis Data",
+            code: "BD",
+            classes: [{ name: "IF-1A", code: "IF-1A", course: "Basis Data", className: "IF-1A" }],
+          },
+        ],
+      },
+    });
+    await wrapper.get("button.cascade-dropdown-trigger").trigger("click");
+    await flushPromises();
+
+    const cascadePopover = wrapper.find(".custom-dropdown-popover");
+    expect(cascadePopover.exists()).toBe(true);
+    expect(cascadePopover.classes()).toContain("is-sheet");
+    expect(wrapper.find(".sheet-backdrop").exists()).toBe(true);
+    expect(spy.mock.calls.some(([el]) => el === cascadePopover.element)).toBe(true);
   });
 });

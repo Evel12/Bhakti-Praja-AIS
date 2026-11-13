@@ -36,4 +36,11 @@ class ModulePolicy
     {
         return $this->update($user, $module);
     }
+
+    public function markRead(User $user, Module $module): bool
+    {
+        return $user->role === Role::Student
+            && $module->visibility === ModuleVisibility::Public
+            && (new SchoolClassPolicy)->view($user, $module->schoolClass);
+    }
 }

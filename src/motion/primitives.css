@@ -1,0 +1,350 @@
+.liquid-hit-target {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  min-height: 44px;
+  position: relative;
+  touch-action: manipulation;
+  vertical-align: middle;
+}
+/* Stationary hover; squash is press-only. No transition: all motion uses tokens. */
+:where([data-liquid-atoms])
+  :is(button.btn, a.btn, button.icon-btn, a.icon-btn):not(
+    .liquid-hit-target
+  ):not(.sidebar *) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.liquid-field {
+  display: block;
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  border-radius: 10px;
+}
+.liquid-exit-ghost {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+}
+.liquid-exit-ghost > :is(.panel, .bank-card, .help-card) {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+.liquid-focus-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid #719581;
+  border-radius: inherit;
+  box-shadow: 0 0 0 3px #71958118;
+  pointer-events: none;
+  opacity: 0;
+}
+.role-switch .liquid-field {
+  border-radius: 4px;
+}
+.search > .icon {
+  z-index: 1;
+  pointer-events: none;
+}
+.liquid-surface {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+  min-height: 44px;
+}
+.liquid-hit-target[aria-disabled="true"] {
+  cursor: progress;
+  opacity: 0.6;
+}
+.liquid-ripple {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: var(--motion-ripple-opacity);
+  pointer-events: none;
+  transform-origin: center;
+}
+.liquid-shape {
+  position: relative;
+  isolation: isolate;
+  min-height: 100px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.liquid-shape-a,
+.liquid-shape-b {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.liquid-shape-a {
+  border-radius: 24px;
+  background: #e5eadf;
+}
+.liquid-shape-b {
+  border-radius: 42% 58% 58% 42% / 60% 42% 58% 40%;
+  background: #c2dfce;
+  opacity: 0;
+}
+.liquid-shape-content {
+  position: relative;
+  text-align: center;
+}
+.liquid-goo {
+  position: relative;
+  min-height: 160px;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #f3f5ec;
+}
+.liquid-goo > svg {
+  position: absolute;
+  pointer-events: none;
+}
+.liquid-goo-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.liquid-blob {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  top: calc(50% - 50px);
+}
+.blob-a {
+  left: calc(50% - 80px);
+  background: #93c6a8;
+}
+.blob-b {
+  left: calc(50% - 20px);
+  background: #bdccb0;
+}
+.liquid-goo[data-gooey="off"] {
+  background: radial-gradient(ellipse at center, #e2eee2, #f3f5ec);
+}
+.liquid-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+.liquid-lab-grid > .panel {
+  min-width: 0;
+}
+.liquid-lab-grid h2 {
+  margin-bottom: 10px;
+}
+.liquid-lab-grid p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.liquid-lab-stage {
+  margin-top: 18px;
+  min-height: 100px;
+}
+.liquid-demo-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+.liquid-demo-tile {
+  padding: 20px 12px;
+  border-radius: 16px;
+  background: #edf2e8;
+  text-align: center;
+  font-size: 13px;
+}
+.liquid-demo-notice {
+  background: #edf3e8;
+  border-radius: 18px;
+  padding: 20px;
+  margin-top: 18px;
+}
+.liquid-lab-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.liquid-lab-toolbar .field {
+  max-width: 220px;
+  flex: 1;
+  min-width: 160px;
+}
+.liquid-route-preview {
+  padding: 22px;
+  border-radius: 20px;
+  background: #edf3e8;
+  min-height: 140px;
+  margin-top: 18px;
+}
+.liquid-lab-wide {
+  grid-column: 1/-1;
+}
+.liquid-reveal-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
+}
+.liquid-reveal-list > article {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  min-height: 120px;
+}
+.liquid-lab-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 12px 0;
+}
+.liquid-preview-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+/* Disable UA snapshot size interpolation; only our transform/opacity frames run. */
+html[data-liquid-route]::view-transition-group(*) {
+  animation: none !important;
+}
+html[data-liquid-route]::view-transition-old(root) {
+  animation: none !important;
+  opacity: 0;
+}
+html[data-liquid-route]::view-transition-new(root) {
+  animation: none !important;
+}
+html[data-liquid-route]::view-transition-old(liquid-scene),
+html[data-liquid-route]::view-transition-new(liquid-scene) {
+  animation: none !important;
+  mix-blend-mode: normal;
+}
+@media (max-width: 760px) {
+  .liquid-lab-grid {
+    grid-template-columns: 1fr;
+  }
+  .liquid-lab-wide {
+    grid-column: auto;
+  }
+  .liquid-demo-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .liquid-demo-tile {
+    padding: 16px 8px;
+  }
+  .liquid-lab-toolbar .field {
+    max-width: none;
+  }
+}
+.liquid-overlay-ghost {
+  position: fixed;
+  z-index: 101;
+  pointer-events: none;
+  overflow: hidden;
+  contain: layout paint;
+  border-radius: 24px;
+}
+.liquid-overlay-ghost > * {
+  position: static;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  transform: none;
+}
+.toast > span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.toast .toast-dismiss {
+  color: inherit;
+  flex-shrink: 0;
+}
+.toast .toast-dismiss:focus-visible {
+  outline-color: currentColor;
+}
+.nav-item {
+  position: relative;
+  isolation: isolate;
+}
+.liquid-nav-indicator {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: white;
+  box-shadow: 0 2px 2px #242a1510;
+  pointer-events: none;
+  z-index: -1;
+}
+.nav-item.active {
+  background: transparent;
+  box-shadow: none;
+}
+.liquid-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.liquid-loading-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.liquid-loading-dots > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.page-stage {
+  position: relative;
+  isolation: isolate;
+}
+.route-scene {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+.page-atmosphere {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(45%, 300px);
+  height: 160px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.35;
+  z-index: 0;
+}
+.page-atmosphere .liquid-goo {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+html[data-liquid-route]::view-transition {
+  pointer-events: none;
+}

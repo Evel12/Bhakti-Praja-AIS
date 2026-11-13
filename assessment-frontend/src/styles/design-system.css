@@ -424,7 +424,7 @@ button .icon {
   justify-content: center;
   gap: 8px;
   padding: 10px 15px;
-  min-height: 41px;
+  min-height: 44px;
   border: 1px solid var(--line);
   border-radius: 11px;
   background: var(--surface);
@@ -743,12 +743,31 @@ select.input {
   display: block;
   width: 100%;
   border: 1px solid #dfe3d6;
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: #f9faf5;
+  border-radius: 11px;
+  padding: 10px 14px;
+  background: var(--surface);
+  color: var(--ink);
   line-height: 1.5;
   font-size: 13px;
-  min-height: 41px;
+  min-height: 44px;
+}
+select.input {
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2368705f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+.input:hover:not(:disabled),
+select.input:hover:not(:disabled) {
+  border-color: #c5ceb9;
+}
+.input:focus-visible,
+select.input:focus-visible {
+  outline: none;
+  border-color: #719581;
 }
 textarea.input {
   resize: vertical;
@@ -1400,6 +1419,12 @@ input[type="checkbox"] {
   font-size: 11px;
   margin-top: 18px;
 }
+.bank-picker-list {
+  max-height: min(46vh, 360px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
 .bank-picker {
   display: flex;
   gap: 12px;
@@ -1825,7 +1850,7 @@ dialog::backdrop {
     width: 100%;
   }
   .overview-panel {
-    padding: 20px;
+    padding: 16px;
   }
   .overview-grid {
     grid-template-columns: 1fr;
@@ -1885,6 +1910,7 @@ dialog::backdrop {
     width: 100%;
     flex-wrap: nowrap;
     overflow-x: auto;
+    scroll-snap-type: inline proximity;
     scrollbar-width: none;
     justify-content: flex-start;
     gap: 4px;
@@ -1894,6 +1920,7 @@ dialog::backdrop {
   }
   .tab {
     flex: none;
+    scroll-snap-align: start;
     padding: 9px 13px;
     min-height: 44px;
     display: inline-flex;

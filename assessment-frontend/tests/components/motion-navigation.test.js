@@ -122,6 +122,43 @@ describe("phase 7 navigation", () => {
     expect(ui.mobileOpen).toBe(false);
     expect(w.get("aside").attributes("inert")).toBeDefined();
   });
+  it("slides out smoothly to the left when closing the mobile drawer", async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+    const ui = useUiStore();
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: "/:pathMatch(.*)*", component: { template: "<div/>" } }],
+    });
+    const w = mount(AppSidebar, {
+      attachTo: document.body,
+      global: { plugins: [pinia, router] },
+    });
+    cleanup.push(() => w.unmount());
+    await flushPromises();
+    const breakpoint = media
+      .filter((m) => m.media === "(max-width: 1023px)")
+      .at(-1);
+    breakpoint.matches = true;
+    breakpoint.fire();
+    await flushPromises();
+
+    ui.mobileOpen = true;
+    await flushPromises();
+    expect(w.get("aside").classes()).toContain("is-open");
+
+    const animateSpy = vi.spyOn(motionEngine, "animate");
+    ui.mobileOpen = false;
+    await flushPromises();
+
+    const asideEl = w.get("aside").element;
+    const slideOutCall = animateSpy.mock.calls.find(([el]) => el === asideEl);
+    expect(slideOutCall).toBeDefined();
+    expect(slideOutCall[1].opacity).toBe(0);
+    expect(slideOutCall[1].x).toBeLessThan(0);
+    expect(slideOutCall[2].from).toEqual({ opacity: 1, x: 0 });
+    expect(w.get("aside").attributes("inert")).toBeDefined();
+  });
   it("reveals tooltip without moving the link, and Escape dismisses until a new entry", () => {
     const { link, tip, c } = scope();
     link.dispatchEvent(new MouseEvent("pointerover", { bubbles: true }));

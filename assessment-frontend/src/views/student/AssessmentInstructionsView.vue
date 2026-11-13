@@ -64,7 +64,7 @@ function start() {
         <div>
           <dt>Durasi</dt>
           <dd>
-            {{ a.type === "Tugas" ? "Sampai tenggat" : a.duration + " menit" }}
+            {{ a.type === "Tugas" ? "Sampai deadline" : a.duration + " menit" }}
           </dd>
         </div>
         <div>

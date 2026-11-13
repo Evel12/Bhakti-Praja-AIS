@@ -1,0 +1,1 @@
+import{_ as o}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as r,c as a,aa as n,b as t}from"./index-C8s7-8Wr.js";const i={},l={class:"liquid-field"};function c(s,e){return r(),a("span",l,[n(s.$slots,"default"),e[0]||(e[0]=t("span",{class:"liquid-focus-ring","aria-hidden":"true"},null,-1))])}const u=o(i,[["render",c]]);export{u as M};

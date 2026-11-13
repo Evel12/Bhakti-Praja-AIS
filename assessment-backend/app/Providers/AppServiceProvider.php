@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Contracts\QuizGenerator;
+use App\Models\Announcement;
+use App\Models\Assignment;
 use App\Models\Attempt;
+use App\Models\LmsNotification;
 use App\Models\Module;
 use App\Models\Option;
 use App\Models\Question;
@@ -11,7 +14,10 @@ use App\Models\Quiz;
 use App\Models\QuizGeneration;
 use App\Models\SchoolClass;
 use App\Models\User;
+use App\Policies\AnnouncementPolicy;
+use App\Policies\AssignmentPolicy;
 use App\Policies\AttemptPolicy;
+use App\Policies\LmsNotificationPolicy;
 use App\Policies\ModulePolicy;
 use App\Policies\OptionPolicy;
 use App\Policies\QuestionPolicy;
@@ -48,6 +54,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Option::class, OptionPolicy::class);
         Gate::policy(Attempt::class, AttemptPolicy::class);
         Gate::policy(QuizGeneration::class, QuizGenerationPolicy::class);
+        Gate::policy(Assignment::class, AssignmentPolicy::class);
+        Gate::policy(Announcement::class, AnnouncementPolicy::class);
+        Gate::policy(LmsNotification::class, LmsNotificationPolicy::class);
 
         RateLimiter::for('login', fn (Request $request) => [
             Limit::perMinute(5)->by('login:'.$this->emailRateKey($request)),
