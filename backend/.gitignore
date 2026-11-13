@@ -1,2 +1,18 @@
 *
 !.gitignore
+
+# Keep the new LMS implementation reviewable without exposing local runtime files.
+!app/
+!app/**/
+!app/Http/Controllers/Lms/LmsController.php
+!app/Jobs/Lms/GenerateQuiz.php
+!config/
+!config/lms.php
+!routes/
+!routes/lms.php
+!database/
+!database/migrations/
+!database/migrations/2026_11_13_000001_create_lms_tables.php
+!tests/
+!tests/Feature/
+!tests/Feature/LmsTest.php

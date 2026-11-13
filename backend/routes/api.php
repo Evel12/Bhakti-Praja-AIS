@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\Member4Role::class.':adm
     });
 
 require __DIR__.'/member4.php';
+require __DIR__.'/lms.php';
 
 /*
 |--------------------------------------------------------------------------

@@ -29,6 +29,7 @@ import FinanceRoutes from './finance/FinancePages'
 import ParentPortal from './parent/ParentPortal'
 import CommunicationPages from './communication/CommunicationPages'
 import AssessmentPage from './assessment/AssessmentPage'
+import LmsPage from './lms/LmsPage'
 
 const resources = {
   'teaching-loads': { title: 'Beban Mengajar', singular: 'Beban Mengajar' },
@@ -188,6 +189,7 @@ export default function App() {
               }}
             >
               <Routes>
+                <Route path="/lms/*" element={<LmsPage user={user} />} />
                 <Route path="/assessment/*" element={<AssessmentPage user={user} />} />
                 <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
                 <Route path="/parent/*" element={<ParentPortal user={user} />} />

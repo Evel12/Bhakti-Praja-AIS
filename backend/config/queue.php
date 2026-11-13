@@ -31,6 +31,12 @@ return [
 
     'connections' => [
 
+        // Separate durable queue; long AI calls do not change existing workers.
+        'lms' => [
+            'driver' => 'database', 'connection' => null, 'table' => 'jobs',
+            'queue' => 'lms-ai', 'retry_after' => 180, 'after_commit' => false,
+        ],
+
         'sync' => [
             'driver' => 'sync',
         ],

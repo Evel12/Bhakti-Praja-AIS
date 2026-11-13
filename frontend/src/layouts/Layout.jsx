@@ -193,7 +193,8 @@ export default function Layout({
     { path: '/communication/notifications', label: 'Pusat Notifikasi', icon: Receipt },
   ] }
   const assessmentGroup = { label: 'Pembelajaran', items: [{ path: '/assessment', label: 'Assessment', icon: BookOpen }] }
-  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), ...(['admin', 'guru', 'murid'].includes(user.role) ? [assessmentGroup] : []), communicationGroup]
+  const lmsGroup = { label: 'LMS', items: [{ path: '/lms', label: 'Course & Pembelajaran', icon: GraduationCap }] }
+  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), ...(['admin', 'guru', 'murid'].includes(user.role) ? [assessmentGroup] : []), ...(['guru', 'murid', 'wali_murid'].includes(user.role) ? [lmsGroup] : []), communicationGroup]
   const [
     collapsed,
     setCollapsed
