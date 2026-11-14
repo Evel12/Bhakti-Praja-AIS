@@ -36,6 +36,7 @@ class AttemptController extends Controller
         return ApiResponse::success([
             'attempt' => new AttemptResource($result['state']),
             'questions' => QuestionResource::collection($result['questions']),
+            'saved_answers' => $result['saved_answers'],
         ]);
     }
 
@@ -44,7 +45,7 @@ class AttemptController extends Controller
         $result = $this->attempts->answer($request->user(), $attempt, $request->validated());
 
         return ApiResponse::success([
-            'answer' => new SubmittedAnswerResource($result['answer']),
+            'answer' => $result['answer'] ? new SubmittedAnswerResource($result['answer']) : null,
             'attempt' => new AttemptResource($result['state']),
         ], 'Answer saved.', 201);
     }

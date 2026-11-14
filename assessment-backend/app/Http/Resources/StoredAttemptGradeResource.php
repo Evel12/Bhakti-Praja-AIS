@@ -23,6 +23,9 @@ class StoredAttemptGradeResource extends JsonResource
             'status' => $this->status->value,
             'started_at' => $this->started_at->toIso8601String(),
             'finished_at' => $this->finished_at?->toIso8601String(),
+            'expires_at' => $this->expires_at?->toIso8601String(),
+            'teacher_feedback' => $this->teacher_feedback,
+            'graded_at' => $this->graded_at?->toIso8601String(),
             'score' => $this->score,
             'final_grade' => $finished ? $this->final_grade : null,
             'graded' => $finished && $this->final_grade !== null,
@@ -34,8 +37,14 @@ class StoredAttemptGradeResource extends JsonResource
                 'id' => $this->student->id, 'name' => $this->student->name, 'email' => $this->student->email,
             ]),
             'quiz' => $this->whenLoaded('quiz', fn () => [
-                'id' => $this->quiz->id, 'class_id' => $this->quiz->class_id,
-                'title' => $this->quiz->title, 'status' => $this->quiz->status->value,
+                'id' => $this->quiz->id,
+                'class_id' => $this->quiz->class_id,
+                'title' => $this->quiz->title,
+                'status' => $this->quiz->status->value,
+                'assessment_type' => $this->quiz->assessment_type ?? 'quiz',
+                'course_name' => $this->quiz->course_name,
+                'release_mode' => $this->quiz->release_mode ?? 'immediate',
+                'results_released' => (bool) ($this->quiz->results_released ?? false),
             ]),
         ];
     }

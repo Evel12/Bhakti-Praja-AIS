@@ -38,11 +38,7 @@ function save() {
   errors.value = validateAssessment(a);
   if (errors.value.length) return;
   const ok = store.run(
-    () =>
-      store.transaction((db) => {
-        db.bank.unshift(clone(editing.value));
-        return true;
-      }),
+    () => store.saveBankQuestion(editing.value),
     "Soal tersimpan.",
   );
   if (ok) editing.value = null;

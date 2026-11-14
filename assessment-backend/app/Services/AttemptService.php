@@ -30,7 +30,14 @@ class AttemptService
             Gate::forUser($student)->authorize('view', $quiz->schoolClass);
             $this->assertOpen($quiz);
             Gate::forUser($student)->authorize('create', [Attempt::class, $quiz]);
-            if ($quiz->attempts()->where('student_id', $student->id)->where('status', AttemptStatus::Ongoing)->exists()) {
+            $existing = $quiz->attempts()
+                ->where('student_id', $student->id)
+                ->where('status', AttemptStatus::Ongoing)
+                ->first();
+            if ($existing) {
+                if (! empty($data['resume'])) {
+                    return $this->present($quiz, $existing);
+                }
                 throw new ConflictHttpException('An ongoing attempt already exists.');
             }
 
@@ -42,10 +49,17 @@ class AttemptService
                 throw ValidationException::withMessages(['questions' => [$exception->getMessage()]]);
             }
 
+            $startedAt = now()->utc();
+            $durationMinutes = max(1, (int) ($quiz->duration_minutes ?? 30));
+            $byDuration = $startedAt->copy()->addMinutes($durationMinutes);
+            $expiresAt = $quiz->deadline && $quiz->deadline->lessThan($byDuration) ? $quiz->deadline : $byDuration;
+
             $attempt = new Attempt(Arr::only($data, ['game_mode', 'challenge_mode', 'boss_id', 'map_id']));
             $attempt->quiz()->associate($quiz);
             $attempt->student()->associate($student);
-            $attempt->started_at = now()->utc();
+            $attempt->started_at = $startedAt;
+            $attempt->expires_at = $expiresAt;
+            $attempt->flagged_question_ids = [];
             $attempt->status = AttemptStatus::Ongoing;
             $attempt->scoring_rules = $scoring->rules();
             $attempt->save();
@@ -66,6 +80,14 @@ class AttemptService
         return $this->withLockedAttempt($student, $attempt, 'questions', fn (Quiz $quiz, Attempt $locked) => [
             'state' => $this->present($quiz, $locked),
             'questions' => $quiz->questions()->with('options')->get(),
+            'saved_answers' => $locked->answers()
+                ->get(['question_id', 'chosen_option_id', 'is_flagged', 'answered_at'])
+                ->map(fn ($ans) => [
+                    'question_id' => $ans->question_id,
+                    'chosen_option_id' => $ans->chosen_option_id,
+                    'is_flagged' => (bool) ($ans->is_flagged ?? false),
+                    'answered_at' => $ans->answered_at?->toIso8601String(),
+                ])->all(),
         ]);
     }
 
@@ -81,20 +103,58 @@ class AttemptService
             if (! $question) {
                 throw ValidationException::withMessages(['question_id' => ['The question does not belong to this quiz.']]);
             }
+
+            if (array_key_exists('is_flagged', $data)) {
+                $flags = collect($locked->flagged_question_ids ?? [])->map(fn ($id) => (int) $id);
+                if ($data['is_flagged']) {
+                    $flags = $flags->push((int) $question->id)->unique()->values();
+                } else {
+                    $flags = $flags->reject(fn ($id) => $id === (int) $question->id)->values();
+                }
+                $locked->flagged_question_ids = $flags->all();
+                $locked->save();
+            }
+
+            $existing = $locked->answers()->where('question_id', $question->id)->first();
+
+            if (empty($data['chosen_option_id']) && array_key_exists('is_flagged', $data)) {
+                if ($existing) {
+                    $existing->is_flagged = (bool) $data['is_flagged'];
+                    $existing->save();
+                }
+                $total = $quiz->questions()->count();
+                $result = $this->replay($locked, $scoring, $total);
+
+                return ['answer' => $existing, 'state' => $this->state($locked, $result, $total)];
+            }
+
             $option = $question->options()->find($data['chosen_option_id']);
             if (! $option) {
                 throw ValidationException::withMessages(['chosen_option_id' => ['The option does not belong to this question.']]);
             }
-            if ($locked->answers()->where('question_id', $question->id)->exists()) {
-                throw new ConflictHttpException('This question has already been answered.');
-            }
 
-            $answer = $locked->answers()->make([
-                'question_id' => $question->id, 'chosen_option_id' => $option->id,
-            ]);
-            $answer->is_correct = $option->is_correct;
-            $answer->answered_at = now()->utc();
-            $answer->save();
+            if ($existing) {
+                if (empty($data['replace'])) {
+                    throw new ConflictHttpException('This question has already been answered.');
+                }
+                $existing->chosen_option_id = $option->id;
+                $existing->is_correct = $option->is_correct;
+                $existing->answered_at = now()->utc();
+                if (array_key_exists('is_flagged', $data)) {
+                    $existing->is_flagged = (bool) $data['is_flagged'];
+                }
+                $existing->save();
+                $answer = $existing;
+            } else {
+                $answer = $locked->answers()->make([
+                    'question_id' => $question->id,
+                    'chosen_option_id' => $option->id,
+                ]);
+                $answer->is_correct = $option->is_correct;
+                $answer->is_flagged = (bool) ($data['is_flagged'] ?? in_array((int) $question->id, $locked->flagged_question_ids ?? [], true));
+                $answer->answered_at = now()->utc();
+                $answer->save();
+            }
 
             $total = $quiz->questions()->count();
             $result = $this->replay($locked, $scoring, $total);

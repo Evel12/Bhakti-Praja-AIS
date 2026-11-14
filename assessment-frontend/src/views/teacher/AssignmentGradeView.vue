@@ -52,14 +52,10 @@ function save(event) {
   const next = event?.submitter?.value === "next" ? nextPending.value : null;
   const destination = next ? router.resolve(gradingDestination(next.assessment, next.attempt)) : null;
   const ok = store.run(
-    () =>
-      store.transaction((db) => {
-        const item = db.attempts.find((x) => x.id === at.value.id);
-        item.score = Number(score.value);
-        item.feedback = feedback.value.trim();
-        item.graded = true;
-        return true;
-      }),
+    () => {
+      store.gradeAttempt(at.value.id, Number(score.value), feedback.value.trim());
+      return true;
+    },
     "Penilaian tersimpan.",
   );
   if (ok) {

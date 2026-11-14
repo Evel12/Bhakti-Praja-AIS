@@ -9,14 +9,38 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['title', 'description', 'deadline'])]
+#[Fillable([
+    'title',
+    'description',
+    'deadline',
+    'assessment_type',
+    'course_name',
+    'instructions',
+    'open_at',
+    'duration_minutes',
+    'release_mode',
+    'results_released',
+])]
 class Quiz extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'assessment_type' => 'quiz',
+        'duration_minutes' => 30,
+        'release_mode' => 'immediate',
+        'results_released' => false,
+    ];
+
     protected function casts(): array
     {
-        return ['deadline' => 'immutable_datetime', 'status' => QuizStatus::class];
+        return [
+            'deadline' => 'immutable_datetime',
+            'open_at' => 'immutable_datetime',
+            'duration_minutes' => 'integer',
+            'results_released' => 'boolean',
+            'status' => QuizStatus::class,
+        ];
     }
 
     public function schoolClass(): BelongsTo

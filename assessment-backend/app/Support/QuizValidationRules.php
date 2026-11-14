@@ -33,6 +33,10 @@ class QuizValidationRules
         return [
             'question_text' => [$partial ? 'sometimes' : 'required', 'required', 'string', 'max:10000'],
             'question_type' => ['sometimes', 'required', Rule::enum(QuestionType::class)],
+            'points' => ['sometimes', 'integer', 'min:1', 'max:1000'],
+            'explanation' => ['sometimes', 'nullable', 'string', 'max:10000'],
+            'topic' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'is_bank_item' => ['sometimes', 'boolean'],
             ...($partial ? ['reviewed' => ['sometimes', 'boolean']] : []),
             ...self::options($partial ? 'sometimes' : 'required'),
         ];

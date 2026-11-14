@@ -31,7 +31,10 @@ class QuizManagementService
     public function list(User $actor, SchoolClass $schoolClass, array $filters): LengthAwarePaginator
     {
         Gate::forUser($actor)->authorize('viewAny', [Quiz::class, $schoolClass]);
-        $query = $schoolClass->quizzes()->withCount('questions')->orderByDesc('id');
+        $query = $schoolClass->quizzes()
+            ->where('assessment_type', '!=', 'bank')
+            ->withCount('questions')
+            ->orderByDesc('id');
 
         if ($actor->role === Role::Student) {
             $query->where('status', QuizStatus::Published);
@@ -127,6 +130,155 @@ class QuizManagementService
         });
     }
 
+    public function archive(User $actor, int $quizId): Quiz
+    {
+        return $this->mutate($actor, $quizId, 'archive', function (Quiz $quiz) use ($actor): Quiz {
+            $quiz->status = QuizStatus::Archived;
+            $quiz->save();
+            $this->logAfterCommit('quiz.archived', $actor, 'quiz', $quiz->id);
+
+            return $this->details($quiz);
+        });
+    }
+
+    public function duplicate(User $actor, int $quizId): Quiz
+    {
+        return $this->mutate($actor, $quizId, 'duplicate', function (Quiz $quiz) use ($actor): Quiz {
+            $quiz->load('questions.options');
+            $copy = $quiz->schoolClass->quizzes()->create([
+                'title' => $quiz->title.' (Salinan)',
+                'description' => $quiz->description,
+                'assessment_type' => $quiz->assessment_type ?? 'quiz',
+                'course_name' => $quiz->course_name,
+                'instructions' => $quiz->instructions,
+                'open_at' => $quiz->open_at,
+                'deadline' => $quiz->deadline,
+                'duration_minutes' => $quiz->duration_minutes ?? 30,
+                'release_mode' => $quiz->release_mode ?? 'immediate',
+                'results_released' => false,
+            ]);
+            $copy->forceFill(['status' => QuizStatus::Draft])->save();
+
+            foreach ($quiz->questions as $question) {
+                $newQuestion = $copy->questions()->make([
+                    'question_text' => $question->question_text,
+                    'question_type' => $question->question_type,
+                    'points' => $question->points ?? 10,
+                    'explanation' => $question->explanation,
+                    'topic' => $question->topic,
+                    'is_bank_item' => false,
+                ]);
+                $newQuestion->forceFill([
+                    'source' => $question->source ?? QuestionSource::Manual,
+                    'reviewed' => (bool) $question->reviewed,
+                ])->save();
+
+                foreach ($question->options as $option) {
+                    $newQuestion->options()->create([
+                        'option_label' => $option->option_label,
+                        'option_text' => $option->option_text,
+                        'is_correct' => (bool) $option->is_correct,
+                    ]);
+                }
+            }
+
+            $this->logAfterCommit('quiz.duplicated', $actor, 'quiz', $copy->id);
+
+            return $this->details($copy->refresh());
+        });
+    }
+
+    public function releaseResults(User $actor, int $quizId): Quiz
+    {
+        return $this->mutate($actor, $quizId, 'releaseResults', function (Quiz $quiz) use ($actor): Quiz {
+            $quiz->results_released = true;
+            $quiz->save();
+            $this->notifications->notifyClassStudents(
+                $quiz->schoolClass,
+                NotificationType::GradeReleased,
+                "Nilai dirilis: {$quiz->title}",
+                "Nilai untuk \"{$quiz->title}\" pada kelas {$quiz->schoolClass->name} sudah dapat dilihat.",
+                ['quiz_id' => $quiz->id],
+            );
+            $this->logAfterCommit('quiz.results_released', $actor, 'quiz', $quiz->id);
+
+            return $this->details($quiz);
+        });
+    }
+
+    public function listBankQuestions(User $actor): Collection
+    {
+        $classIds = $actor->ownedClasses()->pluck('id');
+        if ($classIds->isEmpty()) {
+            return new Collection;
+        }
+
+        return Question::query()
+            ->where('is_bank_item', true)
+            ->whereHas('quiz', fn ($q) => $q->whereIn('class_id', $classIds))
+            ->with('options')
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    public function createBankQuestion(User $actor, array $data): Question
+    {
+        return DB::transaction(function () use ($actor, $data): Question {
+            $schoolClass = $actor->ownedClasses()->orderBy('id')->first();
+            if (! $schoolClass) {
+                $schoolClass = new SchoolClass([
+                    'name' => 'Bank Soal Default',
+                    'description' => 'Kelas kontainer internal untuk Bank Soal',
+                ]);
+                $schoolClass->teacher_id = $actor->id;
+                $schoolClass->save();
+            }
+
+            $bankQuiz = $schoolClass->quizzes()
+                ->where('assessment_type', 'bank')
+                ->first();
+
+            if (! $bankQuiz) {
+                $bankQuiz = $schoolClass->quizzes()->create([
+                    'title' => '__QUESTION_BANK__',
+                    'description' => 'Internal container for standalone question bank items.',
+                    'assessment_type' => 'bank',
+                ]);
+                $bankQuiz->forceFill(['status' => QuizStatus::Archived])->save();
+            }
+
+            $question = $bankQuiz->questions()->make([
+                'question_text' => $data['question_text'],
+                'question_type' => $data['question_type'] ?? QuestionType::MultipleChoice,
+                'points' => $data['points'] ?? 10,
+                'explanation' => $data['explanation'] ?? null,
+                'topic' => $data['topic'] ?? null,
+                'is_bank_item' => true,
+            ]);
+            $question->forceFill([
+                'source' => QuestionSource::Manual,
+                'reviewed' => true,
+            ])->save();
+
+            $this->writeOptions($question, $data['options']);
+            $this->assertComplete($question);
+            $this->logAfterCommit('bank_question.created', $actor, 'question', $question->id);
+
+            return $question;
+        });
+    }
+
+    public function deleteBankQuestion(User $actor, Question $question): void
+    {
+        DB::transaction(function () use ($actor, $question): void {
+            $schoolClass = $question->quiz?->schoolClass;
+            abort_unless($schoolClass && $schoolClass->teacher_id === $actor->id && $question->is_bank_item, 403);
+            $id = $question->id;
+            $question->delete();
+            $this->logAfterCommit('bank_question.deleted', $actor, 'question', $id);
+        });
+    }
+
     public function questions(User $actor, Quiz $quiz): Collection
     {
         Gate::forUser($actor)->authorize('view', $quiz);
@@ -148,6 +300,10 @@ class QuizManagementService
             $question = $quiz->questions()->make([
                 'question_text' => $data['question_text'],
                 'question_type' => $data['question_type'] ?? QuestionType::MultipleChoice,
+                'points' => $data['points'] ?? 10,
+                'explanation' => $data['explanation'] ?? null,
+                'topic' => $data['topic'] ?? null,
+                'is_bank_item' => (bool) ($data['is_bank_item'] ?? false),
             ]);
             $question->forceFill([
                 'source' => QuestionSource::Manual,
@@ -166,7 +322,7 @@ class QuizManagementService
         return $this->mutate($actor, $quizId, 'update', function (Quiz $quiz) use ($actor, $questionId, $data): Question {
             $question = $quiz->questions()->findOrFail($questionId);
             Gate::forUser($actor)->authorize('update', $question);
-            $question->fill(Arr::only($data, ['question_text', 'question_type']));
+            $question->fill(Arr::only($data, ['question_text', 'question_type', 'points', 'explanation', 'topic', 'is_bank_item']));
             if (array_key_exists('reviewed', $data)) {
                 $question->reviewed = (bool) $data['reviewed'];
             } elseif ($question->source === QuestionSource::Ai && (array_key_exists('question_text', $data) || array_key_exists('options', $data))) {
@@ -257,7 +413,7 @@ class QuizManagementService
             // All content and status writes acquire the same parent lock to serialize publish/edit.
             $quiz = Quiz::query()->lockForUpdate()->findOrFail($quizId);
             Gate::forUser($actor)->authorize($ability, $quiz);
-            if ($ability !== 'close' && $quiz->attempts()->exists()) {
+            if (! in_array($ability, ['close', 'archive', 'duplicate', 'releaseResults'], true) && $quiz->attempts()->exists()) {
                 throw new ConflictHttpException('Quiz content cannot change after an attempt exists.');
             }
 
@@ -296,10 +452,31 @@ class QuizManagementService
 
     private function metadata(array $data): array
     {
-        $attributes = Arr::only($data, ['title', 'description', 'deadline']);
+        $attributes = Arr::only($data, [
+            'title',
+            'description',
+            'deadline',
+            'assessment_type',
+            'course_name',
+            'instructions',
+            'open_at',
+            'duration_minutes',
+            'release_mode',
+            'results_released',
+        ]);
+        if (isset($attributes['assessment_type'])) {
+            $attributes['assessment_type'] = match ($attributes['assessment_type']) {
+                'Kuis' => 'quiz',
+                'Tugas' => 'assignment',
+                default => $attributes['assessment_type'],
+            };
+        }
         if (isset($attributes['deadline'])) {
             // Database datetimes do not retain an input offset: normalize before serialization.
             $attributes['deadline'] = CarbonImmutable::parse($attributes['deadline'])->utc();
+        }
+        if (isset($attributes['open_at'])) {
+            $attributes['open_at'] = CarbonImmutable::parse($attributes['open_at'])->utc();
         }
 
         return $attributes;

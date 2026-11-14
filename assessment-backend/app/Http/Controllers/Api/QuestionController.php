@@ -58,4 +58,27 @@ class QuestionController extends Controller
 
         return ApiResponse::success(new TeacherQuestionResource($updated), 'Question review updated.');
     }
+
+    public function bankIndex(AuthenticatedRequest $request): JsonResponse
+    {
+        return ApiResponse::success([
+            'items' => TeacherQuestionResource::collection($this->quizzes->listBankQuestions($request->user())),
+        ], 'Question bank retrieved.');
+    }
+
+    public function bankStore(SaveQuestionRequest $request): JsonResponse
+    {
+        return ApiResponse::success(
+            new TeacherQuestionResource($this->quizzes->createBankQuestion($request->user(), $request->validated())),
+            'Bank question created.',
+            201,
+        );
+    }
+
+    public function bankDestroy(AuthenticatedRequest $request, Question $question): JsonResponse
+    {
+        $this->quizzes->deleteBankQuestion($request->user(), $question);
+
+        return ApiResponse::success(message: 'Bank question deleted.');
+    }
 }

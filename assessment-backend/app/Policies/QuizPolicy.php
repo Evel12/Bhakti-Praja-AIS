@@ -51,4 +51,19 @@ class QuizPolicy
     {
         return $quiz->status === QuizStatus::Published && (new SchoolClassPolicy)->update($user, $quiz->schoolClass);
     }
+
+    public function archive(User $user, Quiz $quiz): bool
+    {
+        return (new SchoolClassPolicy)->update($user, $quiz->schoolClass);
+    }
+
+    public function duplicate(User $user, Quiz $quiz): bool
+    {
+        return (new SchoolClassPolicy)->update($user, $quiz->schoolClass);
+    }
+
+    public function releaseResults(User $user, Quiz $quiz): bool
+    {
+        return (new SchoolClassPolicy)->update($user, $quiz->schoolClass);
+    }
 }

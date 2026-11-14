@@ -56,7 +56,6 @@ function fillDemoEmail(role) {
 
       <div class="auth-form-header">
         <h1 id="login-heading">Masuk ke SMK Bhakti Praja Batang</h1>
-        <p>Masukkan alamat email dan kata sandi akun Anda untuk melanjutkan.</p>
       </div>
 
       <div v-if="authStore.error" class="auth-alert is-error" role="alert">

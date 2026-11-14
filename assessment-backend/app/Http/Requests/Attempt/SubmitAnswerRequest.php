@@ -10,7 +10,9 @@ class SubmitAnswerRequest extends AuthenticatedRequest
     {
         return [
             'question_id' => ['required', 'integer', 'min:1'],
-            'chosen_option_id' => ['required', 'integer', 'min:1'],
+            'chosen_option_id' => ['required_without:is_flagged', 'nullable', 'integer', 'min:1'],
+            'replace' => ['sometimes', 'boolean'],
+            'is_flagged' => ['sometimes', 'boolean'],
         ];
     }
 }

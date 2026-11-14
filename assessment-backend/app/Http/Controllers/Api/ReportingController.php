@@ -69,6 +69,19 @@ class ReportingController extends Controller
         return ApiResponse::success(new AttemptReviewResource($this->reports->review($request->user(), $attempt)));
     }
 
+    public function gradeAttempt(AuthenticatedRequest $request, Attempt $attempt): JsonResponse
+    {
+        $validated = $request->validate([
+            'final_grade' => ['required', 'numeric', 'min:0', 'max:100'],
+            'teacher_feedback' => ['sometimes', 'nullable', 'string', 'max:5000'],
+        ]);
+
+        return ApiResponse::success(
+            new StoredAttemptGradeResource($this->reports->gradeAttempt($request->user(), $attempt, $validated)),
+            'Attempt graded.',
+        );
+    }
+
     private function pagination(LengthAwarePaginator $page): array
     {
         return [

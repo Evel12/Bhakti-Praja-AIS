@@ -74,6 +74,8 @@ onMounted(() => {
     router.replace("/review/" + at.value.id);
   else if (a.value?.state === "closed" && a.value.type !== "Tugas")
     submit(true);
+  else if (at.value?.id)
+    store.syncAttemptSession(at.value.id).catch(() => {});
 });
 onBeforeUnmount(() => {
   slideMotion?.stop?.();

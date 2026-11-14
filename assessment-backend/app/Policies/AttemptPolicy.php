@@ -48,6 +48,11 @@ class AttemptPolicy
         return $attempt->status === AttemptStatus::Finished && $this->view($user, $attempt);
     }
 
+    public function grade(User $user, Attempt $attempt): bool
+    {
+        return (new SchoolClassPolicy)->update($user, $attempt->quiz->schoolClass);
+    }
+
     private function owns(User $user, Attempt $attempt): bool
     {
         return $user->role === Role::Student && $attempt->student_id === $user->id;

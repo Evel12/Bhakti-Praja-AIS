@@ -1,0 +1,1 @@
+import{o as a,c as e,t as r,p as c}from"./index-Cy3y1V48.js";const n={__name:"StatusBadge",props:{status:String},setup(t){const s={Aktif:"active",Draft:"draft",Terjadwal:"scheduled",Ditutup:"closed",Terkirim:"submitted","Waktu habis":"expired"};return(i,l)=>(a(),e("span",{class:c(["status-label",s[t.status]])},r(t.status),3))}};export{n as _};

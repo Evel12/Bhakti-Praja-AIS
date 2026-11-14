@@ -85,23 +85,22 @@ const visibleAttempts = computed(() => pendingOnly.value
   : attempts.value);
 function release() {
   const ok = store.run(
-    () =>
-      store.transaction((db) => {
-        const at = db.attempts.filter(
-          (x) => x.assessmentId === a.value.id && x.status === "submitted",
-        );
-        if (!at.length || at.some((x) => !x.graded))
-          throw new Error("Selesaikan semua penilaian sebelum merilis hasil.");
-        db.assessments.find((x) => x.id === a.value.id).released = true;
-        return true;
-      }),
+    () => {
+      const at = store.db.attempts.filter(
+        (x) => x.assessmentId === a.value.id && x.status === "submitted",
+      );
+      if (!at.length || at.some((x) => !x.graded))
+        throw new Error("Selesaikan semua penilaian sebelum merilis hasil.");
+      store.releaseResults(a.value.id);
+      return true;
+    },
     "Hasil sudah dirilis.",
   );
   if (ok) dialog.value = "";
 }
 function closeAssessment() {
   store.run(
-    () =>
+    () => {
       store.transaction((db) => {
         const assessment = db.assessments.find((x) => x.id === a.value.id);
         assessment.state = "closed";
@@ -113,7 +112,9 @@ function closeAssessment() {
               assessment.type !== "Tugas",
           )
           .forEach((x) => finishAttempt(assessment, x));
-      }),
+      });
+      store.closeAssessment(a.value.id);
+    },
     "Assessment ditutup.",
   );
   dialog.value = "";

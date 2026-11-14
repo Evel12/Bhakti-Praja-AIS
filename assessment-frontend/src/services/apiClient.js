@@ -377,10 +377,34 @@ export const apiClient = {
     return apiRequest(`/quizzes/${quizId}`)
   },
 
-  async createQuiz({ class_id, title, description = '', deadline = null }) {
+  async createQuiz({
+    class_id,
+    title,
+    description = '',
+    assessment_type = 'quiz',
+    course_name = null,
+    instructions = null,
+    open_at = null,
+    deadline = null,
+    duration_minutes = 60,
+    release_mode = 'immediate',
+    results_released = false,
+  }) {
     return apiRequest('/quizzes', {
       method: 'POST',
-      body: { class_id, title, description, deadline },
+      body: {
+        class_id,
+        title,
+        description,
+        assessment_type,
+        course_name,
+        instructions: instructions ?? description,
+        open_at,
+        deadline,
+        duration_minutes,
+        release_mode,
+        results_released,
+      },
     })
   },
 
@@ -410,21 +434,66 @@ export const apiClient = {
     })
   },
 
+  async archiveQuiz(quizId) {
+    return apiRequest(`/quizzes/${quizId}/archive`, {
+      method: 'POST',
+    })
+  },
+
+  async duplicateQuiz(quizId) {
+    return apiRequest(`/quizzes/${quizId}/duplicate`, {
+      method: 'POST',
+    })
+  },
+
+  async releaseQuizResults(quizId) {
+    return apiRequest(`/quizzes/${quizId}/release-results`, {
+      method: 'POST',
+    })
+  },
+
   async listQuestions(quizId) {
     return apiRequest(`/quizzes/${quizId}/questions`)
   },
 
-  async createQuestion(quizId, { question_text, options }) {
+  async createQuestion(quizId, {
+    question_text,
+    points = 10,
+    explanation = null,
+    topic = null,
+    is_bank_item = false,
+    options,
+  }) {
     return apiRequest(`/quizzes/${quizId}/questions`, {
       method: 'POST',
-      body: { question_text, options },
+      body: {
+        question_text,
+        points,
+        explanation,
+        topic,
+        is_bank_item,
+        options,
+      },
     })
   },
 
-  async updateQuestion(quizId, questionId, { question_text }) {
+  async updateQuestion(quizId, questionId, {
+    question_text,
+    points,
+    explanation,
+    topic,
+    is_bank_item,
+    reviewed,
+  }) {
+    const body = { question_text }
+    if (points !== undefined) body.points = points
+    if (explanation !== undefined) body.explanation = explanation
+    if (topic !== undefined) body.topic = topic
+    if (is_bank_item !== undefined) body.is_bank_item = is_bank_item
+    if (reviewed !== undefined) body.reviewed = Boolean(reviewed)
     return apiRequest(`/quizzes/${quizId}/questions/${questionId}`, {
       method: 'PATCH',
-      body: { question_text },
+      body,
     })
   },
 
@@ -448,6 +517,36 @@ export const apiClient = {
     })
   },
 
+  async listQuestionBank() {
+    return apiRequest('/question-bank')
+  },
+
+  async createBankQuestion({
+    question_text,
+    points = 10,
+    explanation = null,
+    topic = null,
+    options,
+  }) {
+    return apiRequest('/question-bank', {
+      method: 'POST',
+      body: {
+        question_text,
+        points,
+        explanation,
+        topic,
+        is_bank_item: true,
+        options,
+      },
+    })
+  },
+
+  async deleteBankQuestion(questionId) {
+    return apiRequest(`/question-bank/${questionId}`, {
+      method: 'DELETE',
+    })
+  },
+
   async requestQuizGeneration(moduleId, questionCount = 5, title = '') {
     const body = { question_count: questionCount }
     if (title) body.title = title
@@ -461,10 +560,10 @@ export const apiClient = {
     return apiRequest(`/quiz-generations/${generationId}`)
   },
 
-  async startAttempt(quizId, { game_mode = 'normal', challenge_mode = 'normal', boss_id = null, map_id = null } = {}) {
+  async startAttempt(quizId, { game_mode = 'boss', challenge_mode = 'normal', boss_id = null, map_id = null, resume = true } = {}) {
     return apiRequest(`/quizzes/${quizId}/attempts`, {
       method: 'POST',
-      body: { game_mode, challenge_mode, boss_id, map_id },
+      body: { game_mode, challenge_mode, boss_id, map_id, resume },
     })
   },
 
@@ -476,16 +575,37 @@ export const apiClient = {
     return apiRequest(`/attempts/${attemptId}/questions`)
   },
 
-  async submitAnswer(attemptId, { question_id, chosen_option_id, streak = 0, multiplier = 1 }) {
+  async submitAnswer(attemptId, {
+    question_id,
+    chosen_option_id = null,
+    streak = 0,
+    multiplier = 1,
+    replace = true,
+    is_flagged,
+  }) {
+    const body = { question_id, streak, multiplier, replace }
+    if (chosen_option_id !== undefined && chosen_option_id !== null) {
+      body.chosen_option_id = chosen_option_id
+    }
+    if (typeof is_flagged === 'boolean') {
+      body.is_flagged = is_flagged
+    }
     return apiRequest(`/attempts/${attemptId}/answers`, {
       method: 'POST',
-      body: { question_id, chosen_option_id, streak, multiplier },
+      body,
     })
   },
 
   async finishAttempt(attemptId) {
     return apiRequest(`/attempts/${attemptId}/finish`, {
       method: 'POST',
+    })
+  },
+
+  async gradeAttempt(attemptId, { final_grade, teacher_feedback = null }) {
+    return apiRequest(`/attempts/${attemptId}/grade`, {
+      method: 'PATCH',
+      body: { final_grade, teacher_feedback },
     })
   },
 

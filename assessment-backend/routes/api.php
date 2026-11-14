@@ -75,12 +75,20 @@ Route::middleware(['auth:sanctum', 'role:teacher', 'throttle:assessment-api'])->
     Route::get('classes/{schoolClass}/gradebook', [ReportingController::class, 'gradebook'])->middleware('throttle:reports')->name('reports.gradebook');
     Route::get('quizzes/{quiz}/grades', [ReportingController::class, 'quiz'])->middleware('throttle:reports')->name('reports.quiz');
     Route::get('quizzes/{quiz}/attempts/{attempt}/review', [ReportingController::class, 'teacherReview'])->middleware('throttle:reports')->name('reports.teacher-review');
+    Route::patch('attempts/{attempt}/grade', [ReportingController::class, 'gradeAttempt'])->whereNumber('attempt')->middleware('throttle:quiz-writes')->name('reports.grade-attempt');
     Route::post('quizzes', [QuizController::class, 'store'])->middleware('throttle:quiz-writes')->name('quizzes.store');
     Route::get('quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
     Route::match(['put', 'patch'], 'quizzes/{quiz}', [QuizController::class, 'update'])->middleware('throttle:quiz-writes')->name('quizzes.update');
     Route::delete('quizzes/{quiz}', [QuizController::class, 'destroy'])->middleware('throttle:quiz-writes')->name('quizzes.destroy');
     Route::post('quizzes/{quiz}/publish', [QuizController::class, 'publish'])->middleware('throttle:quiz-writes')->name('quizzes.publish');
     Route::post('quizzes/{quiz}/close', [QuizController::class, 'close'])->middleware('throttle:quiz-writes')->name('quizzes.close');
+    Route::post('quizzes/{quiz}/archive', [QuizController::class, 'archive'])->middleware('throttle:quiz-writes')->name('quizzes.archive');
+    Route::post('quizzes/{quiz}/duplicate', [QuizController::class, 'duplicate'])->middleware('throttle:quiz-writes')->name('quizzes.duplicate');
+    Route::post('quizzes/{quiz}/release-results', [QuizController::class, 'releaseResults'])->middleware('throttle:quiz-writes')->name('quizzes.release-results');
+
+    Route::get('question-bank', [QuestionController::class, 'bankIndex'])->name('question-bank.index');
+    Route::post('question-bank', [QuestionController::class, 'bankStore'])->middleware('throttle:quiz-writes')->name('question-bank.store');
+    Route::delete('question-bank/{question}', [QuestionController::class, 'bankDestroy'])->whereNumber('question')->middleware('throttle:quiz-writes')->name('question-bank.destroy');
 
     Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'index'])->name('questions.index');
     Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store'])->middleware('throttle:quiz-writes')->name('questions.store');

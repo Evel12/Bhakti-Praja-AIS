@@ -1,11 +1,14 @@
 <script setup>
 import MotionList from "../../components/motion/MotionList.vue";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { STUDENT_ID, visibleScore } from "../../domain/assessment.js";
 import { date } from "../../utils/format.js";
 import PageTitle from "../../components/ui/PageTitle.vue";
 const store = useAssessmentStore();
+onMounted(() => {
+  store.syncFromApi().catch(() => {});
+});
 const rows = computed(() =>
   store.db.attempts
     .filter((x) => x.studentId === STUDENT_ID && x.status === "submitted")

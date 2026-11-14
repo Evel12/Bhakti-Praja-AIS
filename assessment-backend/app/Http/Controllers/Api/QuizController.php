@@ -64,4 +64,19 @@ class QuizController extends Controller
     {
         return ApiResponse::success(new TeacherQuizResource($this->quizzes->close($request->user(), $quiz->id)), 'Quiz closed.');
     }
+
+    public function archive(AuthenticatedRequest $request, Quiz $quiz): JsonResponse
+    {
+        return ApiResponse::success(new TeacherQuizResource($this->quizzes->archive($request->user(), $quiz->id)), 'Quiz archived.');
+    }
+
+    public function duplicate(AuthenticatedRequest $request, Quiz $quiz): JsonResponse
+    {
+        return ApiResponse::success(new TeacherQuizResource($this->quizzes->duplicate($request->user(), $quiz->id)), 'Quiz duplicated.', 201);
+    }
+
+    public function releaseResults(AuthenticatedRequest $request, Quiz $quiz): JsonResponse
+    {
+        return ApiResponse::success(new TeacherQuizResource($this->quizzes->releaseResults($request->user(), $quiz->id)), 'Quiz results released.');
+    }
 }

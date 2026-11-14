@@ -16,7 +16,11 @@ class AttemptAnswer extends Model
 
     protected function casts(): array
     {
-        return ['is_correct' => 'boolean', 'answered_at' => 'immutable_datetime'];
+        return [
+            'is_correct' => 'boolean',
+            'is_flagged' => 'boolean',
+            'answered_at' => 'immutable_datetime',
+        ];
     }
 
     public function attempt(): BelongsTo

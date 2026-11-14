@@ -117,6 +117,32 @@ class ReportingService
         });
     }
 
+    public function gradeAttempt(User $teacher, Attempt $reference, array $data): Attempt
+    {
+        Gate::forUser($teacher)->authorize('grade', $reference);
+
+        return DB::transaction(function () use ($teacher, $reference, $data): Attempt {
+            $quiz = Quiz::query()->lockForUpdate()->findOrFail($reference->quiz_id);
+            $attempt = $quiz->attempts()->lockForUpdate()->findOrFail($reference->id);
+            $attempt->setRelation('quiz', $quiz);
+            Gate::forUser($teacher)->authorize('grade', $attempt);
+
+            if (array_key_exists('final_grade', $data)) {
+                $attempt->final_grade = number_format((float) $data['final_grade'], 2, '.', '');
+            }
+            if (array_key_exists('teacher_feedback', $data)) {
+                $attempt->teacher_feedback = $data['teacher_feedback'] !== null ? trim((string) $data['teacher_feedback']) : null;
+            }
+            $attempt->graded_at = now()->utc();
+            $attempt->save();
+
+            $attempt->load(['student', 'quiz'])->loadCount('answers');
+            $this->logAfterCommit('report.attempt_graded', $teacher, 'attempt', $attempt->id);
+
+            return $attempt;
+        });
+    }
+
     private function attemptPage(Builder $attempts, array $filters): LengthAwarePaginator
     {
         return (clone $attempts)->with(['student', 'quiz'])->withCount('answers')

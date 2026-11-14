@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { visibleScore, STUDENT_ID } from "../../domain/assessment.js";
@@ -19,6 +19,11 @@ const at = computed(() =>
   score = computed(() =>
     a.value && at.value ? visibleScore(a.value, at.value) : null,
   );
+onMounted(() => {
+  if (at.value?.id) {
+    store.syncAttemptReview(at.value.id).catch(() => {});
+  }
+});
 </script>
 <template>
   <template v-if="at && a && at.status === 'submitted'"

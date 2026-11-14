@@ -16,6 +16,7 @@ class StartAttemptRequest extends AuthenticatedRequest
             'challenge_mode' => ['required', Rule::enum(ChallengeMode::class)],
             'boss_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'map_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'resume' => ['sometimes', 'boolean'],
         ];
     }
 }

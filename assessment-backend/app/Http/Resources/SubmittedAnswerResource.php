@@ -14,6 +14,7 @@ class SubmittedAnswerResource extends JsonResource
             'id' => $this->id,
             'question_id' => $this->question_id,
             'chosen_option_id' => $this->chosen_option_id,
+            'is_flagged' => (bool) ($this->is_flagged ?? false),
             'is_correct' => $this->is_correct,
             'answered_at' => $this->answered_at->toIso8601String(),
         ];
