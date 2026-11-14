@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { createMemoryHistory, createRouter, RouterView } from "vue-router";
@@ -166,7 +168,20 @@ describe("mobile UI/UX seamless improvements", () => {
       "Hasil3",
     ]);
     expect(quickLinks[0].find(".liquid-nav-indicator").exists()).toBe(true);
+    expect(quickLinks[0].attributes("aria-current")).toBe("page");
+    expect(quickLinks.slice(1).every((l) => l.attributes("aria-current") === undefined)).toBe(true);
+    expect(quickLinks.every((l) => l.find(".mobile-nav-icon").exists() && l.find(".mobile-nav-label").exists())).toBe(true);
+    expect(quickLinks.every((l) => !l.get("svg.icon").classes().includes("sm"))).toBe(true);
     expect(wrapper.get(".mobile-nav-badge").text()).toBe("3");
+
+    await router.push("/classes");
+    await flushPromises();
+    const updatedLinks = wrapper.findAll(".mobile-bottom-nav .mobile-bottom-link");
+    expect(updatedLinks[2].attributes("aria-current")).toBe("page");
+    expect(updatedLinks[2].find(".liquid-nav-indicator").exists()).toBe(true);
+    expect(updatedLinks[2].find(".liquid-nav-indicator").element.style.opacity).toBe("");
+    await router.push("/dashboard");
+    await flushPromises();
 
     await wrapper.get(".auth-header-pill").trigger("click");
     expect(logoutSpy).not.toHaveBeenCalled();
@@ -321,15 +336,16 @@ describe("mobile UI/UX seamless improvements", () => {
     await wrapper.get("button.status-dropdown-trigger").trigger("click");
     await flushPromises();
 
-    const statusPopover = wrapper.find(".custom-dropdown-popover");
-    expect(statusPopover.exists()).toBe(true);
-    expect(statusPopover.classes()).toContain("is-sheet");
-    expect(wrapper.find(".sheet-backdrop").exists()).toBe(true);
-    expect(spy.mock.calls.some(([el]) => el === statusPopover.element)).toBe(true);
-
-    await wrapper.get(".sheet-backdrop").trigger("click");
-    await flushPromises();
+    const statusPopover = document.querySelector(".custom-dropdown-popover");
+    expect(statusPopover).not.toBeNull();
     expect(wrapper.find(".custom-dropdown-popover").exists()).toBe(false);
+    expect(statusPopover.classList.contains("is-sheet")).toBe(true);
+    expect(document.querySelector(".sheet-backdrop")).not.toBeNull();
+    expect(spy.mock.calls.some(([el]) => el === statusPopover)).toBe(true);
+
+    document.querySelector(".sheet-backdrop").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await flushPromises();
+    expect(document.querySelector(".custom-dropdown-popover")).toBeNull();
     wrapper.unmount();
 
     wrapper = mount(ClassCascadeSelect, {
@@ -348,10 +364,25 @@ describe("mobile UI/UX seamless improvements", () => {
     await wrapper.get("button.cascade-dropdown-trigger").trigger("click");
     await flushPromises();
 
-    const cascadePopover = wrapper.find(".custom-dropdown-popover");
-    expect(cascadePopover.exists()).toBe(true);
-    expect(cascadePopover.classes()).toContain("is-sheet");
-    expect(wrapper.find(".sheet-backdrop").exists()).toBe(true);
-    expect(spy.mock.calls.some(([el]) => el === cascadePopover.element)).toBe(true);
+    const cascadePopover = document.querySelector(".custom-dropdown-popover");
+    expect(cascadePopover).not.toBeNull();
+    expect(wrapper.find(".custom-dropdown-popover").exists()).toBe(false);
+    expect(cascadePopover.classList.contains("is-sheet")).toBe(true);
+    expect(document.querySelector(".sheet-backdrop")).not.toBeNull();
+    expect(spy.mock.calls.some(([el]) => el === cascadePopover)).toBe(true);
+  });
+
+  it("enforces symmetric mobile bottom-nav columns, active-only label styling, and view-transition isolation", () => {
+    const mainCss = readFileSync(resolve(process.cwd(), "src/styles/main.css"), "utf8");
+    const primitivesCss = readFileSync(resolve(process.cwd(), "src/motion/primitives.css"), "utf8");
+
+    expect(mainCss).toContain("grid-auto-flow: column");
+    expect(mainCss).toContain("grid-auto-columns: minmax(0, 1fr)");
+    expect(mainCss).toContain(".mobile-bottom-link:not(.active, [aria-current=\"page\"]) .mobile-nav-label");
+    expect(mainCss).toContain("color: var(--green);");
+    expect(mainCss).not.toContain("backdrop-filter: blur(14px);");
+
+    expect(primitivesCss).toContain("view-transition-name: liquid-bottom-nav");
+    expect(primitivesCss).toContain("view-transition-new(liquid-bottom-nav)");
   });
 });

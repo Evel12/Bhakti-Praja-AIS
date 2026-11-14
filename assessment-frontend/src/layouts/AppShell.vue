@@ -105,7 +105,7 @@ watch(
           <RouterLink
             :to="route.meta.student ? '/student/notifications' : '/notifications'"
             class="icon-btn lms-bell-btn"
-            aria-label="Notifikasi LMS"
+            aria-label="Notifikasi"
           >
             <Icon name="bell" />
             <span
@@ -156,9 +156,11 @@ watch(
           :class="{ active: route.path === '/dashboard' || route.path === '/home' }"
           :aria-current="route.path === '/dashboard' || route.path === '/home' ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="route.path === '/dashboard' || route.path === '/home'" />
-          <Icon name="grid" class="sm" />
-          <span>Home</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="route.path === '/dashboard' || route.path === '/home'" />
+          <span class="mobile-nav-icon">
+            <Icon name="grid" />
+          </span>
+          <span class="mobile-nav-label">Home</span>
         </RouterLink>
         <RouterLink
           to="/assessments/all"
@@ -166,9 +168,11 @@ watch(
           :class="{ active: /assessments|builder/.test(route.path) }"
           :aria-current="/assessments|builder/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="/assessments|builder/.test(route.path)" />
-          <Icon name="briefcase" class="sm" />
-          <span>Assessment</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="/assessments|builder/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="briefcase" />
+          </span>
+          <span class="mobile-nav-label">Assessment</span>
         </RouterLink>
         <RouterLink
           to="/classes"
@@ -176,9 +180,11 @@ watch(
           :class="{ active: /^\/classes/.test(route.path) }"
           :aria-current="/^\/classes/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="/^\/classes/.test(route.path)" />
-          <Icon name="people" class="sm" />
-          <span>Kelas</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="/^\/classes/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="people" />
+          </span>
+          <span class="mobile-nav-label">Kelas</span>
         </RouterLink>
         <RouterLink
           to="/bank"
@@ -186,9 +192,11 @@ watch(
           :class="{ active: route.path === '/bank' }"
           :aria-current="route.path === '/bank' ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="route.path === '/bank'" />
-          <Icon name="book" class="sm" />
-          <span>Bank</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="route.path === '/bank'" />
+          <span class="mobile-nav-icon">
+            <Icon name="book" />
+          </span>
+          <span class="mobile-nav-label">Bank</span>
         </RouterLink>
         <RouterLink
           to="/results"
@@ -196,9 +204,11 @@ watch(
           :class="{ active: /results|grade/.test(route.path) }"
           :aria-current="/results|grade/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="/results|grade/.test(route.path)" />
-          <Icon name="chart" class="sm" />
-          <span>Hasil</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="/results|grade/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="chart" />
+          </span>
+          <span class="mobile-nav-label">Hasil</span>
           <em
             v-if="pendingGradingCount"
             class="mobile-nav-badge"
@@ -214,9 +224,11 @@ watch(
           :class="{ active: !/^\/(my-results|student\/classes|student\/notifications)/.test(route.path) }"
           :aria-current="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" />
-          <Icon name="book" class="sm" />
-          <span>Assessment</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="book" />
+          </span>
+          <span class="mobile-nav-label">Assessment</span>
         </RouterLink>
         <RouterLink
           to="/student/classes"
@@ -224,9 +236,11 @@ watch(
           :class="{ active: /^\/student\/classes/.test(route.path) }"
           :aria-current="/^\/student\/classes/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="/^\/student\/classes/.test(route.path)" />
-          <Icon name="people" class="sm" />
-          <span>Kelas</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="/^\/student\/classes/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="people" />
+          </span>
+          <span class="mobile-nav-label">Kelas</span>
         </RouterLink>
         <RouterLink
           to="/my-results"
@@ -234,9 +248,11 @@ watch(
           :class="{ active: route.path === '/my-results' }"
           :aria-current="route.path === '/my-results' ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="route.path === '/my-results'" />
-          <Icon name="chart" class="sm" />
-          <span>Hasil</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="route.path === '/my-results'" />
+          <span class="mobile-nav-icon">
+            <Icon name="chart" />
+          </span>
+          <span class="mobile-nav-label">Hasil</span>
         </RouterLink>
         <RouterLink
           to="/student/notifications"
@@ -244,9 +260,11 @@ watch(
           :class="{ active: /^\/student\/notifications/.test(route.path) }"
           :aria-current="/^\/student\/notifications/.test(route.path) ? 'page' : undefined"
         >
-          <MotionActiveIndicator v-if="/^\/student\/notifications/.test(route.path)" />
-          <Icon name="bell" class="sm" />
-          <span>Notif</span>
+          <MotionActiveIndicator axis="horizontal" keep-visible v-if="/^\/student\/notifications/.test(route.path)" />
+          <span class="mobile-nav-icon">
+            <Icon name="bell" />
+          </span>
+          <span class="mobile-nav-label">Notif</span>
           <em
             v-if="lmsStore.unreadCount > 0"
             class="mobile-nav-badge"

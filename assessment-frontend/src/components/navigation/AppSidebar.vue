@@ -96,13 +96,18 @@ function cancelDrawer(e) {
 let swipeStartX = 0,
   swipeStartY = 0,
   swiping = false,
-  swipeOffset = 0;
+  swipeOffset = 0,
+  swipeCloseOffset = null;
+function panelWidth() {
+  return panel.value?.getBoundingClientRect().width || 288;
+}
 function onTouchStart(e) {
   if (!mobile.value || !ui.mobileOpen || closing.value || !e.touches?.length) return;
   const touch = e.touches[0];
   swipeStartX = touch.clientX;
   swipeStartY = touch.clientY;
   swipeOffset = 0;
+  swipeCloseOffset = null;
   swiping = true;
 }
 function onTouchMove(e) {
@@ -112,21 +117,33 @@ function onTouchMove(e) {
   const dy = touch.clientY - swipeStartY;
   if (Math.abs(dy) > Math.abs(dx) * 1.2 && Math.abs(swipeOffset) < 8) {
     swiping = false;
+    swipeOffset = 0;
+    panel.value.style.transform = "";
+    if (overlayEl.value) overlayEl.value.style.opacity = "";
     return;
   }
   if (dx < 0) {
-    swipeOffset = Math.max(-288, dx);
+    const width = panelWidth();
+    swipeOffset = Math.max(-width, dx);
     panel.value.style.transform = `translate3d(${swipeOffset}px, 0, 0)`;
+    if (overlayEl.value) {
+      overlayEl.value.style.opacity = String(Math.max(0.15, 1 + swipeOffset / width));
+    }
   }
 }
 function onTouchEnd() {
   if (!swiping || !panel.value) return;
   swiping = false;
+  const width = panelWidth();
+  const dragOpacity = Math.max(0.15, 1 + swipeOffset / width);
   if (swipeOffset < -56) {
+    swipeCloseOffset = swipeOffset;
     panel.value.style.transform = "";
+    if (overlayEl.value) overlayEl.value.style.opacity = "";
     close(false);
   } else if (swipeOffset < 0) {
     panel.value.style.transform = "";
+    if (overlayEl.value) overlayEl.value.style.opacity = "";
     const tokens = safeTokens(panel.value);
     if (tokens && tokens.mode !== "off" && !document.hidden) {
       motionEngine.animate(
@@ -134,6 +151,13 @@ function onTouchEnd() {
         { x: 0 },
         { from: { x: swipeOffset }, tokens, preset: "snappy" },
       );
+      if (overlayEl.value) {
+        motionEngine.animate(
+          overlayEl.value,
+          { opacity: 1 },
+          { from: { opacity: dragOpacity }, tokens, preset: "snappy" },
+        );
+      }
     }
   }
   swipeOffset = 0;
@@ -176,16 +200,19 @@ watch(
         }
       }
     } else {
+      const startX = swipeCloseOffset ?? 0;
+      swipeCloseOffset = null;
       if (mobile.value && panel.value) {
         const tokens = safeTokens(panel.value);
         if (tokens && tokens.mode !== "off" && !document.hidden) {
           closing.value = true;
-          const width = panel.value.getBoundingClientRect().width || 288;
+          const width = panelWidth();
+          const startOpacity = startX < 0 ? Math.max(0.15, 1 + startX / width) : 1;
           drawer = motionEngine.animate(
             panel.value,
             { opacity: 0, x: -width },
             {
-              from: { opacity: 1, x: 0 },
+              from: { opacity: startOpacity, x: startX },
               tokens,
               preset: "smooth",
             },
@@ -195,7 +222,7 @@ watch(
               overlayEl.value,
               { opacity: 0 },
               {
-                from: { opacity: 1 },
+                from: { opacity: startOpacity },
                 tokens,
                 preset: "smooth",
               },
@@ -352,6 +379,7 @@ onBeforeUnmount(() => {
       /></template>
     </nav>
     <div class="sidebar-bottom">
+      <p v-if="mobile" class="nav-label sidebar-copy">Akun & bantuan</p>
       <div class="profile">
         <span class="avatar">{{ profileInitials }}</span>
         <div v-if="!compact" class="profile-copy sidebar-copy">

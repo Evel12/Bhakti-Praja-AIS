@@ -36,7 +36,7 @@ function dismiss() {
   emit("dismiss");
 }
 onMounted(() => {
-  motion = createOverlayMotion(root.value);
+  motion = createOverlayMotion(root.value, { variant: "toast" });
   if (toast.value) motion.enter(toast.value);
   announcement.value = props.message || "";
 });

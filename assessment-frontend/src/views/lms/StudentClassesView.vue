@@ -207,7 +207,6 @@ async function handleMarkRead(mod) {
           <div
             ref="progressBar"
             class="lms-progress-fill"
-            :style="{ transform: `scaleX(${progressRatio})` }"
           />
         </div>
       </div>

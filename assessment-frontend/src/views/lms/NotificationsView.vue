@@ -49,7 +49,7 @@ async function handleMarkAllRead() {
 </script>
 
 <template>
-  <PageTitle title="Notifikasi LMS">
+  <PageTitle title="Notifikasi">
     <MotionButton
       variant="soft"
       :disabled="lms.unreadCount === 0"

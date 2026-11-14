@@ -55,39 +55,60 @@ export function useTabContentMotion(targetRef, source) {
 }
 
 /**
- * Animates progress fill scaleX when progress changes after mount.
+ * Animates progress fill scaleX when progress changes after mount without composing duplicate inline transforms.
  */
 export function useProgressBarMotion(barRef, ratioSource) {
   let handle = null;
   let stopPolicy = null;
+  let latestRatio = 0;
 
-  function stop() {
+  const clampRatio = (value) => Math.max(0, Math.min(1, Number(value) || 0));
+  const readSource = () =>
+    typeof ratioSource === "function" ? ratioSource() : ratioSource?.value;
+
+  function applyStatic(el, ratio = latestRatio) {
+    if (el) el.style.transform = `scaleX(${clampRatio(ratio)})`;
+  }
+
+  function stop(sync = false) {
     handle?.cancel();
     handle = null;
+    if (barRef.value) {
+      motionEngine.reset(barRef.value);
+      if (sync) applyStatic(barRef.value);
+    }
   }
 
   onMounted(() => {
+    latestRatio = clampRatio(readSource());
     if (barRef.value) {
-      stopPolicy = observeMotionPolicy(barRef.value, stop);
+      applyStatic(barRef.value, latestRatio);
+      stopPolicy = observeMotionPolicy(barRef.value, () => stop(true));
     }
   });
 
   onBeforeUnmount(() => {
     stopPolicy?.();
-    stop();
+    stop(false);
   });
 
   watch(
     ratioSource,
     (nextRatio, prevRatio) => {
       const el = barRef.value;
-      const tokens = el ? safeTokens(el) : null;
-      const toScale = Math.max(0, Math.min(1, Number(nextRatio) || 0));
-      const fromScale = Math.max(0, Math.min(1, Number(prevRatio) || 0));
-      if (!el || !tokens || tokens.mode === "off" || el.ownerDocument?.hidden) {
+      const toScale = clampRatio(nextRatio);
+      const fromScale = clampRatio(prevRatio);
+      latestRatio = toScale;
+      if (!el) return;
+      const tokens = safeTokens(el);
+      if (!tokens || tokens.mode === "off" || el.ownerDocument?.hidden) {
+        stop(false);
+        applyStatic(el, toScale);
         return;
       }
-      stop();
+      stop(false);
+      // Clear static inline scaleX so motionEngine captures an empty base transform before retain:true.
+      el.style.transform = "";
       handle = motionEngine.animate(
         el,
         { scaleX: toScale },

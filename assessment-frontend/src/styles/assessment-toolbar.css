@@ -511,9 +511,9 @@
     max-height: 72dvh;
     overflow-y: auto;
     overscroll-behavior: contain;
-    z-index: 70;
+    z-index: 80;
     margin-top: 0;
-    padding: 18px 14px calc(18px + var(--safe-bottom, 0px));
+    padding: 18px 14px calc(20px + var(--safe-bottom, 0px));
     border-radius: 22px 22px 0 0;
     border-bottom: 0;
     box-shadow: 0 -14px 36px rgba(24, 32, 22, 0.16);

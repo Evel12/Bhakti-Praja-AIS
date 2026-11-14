@@ -238,6 +238,33 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
   animation: none !important;
   mix-blend-mode: normal;
 }
+@media (max-width: 768px) {
+  html[data-liquid-route] .mobile-bottom-nav {
+    view-transition-name: liquid-bottom-nav;
+  }
+  html[data-liquid-route] .topbar {
+    view-transition-name: liquid-topbar;
+  }
+}
+html[data-liquid-route]::view-transition-group(liquid-bottom-nav) {
+  animation: none !important;
+  z-index: 35;
+}
+html[data-liquid-route]::view-transition-group(liquid-topbar) {
+  animation: none !important;
+  z-index: 25;
+}
+html[data-liquid-route]::view-transition-old(liquid-bottom-nav),
+html[data-liquid-route]::view-transition-old(liquid-topbar) {
+  animation: none !important;
+  opacity: 0;
+}
+html[data-liquid-route]::view-transition-new(liquid-bottom-nav),
+html[data-liquid-route]::view-transition-new(liquid-topbar) {
+  animation: none !important;
+  opacity: 1;
+  mix-blend-mode: normal;
+}
 @media (max-width: 760px) {
   .liquid-lab-grid {
     grid-template-columns: 1fr;
@@ -265,6 +292,9 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
 }
 .liquid-overlay-ghost.is-sheet {
   border-radius: 24px 24px 0 0;
+}
+.liquid-overlay-ghost.is-toast {
+  border-radius: 13px;
 }
 .liquid-overlay-ghost > * {
   position: static;
@@ -304,10 +334,21 @@ html[data-liquid-route]::view-transition-new(liquid-scene) {
   box-shadow: none;
 }
 .mobile-bottom-link .liquid-nav-indicator {
-  inset: 3px 2px;
-  border-radius: 12px;
-  background: #e9eee2;
+  inset: 0;
+  top: 0;
+  bottom: auto;
+  width: 26px;
+  height: 3px;
+  margin-inline: auto;
+  border-radius: 0 0 999px 999px;
+  background: var(--green);
   box-shadow: none;
+  z-index: 1;
+}
+@media (forced-colors: active) {
+  .mobile-bottom-link .liquid-nav-indicator {
+    background: Highlight;
+  }
 }
 .liquid-loading {
   display: inline-flex;

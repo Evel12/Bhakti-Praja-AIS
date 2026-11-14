@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, useId, watch } from "vue";
 import Icon from "./Icon.vue";
-import { animateSheet } from "../../motion/presence.js";
+import { useBottomSheetMotion } from "../../composables/useBottomSheetMotion.js";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -12,6 +12,7 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 const id = `soft-field-${useId()}`;
 const root = ref(), trigger = ref(), popup = ref(), backdrop = ref();
+const { enterSheet, exitSheet } = useBottomSheetMotion(root);
 const open = ref(false), activeIndex = ref(-1), position = ref({}), isSheet = ref(false);
 const selected = computed(() => props.options.find(option => option.value === props.modelValue));
 const optionId = index => `${id}-option-${index}`;
@@ -21,6 +22,7 @@ function detectSheet() {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches;
 }
 function close(restoreFocus = false) {
+  if (open.value && isSheet.value && popup.value) exitSheet(popup.value);
   open.value = false;
   search = "";
   if (restoreFocus && trigger.value?.isConnected) trigger.value.focus({ preventScroll: true });
@@ -57,7 +59,7 @@ async function show(index) {
   open.value = true;
   await nextTick();
   revealActive();
-  if (isSheet.value && popup.value) animateSheet(popup.value, { direction: "enter", preset: "smooth" });
+  if (isSheet.value && popup.value) enterSheet(popup.value, backdrop.value);
 }
 function revealActive() {
   if (open.value) document.getElementById(optionId(activeIndex.value))?.scrollIntoView?.({ block: "nearest" });

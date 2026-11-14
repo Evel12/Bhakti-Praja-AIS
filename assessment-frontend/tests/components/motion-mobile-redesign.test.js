@@ -8,6 +8,12 @@ import { readMotionTokens } from "../../src/motion/tokens.js";
 import { animateSlide } from "../../src/motion/presence.js";
 import { createOverlayMotion } from "../../src/motion/overlays.js";
 import { createMotionEngine, motionEngine } from "../../src/motion/engine.js";
+import MotionActiveIndicator from "../../src/components/motion/MotionActiveIndicator.vue";
+import AppSidebar from "../../src/components/navigation/AppSidebar.vue";
+import AppToast from "../../src/components/ui/AppToast.vue";
+import { useUiStore } from "../../src/stores/uiStore.js";
+import { useProgressBarMotion } from "../../src/composables/useLmsMotion.js";
+import { ref } from "vue";
 import AttemptView from "../../src/views/student/AttemptView.vue";
 import AssessmentBuilderView from "../../src/views/teacher/AssessmentBuilderView.vue";
 import { useAssessmentStore } from "../../src/stores/assessmentStore.js";
@@ -229,5 +235,131 @@ describe("mobile motion tokens, slide, and bottom-sheet overlays", () => {
     expect(backCall).toBeTruthy();
     expect(backCall[2].from.x).toBeLessThan(0);
     expect(animateSpy.mock.calls.some(([el]) => el === formPanel)).toBe(false);
+  });
+
+  it("keeps AppToast non-sheet on mobile viewports so toasts never animate or clone as bottom sheets", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query) => ({
+        matches: query === "(max-width: 768px)",
+        media: query,
+        addEventListener() {},
+        removeEventListener() {},
+      })),
+    );
+    const w = mount(AppToast, {
+      attachTo: document.body,
+      props: { message: "", sequence: 0 },
+    });
+    cleanup.push(() => w.unmount());
+
+    const animateSpy = vi.spyOn(motionEngine, "animate");
+    await w.setProps({ message: "Draft tersimpan", sequence: 1 });
+    await flushPromises();
+
+    const toastEl = w.get(".toast").element;
+    toastEl.getBoundingClientRect = () => ({ left: 80, top: 66, width: 220, height: 42 });
+    const enterCall = animateSpy.mock.calls.find(([el]) => el === toastEl);
+    expect(enterCall).toBeTruthy();
+    expect(enterCall[2].from.y).not.toBe(tokens("full").distances.sheet);
+
+    animateSpy.mockClear();
+    await w.setProps({ message: "", sequence: 1 });
+    await flushPromises();
+
+    const ghost = document.querySelector(".liquid-overlay-ghost");
+    expect(ghost).not.toBeNull();
+    expect(ghost.classList.contains("is-sheet")).toBe(false);
+    expect(ghost.classList.contains("is-toast")).toBe(true);
+  });
+
+  it("animates horizontal nav indicator along scaleX and continues mobile drawer close from swipe offset", async () => {
+    const animateSpy = vi.spyOn(motionEngine, "animate");
+    const indicator = mount(MotionActiveIndicator, {
+      attachTo: document.body,
+      props: { axis: "horizontal" },
+    });
+    cleanup.push(() => indicator.unmount());
+    await flushPromises();
+
+    const call = animateSpy.mock.calls.find(([el]) => el === indicator.element);
+    expect(call).toBeTruthy();
+    expect(call[1].scaleX).toBe(1);
+    expect(call[2].from.scaleX).toBeDefined();
+    expect(call[2].from.scaleY).toBeUndefined();
+
+    const persistentIndicator = mount(MotionActiveIndicator, {
+      attachTo: document.body,
+      props: { axis: "horizontal", keepVisible: true },
+    });
+    cleanup.push(() => persistentIndicator.unmount());
+    await flushPromises();
+
+    const persistentCall = animateSpy.mock.calls.find(
+      ([el]) => el === persistentIndicator.element,
+    );
+    expect(persistentCall).toBeTruthy();
+    expect(persistentCall[1]).toEqual({ scaleX: 1 });
+    expect(persistentCall[2].from.opacity).toBeUndefined();
+    expect(persistentCall[2].from.scaleX).toBeDefined();
+
+    const media = installMedia();
+    const ui = useUiStore();
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [{ path: "/:pathMatch(.*)*", component: { template: "<div/>" } }],
+    });
+    const sidebar = mount(AppSidebar, {
+      attachTo: document.body,
+      global: { plugins: [pinia, router] },
+    });
+    cleanup.push(() => sidebar.unmount());
+    await flushPromises();
+
+    const bp = media.filter((m) => m.media === "(max-width: 1023px)").at(-1);
+    bp.matches = true;
+    bp.fire();
+    await flushPromises();
+
+    ui.mobileOpen = true;
+    await flushPromises();
+
+    const aside = sidebar.get("aside");
+    aside.element.getBoundingClientRect = () => ({ width: 288, left: 0, top: 0, height: 800 });
+    animateSpy.mockClear();
+
+    await aside.trigger("touchstart", { touches: [{ clientX: 200, clientY: 100 }] });
+    await aside.trigger("touchmove", { touches: [{ clientX: 80, clientY: 100 }] });
+    expect(aside.element.style.transform).toContain("-120px");
+    await aside.trigger("touchend");
+    await flushPromises();
+
+    const exitCall = animateSpy.mock.calls.find(([el]) => el === aside.element);
+    expect(exitCall).toBeTruthy();
+    expect(exitCall[2].from.x).toBe(-120);
+  });
+
+  it("animates progress bar scaleX without duplicating static inline scaleX in base transform", async () => {
+    const ratio = ref(0.5);
+    const Comp = {
+      template: '<div class="lms-progress-fill" ref="bar"></div>',
+      setup() {
+        const bar = ref(null);
+        useProgressBarMotion(bar, ratio);
+        return { bar };
+      },
+    };
+    const w = mount(Comp, { attachTo: document.body });
+    cleanup.push(() => w.unmount());
+    await flushPromises();
+
+    const barEl = w.get(".lms-progress-fill").element;
+    expect(barEl.style.transform).toBe("scaleX(0.5)");
+
+    ratio.value = 0.8;
+    await flushPromises();
+
+    // Base inline transform was cleared prior to retain:true motion, never "scaleX(0.8) translate3d(...) scale(0.8, 1)"
+    expect(barEl.style.transform.startsWith("scaleX(")).toBe(false);
   });
 });

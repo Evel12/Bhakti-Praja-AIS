@@ -15,7 +15,7 @@ export function createOverlayMotion(
     win = doc.defaultView;
   function isSheet() {
     if (variant === "sheet") return true;
-    if (variant === "dialog") return false;
+    if (variant === "dialog" || variant === "toast") return false;
     return Boolean(win.matchMedia?.("(max-width: 768px)")?.matches);
   }
   function stop() {
@@ -47,8 +47,12 @@ export function createOverlayMotion(
   root.addEventListener("pointerdown", interaction, true);
   root.addEventListener("keydown", interaction, true);
   root.addEventListener("focusin", interaction);
+  const handleScroll = (event) => {
+    const node = event?.target;
+    if (!node?.nodeType || !target?.contains?.(node)) stop();
+  };
   win.addEventListener("resize", stop, { passive: true });
-  win.addEventListener("scroll", stop, { passive: true, capture: true });
+  win.addEventListener("scroll", handleScroll, { passive: true, capture: true });
   return {
     enter(el) {
       stop();
@@ -69,7 +73,11 @@ export function createOverlayMotion(
       // Static geometry is captured once, never tweened.
       const sheet = isSheet();
       const copy = doc.createElement("div");
-      copy.className = sheet ? "liquid-overlay-ghost is-sheet" : "liquid-overlay-ghost";
+      copy.className = sheet
+        ? "liquid-overlay-ghost is-sheet"
+        : variant === "toast"
+          ? "liquid-overlay-ghost is-toast"
+          : "liquid-overlay-ghost";
       copy.setAttribute("aria-hidden", "true");
       copy.setAttribute("inert", "");
       Object.assign(copy.style, {
@@ -144,7 +152,7 @@ export function createOverlayMotion(
       root.removeEventListener("keydown", interaction, true);
       root.removeEventListener("focusin", interaction);
       win.removeEventListener("resize", stop);
-      win.removeEventListener("scroll", stop, true);
+      win.removeEventListener("scroll", handleScroll, true);
     },
   };
 }

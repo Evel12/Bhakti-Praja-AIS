@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted, onBeforeUnmount, useId } from "vue";
 import Icon from "./Icon.vue";
-import { animateSheet } from "../../motion/presence.js";
+import { useBottomSheetMotion } from "../../composables/useBottomSheetMotion.js";
 
 const props = defineProps({
   modelValue: {
@@ -22,6 +22,8 @@ const isSheet = ref(false);
 const containerRef = ref(null);
 const triggerRef = ref(null);
 const popoverRef = ref(null);
+const backdropRef = ref(null);
+const { enterSheet, exitSheet } = useBottomSheetMotion(containerRef);
 
 const selectedOption = computed(() => {
   return props.options.find((o) => o.value === props.modelValue) || {
@@ -38,13 +40,17 @@ function getOptionButtons() {
   return Array.from(popoverRef.value?.querySelectorAll('[role="option"]') || []);
 }
 
+function playSheetEnter() {
+  if (isSheet.value && popoverRef.value) {
+    enterSheet(popoverRef.value, backdropRef.value);
+  }
+}
+
 async function openAndFocus(pickIndex) {
   isSheet.value = detectSheet();
   isOpen.value = true;
   await nextTick();
-  if (isSheet.value && popoverRef.value) {
-    animateSheet(popoverRef.value, { direction: "enter", preset: "smooth" });
-  }
+  playSheetEnter();
   const btns = getOptionButtons();
   if (!btns.length) return;
   const idx = typeof pickIndex === "function" ? pickIndex(btns) : pickIndex;
@@ -53,16 +59,19 @@ async function openAndFocus(pickIndex) {
 
 async function toggleDropdown() {
   isSheet.value = detectSheet();
-  isOpen.value = !isOpen.value;
   if (isOpen.value) {
-    await nextTick();
-    if (isSheet.value && popoverRef.value) {
-      animateSheet(popoverRef.value, { direction: "enter", preset: "smooth" });
-    }
+    closeDropdown(false);
+    return;
   }
+  isOpen.value = true;
+  await nextTick();
+  playSheetEnter();
 }
 
 function closeDropdown(restoreFocus = false) {
+  if (isOpen.value && isSheet.value && popoverRef.value) {
+    exitSheet(popoverRef.value);
+  }
   isOpen.value = false;
   if (restoreFocus && triggerRef.value?.isConnected) {
     triggerRef.value.focus({ preventScroll: true });
@@ -125,7 +134,11 @@ function handleOptionKeyDown(e, index) {
 }
 
 function handlePointerDown(e) {
-  if (containerRef.value && !containerRef.value.contains(e.target)) {
+  const inside =
+    containerRef.value?.contains(e.target) ||
+    popoverRef.value?.contains(e.target) ||
+    backdropRef.value?.contains(e.target);
+  if (isOpen.value && !inside) {
     closeDropdown(false);
   }
 }
@@ -171,45 +184,48 @@ onBeforeUnmount(() => {
       </div>
     </button>
 
-    <div
-      v-if="isOpen && isSheet"
-      class="sheet-backdrop"
-      aria-hidden="true"
-      @click="closeDropdown(true)"
-    ></div>
+    <Teleport to="body" :disabled="!isSheet">
+      <div
+        v-if="isOpen && isSheet"
+        ref="backdropRef"
+        class="sheet-backdrop"
+        aria-hidden="true"
+        @click="closeDropdown(true)"
+      ></div>
 
-    <!-- Floating Popover (Inspired by Image 1 & 2) -->
-    <div
-      v-if="isOpen"
-      :id="listboxId"
-      ref="popoverRef"
-      class="custom-dropdown-popover"
-      :class="{ 'is-sheet': isSheet }"
-      role="listbox"
-      aria-label="Daftar status assessment"
-    >
-      <div class="popover-header">Status Assessment</div>
-      <ul class="popover-list" role="none">
-        <li v-for="(opt, idx) in options" :key="opt.value" role="none">
-          <button
-            type="button"
-            role="option"
-            :aria-selected="opt.value === modelValue"
-            class="custom-dropdown-item"
-            :class="{ 'is-active': opt.value === modelValue }"
-            @click="selectOption(opt)"
-            @keydown="handleOptionKeyDown($event, idx)"
-          >
-            <div class="item-left">
-              <span class="item-label">{{ opt.label }}</span>
-            </div>
-            <div class="item-right">
-              <span v-if="opt.count !== undefined" class="item-badge">{{ opt.count }}</span>
-              <Icon v-if="opt.value === modelValue" name="check" class="item-check" />
-            </div>
-          </button>
-        </li>
-      </ul>
-    </div>
+      <!-- Floating Popover (Inspired by Image 1 & 2) -->
+      <div
+        v-if="isOpen"
+        :id="listboxId"
+        ref="popoverRef"
+        class="custom-dropdown-popover"
+        :class="{ 'is-sheet': isSheet }"
+        role="listbox"
+        aria-label="Daftar status assessment"
+      >
+        <div class="popover-header">Status Assessment</div>
+        <ul class="popover-list" role="none">
+          <li v-for="(opt, idx) in options" :key="opt.value" role="none">
+            <button
+              type="button"
+              role="option"
+              :aria-selected="opt.value === modelValue"
+              class="custom-dropdown-item"
+              :class="{ 'is-active': opt.value === modelValue }"
+              @click="selectOption(opt)"
+              @keydown="handleOptionKeyDown($event, idx)"
+            >
+              <div class="item-left">
+                <span class="item-label">{{ opt.label }}</span>
+              </div>
+              <div class="item-right">
+                <span v-if="opt.count !== undefined" class="item-badge">{{ opt.count }}</span>
+                <Icon v-if="opt.value === modelValue" name="check" class="item-check" />
+              </div>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </Teleport>
   </div>
 </template>

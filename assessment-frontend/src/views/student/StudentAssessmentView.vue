@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import MotionList from "../../components/motion/MotionList.vue";
 import StudentAssessmentCard from "../../components/assessment/StudentAssessmentCard.vue";
 import PageTitle from "../../components/ui/PageTitle.vue";
@@ -8,6 +8,7 @@ import { useAssessmentClock } from "../../composables/useAssessmentClock.js";
 import { canStart, STUDENT_ID, statusOf } from "../../domain/assessment.js";
 
 const store = useAssessmentStore();
+const historyOpen = ref(false);
 // Include attempt deadlines so a resumable session moves to history when its time ends.
 const now = useAssessmentClock(() => [
   ...store.db.assessments,
@@ -58,9 +59,14 @@ const current = computed(() => entries.value
         <StudentAssessmentCard v-for="entry in upcoming" :key="entry.assessment.id" :data-motion-key="entry.assessment.id" :entry="entry" />
       </MotionList>
     </section>
-    <details v-if="history.length" class="student-history student-section" data-assessment-group="history">
+    <details
+      v-if="history.length"
+      class="student-history student-section"
+      data-assessment-group="history"
+      @toggle="historyOpen = $event.target.open"
+    >
       <summary><span>Selesai & ditutup</span><span class="history-count">{{ history.length }} assessment</span></summary>
-      <MotionList class="student-grid" :item-keys="history.map((entry) => entry.assessment.id)">
+      <MotionList class="student-grid" :enabled="historyOpen" :item-keys="history.map((entry) => entry.assessment.id)">
         <StudentAssessmentCard v-for="entry in history" :key="entry.assessment.id" :data-motion-key="entry.assessment.id" :entry="entry" />
       </MotionList>
     </details>

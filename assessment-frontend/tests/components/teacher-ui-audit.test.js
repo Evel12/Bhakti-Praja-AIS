@@ -149,11 +149,14 @@ describe("Teacher UI audit improvements", () => {
     });
     await wrapper.get("#class-cascade").trigger("click");
     await flushPromises();
-    const courseBtn = wrapper.get(".cascade-parent-item > button");
-    await courseBtn.trigger("click");
-    expect(wrapper.find(".cascade-sub-flyout").exists()).toBe(true);
-    await courseBtn.trigger("click");
-    expect(wrapper.find(".cascade-sub-flyout").exists()).toBe(false);
+    const courseBtn = document.querySelector(".cascade-parent-item > button");
+    expect(courseBtn).not.toBeNull();
+    courseBtn.click();
+    await flushPromises();
+    expect(document.querySelector(".cascade-sub-flyout")).not.toBeNull();
+    courseBtn.click();
+    await flushPromises();
+    expect(document.querySelector(".cascade-sub-flyout")).toBeNull();
   });
 
   it("marks DashboardView class grade actions with .register-actions", async () => {

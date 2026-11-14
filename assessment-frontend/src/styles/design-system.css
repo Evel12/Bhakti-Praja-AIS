@@ -1484,13 +1484,13 @@ input[type="checkbox"] {
   display: none;
 }
 .toast {
-  width: max-content;
+  width: fit-content;
   position: fixed;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
+  inset-inline: 15px;
+  margin-inline: auto;
   padding: 12px 19px;
-  max-width: calc(100% - 30px);
+  max-width: min(480px, calc(100% - 30px));
   border-radius: 13px;
   box-shadow: 0 8px 25px #10150f26;
   background: #30392a;
@@ -1855,19 +1855,19 @@ dialog::backdrop {
   .overview-grid {
     grid-template-columns: 1fr;
   }
-  .metric {
-    padding: 18px 0 !important;
+  .overview-grid:not(.lecturer-overview) .metric {
+    padding: 18px 0;
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0 12px;
   }
-  .metric:first-child {
-    padding-top: 0 !important;
+  .overview-grid:not(.lecturer-overview) .metric:first-child {
+    padding-top: 0;
   }
-  .metric:last-child {
-    padding-bottom: 0 !important;
+  .overview-grid:not(.lecturer-overview) .metric:last-child {
+    padding-bottom: 0;
   }
-  .metric + .metric {
+  .overview-grid:not(.lecturer-overview) .metric + .metric {
     border-left: 0;
     border-top: 1px solid #eceee5;
   }

@@ -11,7 +11,7 @@ export function createNavigationScope(root, { engine = motionEngine } = {}) {
     selector: "button,a[href]",
     filter: (el) =>
       !!el.closest(".sidebar,nav,.tabs") &&
-      !el.matches(".collapse-control,.brand") &&
+      !el.matches(".collapse-control,.brand,.mobile-bottom-link") &&
       !el.closest('.exam-shell,[data-liquid-scope="local"]'),
     hover: false,
     magnetic: false,

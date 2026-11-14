@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted, onBeforeUnmount, useId } from "vue";
 import Icon from "./Icon.vue";
-import { animateSheet } from "../../motion/presence.js";
+import { useBottomSheetMotion } from "../../composables/useBottomSheetMotion.js";
 
 const props = defineProps({
   modelValue: {
@@ -27,6 +27,8 @@ const activeCourse = ref(null);
 const containerRef = ref(null);
 const triggerRef = ref(null);
 const popoverRef = ref(null);
+const backdropRef = ref(null);
+const { enterSheet, exitSheet } = useBottomSheetMotion(containerRef);
 
 function detectSheet() {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches;
@@ -57,7 +59,7 @@ async function openAndFocus(atEnd = false) {
   }
   await nextTick();
   if (isSheet.value && popoverRef.value) {
-    animateSheet(popoverRef.value, { direction: "enter", preset: "smooth" });
+    enterSheet(popoverRef.value, backdropRef.value);
   }
   const btns = getTopButtons();
   if (!btns.length) return;
@@ -67,21 +69,24 @@ async function openAndFocus(atEnd = false) {
 
 async function toggleDropdown() {
   isSheet.value = detectSheet();
-  isOpen.value = !isOpen.value;
-  if (!isOpen.value) {
-    activeCourse.value = null;
-  } else {
-    if (props.modelValue?.course && props.modelValue.course !== "all") {
-      activeCourse.value = props.modelValue.course;
-    }
-    await nextTick();
-    if (isSheet.value && popoverRef.value) {
-      animateSheet(popoverRef.value, { direction: "enter", preset: "smooth" });
-    }
+  if (isOpen.value) {
+    closeDropdown(false);
+    return;
+  }
+  isOpen.value = true;
+  if (props.modelValue?.course && props.modelValue.course !== "all") {
+    activeCourse.value = props.modelValue.course;
+  }
+  await nextTick();
+  if (isSheet.value && popoverRef.value) {
+    enterSheet(popoverRef.value, backdropRef.value);
   }
 }
 
 function closeDropdown(restoreFocus = false) {
+  if (isOpen.value && isSheet.value && popoverRef.value) {
+    exitSheet(popoverRef.value);
+  }
   isOpen.value = false;
   activeCourse.value = null;
   if (restoreFocus && triggerRef.value?.isConnected) {
@@ -203,7 +208,11 @@ async function handleSubItemKeyDown(e, courseName) {
 }
 
 function handlePointerDown(e) {
-  if (containerRef.value && !containerRef.value.contains(e.target)) {
+  const inside =
+    containerRef.value?.contains(e.target) ||
+    popoverRef.value?.contains(e.target) ||
+    backdropRef.value?.contains(e.target);
+  if (isOpen.value && !inside) {
     closeDropdown(false);
   }
 }
@@ -263,112 +272,115 @@ onBeforeUnmount(() => {
       </button>
     </div>
 
-    <div
-      v-if="isOpen && isSheet"
-      class="sheet-backdrop"
-      aria-hidden="true"
-      @click="closeDropdown(true)"
-    ></div>
+    <Teleport to="body" :disabled="!isSheet">
+      <div
+        v-if="isOpen && isSheet"
+        ref="backdropRef"
+        class="sheet-backdrop"
+        aria-hidden="true"
+        @click="closeDropdown(true)"
+      ></div>
 
-    <!-- Floating Popover (Inspired by Image 2 - Model Picker Cascading Menu) -->
-    <div
-      v-if="isOpen"
-      :id="treeId"
-      ref="popoverRef"
-      class="custom-dropdown-popover"
-      :class="{ 'is-sheet': isSheet }"
-      role="tree"
-      aria-label="Pilihan kelas dan mata pelajaran"
-    >
-      <!-- Option: Semua Kelas -->
-      <ul class="popover-list" role="none">
-        <li role="none">
-          <button
-            type="button"
-            role="treeitem"
-            data-cascade-level="top"
-            :aria-selected="!modelValue || modelValue.code === 'all'"
-            class="custom-dropdown-item"
-            :class="{ 'is-active': !modelValue || modelValue.code === 'all' }"
-            @click="selectLeaf({ name: 'Semua Kelas', code: 'all', course: 'all', className: 'all' })"
-            @keydown="handleTopItemKeyDown($event)"
-          >
-            <div class="item-left">
-              <span class="item-label">Semua Kelas</span>
-            </div>
-            <div class="item-right">
-              <Icon v-if="!modelValue || modelValue.code === 'all'" name="check" class="item-check" />
-            </div>
-          </button>
-        </li>
-      </ul>
-
-      <div class="popover-divider"></div>
-      <div class="popover-header">Mata Pelajaran / Kelas</div>
-
-      <!-- Level 1 Items (Courses / Nama Kelas) with Cascading Submenus without book logo -->
-      <ul class="popover-list" role="none">
-        <template v-for="item in options" :key="item.code">
-          <li
-            v-if="item.classes && item.classes.length"
-            class="cascade-parent-item"
-            role="none"
-            @mouseenter="handleParentMouseEnter(item.name)"
-          >
+      <!-- Floating Popover (Inspired by Image 2 - Model Picker Cascading Menu) -->
+      <div
+        v-if="isOpen"
+        :id="treeId"
+        ref="popoverRef"
+        class="custom-dropdown-popover"
+        :class="{ 'is-sheet': isSheet }"
+        role="tree"
+        aria-label="Pilihan kelas dan mata pelajaran"
+      >
+        <!-- Option: Semua Kelas -->
+        <ul class="popover-list" role="none">
+          <li role="none">
             <button
               type="button"
               role="treeitem"
               data-cascade-level="top"
+              :aria-selected="!modelValue || modelValue.code === 'all'"
               class="custom-dropdown-item"
-              :aria-expanded="activeCourse === item.name"
-              :aria-selected="modelValue?.course === item.name"
-              :class="{
-                'has-sub-open': activeCourse === item.name,
-                'is-active': modelValue?.course === item.name,
-              }"
-              @click="handleParentClick(item.name)"
-              @keydown="handleTopItemKeyDown($event, item.name)"
+              :class="{ 'is-active': !modelValue || modelValue.code === 'all' }"
+              @click="selectLeaf({ name: 'Semua Kelas', code: 'all', course: 'all', className: 'all' })"
+              @keydown="handleTopItemKeyDown($event)"
             >
               <div class="item-left">
-                <span class="item-label">{{ item.name }}</span>
+                <span class="item-label">Semua Kelas</span>
               </div>
               <div class="item-right">
-                <Icon :name="isSheet && activeCourse === item.name ? 'down' : 'chevron'" class="item-chevron-right" />
+                <Icon v-if="!modelValue || modelValue.code === 'all'" name="check" class="item-check" />
               </div>
             </button>
-
-            <!-- Level 2 Cascading Flyout Submenu (Inspired by Image 2) -->
-            <div
-              v-if="activeCourse === item.name"
-              class="cascade-sub-flyout"
-              role="group"
-              :aria-label="'Sub-kelas untuk ' + item.name"
-            >
-              <div class="popover-header">{{ item.name }}</div>
-              <ul class="popover-list" role="none">
-                <li v-for="sub in item.classes" :key="sub.code" role="none">
-                  <button
-                    type="button"
-                    role="treeitem"
-                    :aria-selected="modelValue?.code === sub.code"
-                    class="custom-dropdown-item"
-                    :class="{ 'is-active': modelValue?.code === sub.code }"
-                    @click.stop="selectLeaf(sub)"
-                    @keydown="handleSubItemKeyDown($event, item.name)"
-                  >
-                    <div class="item-left">
-                      <span class="item-label">{{ sub.name }}</span>
-                    </div>
-                    <div class="item-right">
-                      <Icon v-if="modelValue?.code === sub.code" name="check" class="item-check" />
-                    </div>
-                  </button>
-                </li>
-              </ul>
-            </div>
           </li>
-        </template>
-      </ul>
-    </div>
+        </ul>
+
+        <div class="popover-divider"></div>
+        <div class="popover-header">Mata Pelajaran / Kelas</div>
+
+        <!-- Level 1 Items (Courses / Nama Kelas) with Cascading Submenus without book logo -->
+        <ul class="popover-list" role="none">
+          <template v-for="item in options" :key="item.code">
+            <li
+              v-if="item.classes && item.classes.length"
+              class="cascade-parent-item"
+              role="none"
+              @mouseenter="handleParentMouseEnter(item.name)"
+            >
+              <button
+                type="button"
+                role="treeitem"
+                data-cascade-level="top"
+                class="custom-dropdown-item"
+                :aria-expanded="activeCourse === item.name"
+                :aria-selected="modelValue?.course === item.name"
+                :class="{
+                  'has-sub-open': activeCourse === item.name,
+                  'is-active': modelValue?.course === item.name,
+                }"
+                @click="handleParentClick(item.name)"
+                @keydown="handleTopItemKeyDown($event, item.name)"
+              >
+                <div class="item-left">
+                  <span class="item-label">{{ item.name }}</span>
+                </div>
+                <div class="item-right">
+                  <Icon :name="isSheet && activeCourse === item.name ? 'down' : 'chevron'" class="item-chevron-right" />
+                </div>
+              </button>
+
+              <!-- Level 2 Cascading Flyout Submenu (Inspired by Image 2) -->
+              <div
+                v-if="activeCourse === item.name"
+                class="cascade-sub-flyout"
+                role="group"
+                :aria-label="'Sub-kelas untuk ' + item.name"
+              >
+                <div class="popover-header">{{ item.name }}</div>
+                <ul class="popover-list" role="none">
+                  <li v-for="sub in item.classes" :key="sub.code" role="none">
+                    <button
+                      type="button"
+                      role="treeitem"
+                      :aria-selected="modelValue?.code === sub.code"
+                      class="custom-dropdown-item"
+                      :class="{ 'is-active': modelValue?.code === sub.code }"
+                      @click.stop="selectLeaf(sub)"
+                      @keydown="handleSubItemKeyDown($event, item.name)"
+                    >
+                      <div class="item-left">
+                        <span class="item-label">{{ sub.name }}</span>
+                      </div>
+                      <div class="item-right">
+                        <Icon v-if="modelValue?.code === sub.code" name="check" class="item-check" />
+                      </div>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </Teleport>
   </div>
 </template>

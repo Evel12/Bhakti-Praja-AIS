@@ -88,16 +88,17 @@
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 69;
+  z-index: 79;
   background: rgba(20, 26, 22, 0.34);
   backdrop-filter: blur(4px);
 }
 .soft-field-popup.is-sheet {
   position: fixed;
   inset: auto 0 0 0;
+  z-index: 80;
   width: 100%;
   max-height: 70dvh;
-  padding: 18px 12px calc(16px + var(--safe-bottom, 0px));
+  padding: 18px 12px calc(20px + var(--safe-bottom, 0px));
   border-radius: 22px 22px 0 0;
   border: 1px solid var(--line);
   border-bottom: 0;
