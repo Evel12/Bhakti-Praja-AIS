@@ -300,8 +300,8 @@ watch(
       <li>Masuk kembali sebagai Pengajar untuk menilai dan merilis hasil.</li>
     </ol>
     <p class="notice">
-      Gunakan halaman Login untuk masuk sebagai Pengajar (`teacher@example.test`)
-      atau Peserta (`student1@example.test`).
+      Gunakan halaman Login untuk masuk dengan akun Pengajar atau Peserta yang
+      terdaftar.
     </p></AppDialog
   >
 </template>

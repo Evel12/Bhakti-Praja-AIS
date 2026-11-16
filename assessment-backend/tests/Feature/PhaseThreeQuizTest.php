@@ -346,7 +346,7 @@ class PhaseThreeQuizTest extends TestCase
         $oldOptions = $question->options()->get()->map->getAttributes()->all();
         $this->signIn($question->quiz->schoolClass->teacher);
         DB::listen(function ($query): void {
-            if (str_starts_with($query->sql, 'insert into "options"')) {
+            if (preg_match('/^insert into ["`]options["`]/', $query->sql) === 1) {
                 throw new \RuntimeException('Simulated option storage failure');
             }
         });

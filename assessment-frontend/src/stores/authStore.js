@@ -10,41 +10,38 @@ import {
 import { useAssessmentStore } from "./assessmentStore.js";
 import { useLmsStore } from "./lmsStore.js";
 
-const EMAIL_ACCOUNTS = [
-  {
-    id: 2,
-    name: "Demo Teacher",
-    email: "teacher@example.test",
-    role: "teacher",
-    password: "DemoPassword123!",
-  },
-  {
-    id: 3,
-    name: "Demo Student One",
-    email: "student1@example.test",
-    role: "student",
-    password: "DemoPassword123!",
-  },
-  {
-    id: 4,
-    name: "Demo Student Two",
-    email: "student2@example.test",
-    role: "student",
-    password: "DemoPassword123!",
-  },
-];
+const ALLOW_DEV_OFFLINE_FALLBACK = Boolean(import.meta.env?.DEV);
+
+const DEV_OFFLINE_ACCOUNTS = ALLOW_DEV_OFFLINE_FALLBACK
+  ? [
+      {
+        id: 2,
+        name: "Demo Teacher",
+        email: "teacher@example.test",
+        role: "teacher",
+        password: "DemoPassword123!",
+      },
+      {
+        id: 3,
+        name: "Demo Student One",
+        email: "student1@example.test",
+        role: "student",
+        password: "DemoPassword123!",
+      },
+      {
+        id: 4,
+        name: "Demo Student Two",
+        email: "student2@example.test",
+        role: "student",
+        password: "DemoPassword123!",
+      },
+    ]
+  : [];
 
 export const useAuthStore = defineStore("auth", () => {
   const initialSession = getStoredSession();
   const token = ref(getStoredToken());
-  const user = ref(
-    initialSession?.user || {
-      id: EMAIL_ACCOUNTS[0].id,
-      name: EMAIL_ACCOUNTS[0].name,
-      email: EMAIL_ACCOUNTS[0].email,
-      role: EMAIL_ACCOUNTS[0].role,
-    },
-  );
+  const user = ref(initialSession?.user || null);
   const authMethod = ref("email");
   const apiConnected = ref(Boolean(initialSession?.apiConnected));
   const loading = ref(false);
@@ -120,8 +117,8 @@ export const useAuthStore = defineStore("auth", () => {
       notice.value = `Berhasil masuk sebagai ${data.user.name} (${data.user.email}).`;
       return { ok: true, mode: "api", user: data.user };
     } catch (err) {
-      if (err?.status === 0 || err?.code === "NETWORK_ERROR") {
-        const matchedAccount = EMAIL_ACCOUNTS.find(
+      if ((err?.status === 0 || err?.code === "NETWORK_ERROR") && ALLOW_DEV_OFFLINE_FALLBACK) {
+        const matchedAccount = DEV_OFFLINE_ACCOUNTS.find(
           (acc) => acc.email.toLowerCase() === normalizedEmail && acc.password === rawPassword,
         );
 
@@ -150,11 +147,6 @@ export const useAuthStore = defineStore("auth", () => {
     } finally {
       loading.value = false;
     }
-  }
-
-  function triggerSsoPlaceholder() {
-    error.value = "";
-    notice.value = "Fitur SSO sedang disiapkan. Silakan masuk menggunakan Email dan Kata Sandi.";
   }
 
   async function restoreSession() {
@@ -187,6 +179,7 @@ export const useAuthStore = defineStore("auth", () => {
       // Ignore network errors on logout
     } finally {
       token.value = null;
+      user.value = null;
       apiConnected.value = false;
       setStoredToken(null);
       setStoredSession(null);
@@ -213,7 +206,7 @@ export const useAuthStore = defineStore("auth", () => {
         "Jika akun terdaftar, tautan reset kata sandi telah dikirim ke email Anda.";
       return { ok: true };
     } catch (err) {
-      if (err?.status === 0 || err?.code === "NETWORK_ERROR") {
+      if ((err?.status === 0 || err?.code === "NETWORK_ERROR") && ALLOW_DEV_OFFLINE_FALLBACK) {
         notice.value = `Tautan pemulihan kata sandi telah dikirim ke ${email}.`;
         return { ok: true, simulated: true };
       }
@@ -238,7 +231,7 @@ export const useAuthStore = defineStore("auth", () => {
       notice.value = "Kata sandi berhasil diperbarui. Silakan masuk kembali.";
       return { ok: true };
     } catch (err) {
-      if (err?.status === 0 || err?.code === "NETWORK_ERROR") {
+      if ((err?.status === 0 || err?.code === "NETWORK_ERROR") && ALLOW_DEV_OFFLINE_FALLBACK) {
         notice.value = "Kata sandi berhasil diperbarui. Silakan masuk dengan kata sandi baru.";
         return { ok: true, simulated: true };
       }
@@ -261,7 +254,6 @@ export const useAuthStore = defineStore("auth", () => {
     currentRole,
     authBadgeLabel,
     loginWithEmail,
-    triggerSsoPlaceholder,
     restoreSession,
     logout,
     requestPasswordReset,

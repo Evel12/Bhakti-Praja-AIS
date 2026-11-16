@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useAssessmentStore } from "../../stores/assessmentStore.js";
 import { visibleScore, STUDENT_ID } from "../../domain/assessment.js";
@@ -19,10 +19,14 @@ const at = computed(() =>
   score = computed(() =>
     a.value && at.value ? visibleScore(a.value, at.value) : null,
   );
-onMounted(() => {
-  if (at.value?.id) {
+function refreshReview() {
+  if (at.value?.id && at.value?.backendAttemptId) {
     store.syncAttemptReview(at.value.id).catch(() => {});
   }
+}
+onMounted(refreshReview);
+watch(() => at.value?.backendAttemptId, (bid) => {
+  if (bid) refreshReview();
 });
 </script>
 <template>

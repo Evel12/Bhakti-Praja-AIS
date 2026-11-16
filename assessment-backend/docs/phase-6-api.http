@@ -1,7 +1,7 @@
 # EXAMNIA Phase 6 - assessment backend generation queue and polling.
 # VS Code REST Client variables; copy requests into Postman if preferred.
 # Apply migrations and start the dedicated worker from Backend/:
-# php artisan queue:work quiz-generation --queue=quiz-generation --tries=3 --timeout=75
+# php artisan queue:work quiz-generation --queue=quiz-generation --tries=3 --timeout=135
 # A module row and its PDF must already exist; the demo seeder creates no modules.
 # See phase-6-implementation.md for a manual local fixture and adapter configuration.
 # The Python service is developed separately; its actual contract remains to be confirmed.

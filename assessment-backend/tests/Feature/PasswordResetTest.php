@@ -97,7 +97,7 @@ class PasswordResetTest extends TestCase
         $user->createToken('browser');
         $token = Password::createToken($user);
         DB::listen(function ($query): void {
-            if (str_starts_with($query->sql, 'delete from "personal_access_tokens"')) {
+            if (preg_match('/^delete from ["`]personal_access_tokens["`]/', $query->sql) === 1) {
                 throw new \RuntimeException('Simulated token storage failure');
             }
         });

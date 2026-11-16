@@ -1,6 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { apiClient } from "../services/apiClient.js";
+import { formatQuizGenerationError } from "../utils/quizGenerationErrors.js";
 import { useAssessmentStore } from "./assessmentStore.js";
 
 function hasLiveApiSession() {
@@ -458,7 +459,7 @@ export const useLmsStore = defineStore("lms", () => {
     }
   }
 
-  async function pollQuizGeneration(generationId, { maxAttempts = 20, pollWaitMs = 1500 } = {}) {
+  async function pollQuizGeneration(generationId, { maxAttempts = 65, pollWaitMs = 2000 } = {}) {
     resetError();
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const job = await apiClient.getQuizGeneration(generationId);
@@ -479,7 +480,9 @@ export const useLmsStore = defineStore("lms", () => {
         return job;
       }
       if (job?.status === "failed") {
-        throw new Error(job.error_message || "AI gagal membuat soal dari materi PDF.");
+        const message = formatQuizGenerationError(job);
+        error.value = message;
+        throw new Error(message);
       }
       if (attempt < maxAttempts - 1) {
         await waitMs(pollWaitMs);

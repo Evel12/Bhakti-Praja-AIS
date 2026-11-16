@@ -173,7 +173,7 @@ class PhaseFourGradingTest extends TestCase
         [$attempt, $questions] = $this->startedAttempt(1);
         $failNext = true;
         DB::listen(function ($query) use (&$failNext): void {
-            if ($failNext && str_starts_with($query->sql, 'insert into "attempt_answers"')) {
+            if ($failNext && preg_match('/^insert into ["`]attempt_answers["`]/', $query->sql) === 1) {
                 $failNext = false;
                 throw new \RuntimeException('Simulated answer insertion failure');
             }
@@ -193,7 +193,7 @@ class PhaseFourGradingTest extends TestCase
         $before = $attempt->getRawOriginal();
         $failNext = true;
         DB::listen(function ($query) use (&$failNext): void {
-            if ($failNext && str_starts_with($query->sql, 'update "attempts"')) {
+            if ($failNext && preg_match('/^update ["`]attempts["`]/', $query->sql) === 1) {
                 $failNext = false;
                 throw new \RuntimeException('Simulated attempt update failure');
             }
@@ -212,7 +212,7 @@ class PhaseFourGradingTest extends TestCase
         $before = $attempt->fresh()->getRawOriginal();
         $failNext = true;
         DB::listen(function ($query) use (&$failNext): void {
-            if ($failNext && str_starts_with($query->sql, 'update "attempts"')) {
+            if ($failNext && preg_match('/^update ["`]attempts["`]/', $query->sql) === 1) {
                 $failNext = false;
                 throw new \RuntimeException('Simulated finish storage failure');
             }

@@ -4,6 +4,7 @@ import { repository } from "../repositories/assessmentRepository.js";
 import { validateDatabase } from "../repositories/localAssessmentRepository.js";
 import {
   clone,
+  cloneQuestionForDraft,
   saveAssessment,
   newAssessment,
   newQuestion,
@@ -12,6 +13,7 @@ import {
   startAttempt,
   finishAttempt,
   statusOf,
+  STUDENT_ID,
   uid,
 } from "../domain/assessment.js";
 import {
@@ -19,6 +21,7 @@ import {
   parseLmsClassName,
 } from "../domain/classSync.js";
 import { apiClient } from "../services/apiClient.js";
+import { formatQuizGenerationError } from "../utils/quizGenerationErrors.js";
 import { useUiStore } from "./uiStore.js";
 import { useLmsStore } from "./lmsStore.js";
 
@@ -103,25 +106,53 @@ function mapBackendQuizToFrontend(backendQuiz, classItem, existingAssessment = n
   return base;
 }
 
+function extractGradeItems(res) {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.items)) return res.items;
+  if (Array.isArray(res?.data?.items)) return res.data.items;
+  if (Array.isArray(res?.data)) return res.data;
+  return [];
+}
+
 function mapBackendGradeToAttempt(gradeRecord, assessment, existingAttempt = null, isStudentRole = false) {
+  const attemptId = gradeRecord.id ?? gradeRecord.attempt_id;
+  const submittedAt = gradeRecord.finished_at ?? gradeRecord.submitted_at;
+  const studentName = gradeRecord.student?.name ?? gradeRecord.student_name ?? existingAttempt?.studentName ?? "Siswa";
+  const status =
+    gradeRecord.status === "ongoing" || gradeRecord.status === "in_progress"
+      ? "in_progress"
+      : "submitted";
+  const isGraded =
+    typeof gradeRecord.graded === "boolean"
+      ? gradeRecord.graded
+      : gradeRecord.graded_at != null || gradeRecord.final_grade != null;
+
   const base = existingAttempt ? clone(existingAttempt) : {
-    id: `api-attempt-${gradeRecord.attempt_id}`,
+    id: attemptId != null ? `api-attempt-${attemptId}` : uid(),
     assessmentId: assessment.id,
     answers: {},
     flags: [],
-    startedAt: gradeRecord.submitted_at || new Date().toISOString(),
-    expiresAt: assessment.closeAt || new Date().toISOString(),
+    startedAt: gradeRecord.started_at || submittedAt || new Date().toISOString(),
+    expiresAt: gradeRecord.expires_at || assessment.closeAt || new Date().toISOString(),
   };
-  base.id = existingAttempt?.id || `api-attempt-${gradeRecord.attempt_id}`;
-  base.backendAttemptId = gradeRecord.attempt_id;
+  base.id = existingAttempt?.id || (attemptId != null ? `api-attempt-${attemptId}` : base.id);
+  base.backendAttemptId = attemptId;
   base.assessmentId = assessment.id;
-  base.studentName = gradeRecord.student_name || base.studentName || "Siswa";
-  base.studentId = isStudentRole ? "student-1" : (gradeRecord.student_id || base.studentId || "student-1");
-  base.status = "submitted";
-  base.submittedAt = gradeRecord.submitted_at || base.submittedAt || new Date().toISOString();
-  base.score = gradeRecord.final_grade != null ? Math.round(Number(gradeRecord.final_grade)) : 0;
-  base.graded = gradeRecord.graded_at != null || assessment.type === "Kuis" || gradeRecord.final_grade != null;
-  base.feedback = gradeRecord.teacher_feedback || base.feedback || "";
+  base.className = assessment.className || base.className || "Kelas A";
+  base.studentName = studentName;
+  base.studentId = isStudentRole
+    ? STUDENT_ID
+    : existingAttempt?.studentId ||
+      (gradeRecord.student_id != null ? String(gradeRecord.student_id) : STUDENT_ID);
+  base.status = status;
+  if (status === "submitted") {
+    base.submittedAt = submittedAt || base.submittedAt || new Date().toISOString();
+  } else {
+    base.submittedAt = null;
+  }
+  base.score = gradeRecord.final_grade != null ? Math.round(Number(gradeRecord.final_grade)) : (base.score ?? 0);
+  base.graded = isGraded;
+  base.feedback = gradeRecord.teacher_feedback ?? base.feedback ?? "";
   return base;
 }
 
@@ -200,9 +231,13 @@ export const useAssessmentStore = defineStore("assessment", () => {
           const bankRes = await apiClient.listQuestionBank();
           const bankItems = Array.isArray(bankRes)
             ? bankRes
-            : Array.isArray(bankRes?.data)
-              ? bankRes.data
-              : [];
+            : Array.isArray(bankRes?.items)
+              ? bankRes.items
+              : Array.isArray(bankRes?.data?.items)
+                ? bankRes.data.items
+                : Array.isArray(bankRes?.data)
+                  ? bankRes.data
+                  : [];
           if (bankItems.length) {
             transaction((data) => {
               for (const bq of bankItems) {
@@ -265,18 +300,15 @@ export const useAssessmentStore = defineStore("assessment", () => {
           if (activeRole.value === "teacher" && mappedAssessment?.backendQuizId) {
             try {
               const gradesRes = await apiClient.getQuizGrades(mappedAssessment.backendQuizId);
-              const grades = Array.isArray(gradesRes)
-                ? gradesRes
-                : Array.isArray(gradesRes?.data)
-                  ? gradesRes.data
-                  : [];
+              const grades = extractGradeItems(gradesRes);
               if (grades.length) {
                 transaction((data) => {
                   for (const gr of grades) {
+                    const grId = gr.id ?? gr.attempt_id;
                     const existingAt = data.attempts.find(
                       (at) =>
-                        at.backendAttemptId === gr.attempt_id ||
-                        at.id === `api-attempt-${gr.attempt_id}`,
+                        at.backendAttemptId === grId ||
+                        at.id === `api-attempt-${grId}`,
                     );
                     const mappedAt = mapBackendGradeToAttempt(gr, mappedAssessment, existingAt);
                     const idx = data.attempts.findIndex((at) => at.id === mappedAt.id);
@@ -295,14 +327,11 @@ export const useAssessmentStore = defineStore("assessment", () => {
       if (activeRole.value === "student") {
         try {
           const personalGradesRes = await apiClient.getPersonalGrades();
-          const personalGrades = Array.isArray(personalGradesRes)
-            ? personalGradesRes
-            : Array.isArray(personalGradesRes?.data)
-              ? personalGradesRes.data
-              : [];
+          const personalGrades = extractGradeItems(personalGradesRes);
           if (personalGrades.length) {
             transaction((data) => {
               for (const gr of personalGrades) {
+                const grId = gr.id ?? gr.attempt_id;
                 const targetAssessment = data.assessments.find(
                   (a) =>
                     a.backendQuizId === gr.quiz_id || a.id === `api-quiz-${gr.quiz_id}`,
@@ -310,8 +339,8 @@ export const useAssessmentStore = defineStore("assessment", () => {
                 if (!targetAssessment) continue;
                 const existingAt = data.attempts.find(
                   (at) =>
-                    at.backendAttemptId === gr.attempt_id ||
-                    at.id === `api-attempt-${gr.attempt_id}`,
+                    at.backendAttemptId === grId ||
+                    at.id === `api-attempt-${grId}`,
                 );
                 const mappedAt = mapBackendGradeToAttempt(gr, targetAssessment, existingAt, true);
                 const idx = data.attempts.findIndex((at) => at.id === mappedAt.id);
@@ -334,8 +363,24 @@ export const useAssessmentStore = defineStore("assessment", () => {
     }
   }
 
+  const draftSyncQueue = new Map();
+
   async function syncDraftToBackend(draft) {
     if (!hasLiveBackendToken() || !draft) return null;
+    const key = draft.id || "__default__";
+    const previous = draftSyncQueue.get(key) || Promise.resolve();
+    const run = previous.catch(() => null).then(() => performSyncDraftToBackend(draft));
+    draftSyncQueue.set(key, run);
+    try {
+      return await run;
+    } finally {
+      if (draftSyncQueue.get(key) === run) {
+        draftSyncQueue.delete(key);
+      }
+    }
+  }
+
+  async function performSyncDraftToBackend(draft) {
     try {
       const lmsStore = useLmsStore();
       let availableClasses = lmsStore.classes;
@@ -364,11 +409,13 @@ export const useAssessmentStore = defineStore("assessment", () => {
         results_released: Boolean(draft.released),
       };
 
-      let backendQuizId = draft.backendQuizId;
+      const storedAssessment = db.value.assessments.find((a) => a.id === draft.id);
+      let backendQuizId = draft.backendQuizId || storedAssessment?.backendQuizId || null;
       if (!backendQuizId) {
         const created = await apiClient.createQuiz(quizPayload);
         backendQuizId = created?.id;
         if (backendQuizId) {
+          draft.backendQuizId = backendQuizId;
           transaction((data) => {
             const target = data.assessments.find((a) => a.id === draft.id);
             if (target) {
@@ -378,21 +425,25 @@ export const useAssessmentStore = defineStore("assessment", () => {
           });
         }
       } else {
+        draft.backendQuizId = backendQuizId;
         const { class_id: _unusedClassId, ...updatePayload } = quizPayload;
         await apiClient.updateQuiz(backendQuizId, updatePayload);
       }
 
       if (backendQuizId && Array.isArray(draft.questions)) {
         const labels = ["A", "B", "C", "D"];
+        const storedQuestions = db.value.assessments.find((a) => a.id === draft.id)?.questions || [];
         for (const q of draft.questions) {
           if (!q.text?.trim()) continue;
+          const storedQ = storedQuestions.find((item) => item.id === q.id);
+          const backendQId = q.backendQuestionId || storedQ?.backendQuestionId || null;
           const options = labels.map((label, idx) => ({
             option_label: label,
             option_text: q.options?.[idx]?.trim() || `Opsi ${label}`,
             is_correct: Number(q.correct) === idx,
           }));
           try {
-            if (!q.backendQuestionId) {
+            if (!backendQId) {
               const createdQ = await apiClient.createQuestion(backendQuizId, {
                 question_text: q.text.trim(),
                 points: Number(q.points) || 10,
@@ -402,8 +453,16 @@ export const useAssessmentStore = defineStore("assessment", () => {
               });
               if (createdQ?.id) {
                 q.backendQuestionId = createdQ.id;
+                transaction((data) => {
+                  const target = data.assessments.find((a) => a.id === draft.id);
+                  const targetQ = target?.questions?.find((item) => item.id === q.id);
+                  if (targetQ) {
+                    targetQ.backendQuestionId = createdQ.id;
+                  }
+                });
               }
             } else {
+              q.backendQuestionId = backendQId;
               const updateQPayload = {
                 question_text: q.text.trim(),
                 reviewed: Boolean(q.reviewed),
@@ -414,12 +473,12 @@ export const useAssessmentStore = defineStore("assessment", () => {
               if (q.explanation?.trim()) {
                 updateQPayload.explanation = q.explanation.trim();
               }
+              await apiClient.replaceOptions(backendQuizId, backendQId, options);
               await apiClient.updateQuestion(
                 backendQuizId,
-                q.backendQuestionId,
+                backendQId,
                 updateQPayload,
               );
-              await apiClient.replaceOptions(backendQuizId, q.backendQuestionId, options);
             }
           } catch {
             // Keep local question intact if backend validation skips
@@ -504,7 +563,7 @@ export const useAssessmentStore = defineStore("assessment", () => {
           draft?.title?.trim() || "",
         );
         if (genJob?.id) {
-          for (let attempt = 0; attempt < 15; attempt += 1) {
+          for (let attempt = 0; attempt < 65; attempt += 1) {
             const statusRes = await apiClient.getQuizGeneration(genJob.id);
             if (statusRes?.status === "completed" && statusRes?.quiz_id) {
               const generatedQuiz = await apiClient.getQuiz(statusRes.quiz_id);
@@ -527,12 +586,15 @@ export const useAssessmentStore = defineStore("assessment", () => {
               return [];
             }
             if (statusRes?.status === "failed") {
-              throw new Error(
-                statusRes.error_message || "AI gagal membuat soal dari materi PDF.",
-              );
+              throw new Error(formatQuizGenerationError(statusRes));
             }
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            if (attempt < 64) {
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
           }
+          throw new Error(
+            "Proses generate AI memakan waktu lebih lama dari batas tunggu. Cek kembali daftar kuis beberapa saat lagi.",
+          );
         }
       }
     }
@@ -578,7 +640,7 @@ export const useAssessmentStore = defineStore("assessment", () => {
       if (question) {
         a.title = "Assessment baru — " + question.topic;
         a.course = question.topic;
-        a.questions = [{ ...clone(question), id: crypto.randomUUID() }];
+        a.questions = [cloneQuestionForDraft(question)];
       }
       saveAssessment(data, a);
       return a.id;
@@ -841,32 +903,56 @@ export const useAssessmentStore = defineStore("assessment", () => {
         const targetAt = data.attempts.find((x) => x.id === attemptId);
         const targetA = data.assessments.find((x) => x.id === at.assessmentId);
         if (!targetAt || !targetA) return;
-        if (review.final_grade != null) {
-          targetAt.score = Math.round(Number(review.final_grade));
+        const attemptData = review.attempt ?? review;
+        const quizData = review.quiz ?? review;
+        if (attemptData.final_grade != null) {
+          targetAt.score = Math.round(Number(attemptData.final_grade));
+          targetAt.graded = true;
         }
-        if (review.teacher_feedback != null) {
-          targetAt.feedback = review.teacher_feedback;
+        if (typeof attemptData.graded === "boolean") {
+          targetAt.graded = attemptData.graded;
         }
-        if (typeof review.results_released === "boolean") {
-          targetA.released = review.results_released;
+        if (attemptData.teacher_feedback != null) {
+          targetAt.feedback = attemptData.teacher_feedback;
         }
-        if (review.release_mode) {
-          targetA.releaseMode = review.release_mode === "manual" ? "manual" : "immediate";
+        if (typeof quizData.results_released === "boolean") {
+          targetA.released = quizData.results_released;
+        }
+        if (quizData.release_mode) {
+          targetA.releaseMode = quizData.release_mode === "manual" ? "manual" : "immediate";
+        }
+        if (review.results_visible === true && targetA.releaseMode === "manual") {
+          targetA.released = true;
         }
         if (Array.isArray(review.questions) && review.questions.length) {
           for (const rq of review.questions) {
-            const fq = targetA.questions.find(
-              (q) => q.backendQuestionId === rq.question_id,
+            const backendQId = rq.id ?? rq.question_id;
+            let fq = targetA.questions.find(
+              (q) => q.backendQuestionId === backendQId,
             );
-            if (!fq) continue;
+            if (!fq) {
+              fq = mapBackendQuestion(rq, targetA.course);
+              targetA.questions.push(fq);
+            }
             if (rq.explanation != null) fq.explanation = rq.explanation;
             if (rq.points != null) fq.points = Number(rq.points);
             if (Array.isArray(rq.options) && rq.options.length === 4) {
               const sorted = [...rq.options].sort((a, b) =>
                 String(a.option_label).localeCompare(String(b.option_label)),
               );
+              fq.options = sorted.map((o) => o.option_text || "");
+              fq.backendOptionIds = sorted.map((o) => o.id);
               const correctIdx = sorted.findIndex((o) => o.is_correct === true);
               if (correctIdx >= 0) fq.correct = correctIdx;
+              if (rq.answer?.chosen_option_id != null) {
+                const chosenIdx = sorted.findIndex(
+                  (o) => o.id === rq.answer.chosen_option_id,
+                );
+                if (chosenIdx >= 0) {
+                  targetAt.answers = targetAt.answers || {};
+                  targetAt.answers[fq.id] = chosenIdx;
+                }
+              }
             }
           }
         }

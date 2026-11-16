@@ -19,10 +19,10 @@ export class ApiError extends Error {
 }
 
 export function getApiBaseUrl() {
-  const configured = typeof import.meta !== 'undefined' && import.meta.env
-    ? import.meta.env.VITE_API_BASE_URL
-    : ''
-  return (configured || 'http://127.0.0.1:8000/api').replace(/\/+$/, '')
+  const env = typeof import.meta !== 'undefined' ? import.meta.env : undefined
+  const configured = env ? env.VITE_API_BASE_URL : ''
+  const defaultBase = env?.PROD ? '/api' : 'http://127.0.0.1:8000/api'
+  return (configured || defaultBase).replace(/\/+$/, '')
 }
 
 export function getStoredToken() {

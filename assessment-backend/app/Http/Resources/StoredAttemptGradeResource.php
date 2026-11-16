@@ -11,9 +11,12 @@ class StoredAttemptGradeResource extends JsonResource
     public function toArray(Request $request): array
     {
         $finished = $this->status === AttemptStatus::Finished;
+        $resultsVisible = ! $this->relationLoaded('quiz')
+            || $this->quiz === null
+            || $this->quiz->resultsVisibleFor($request->user());
 
         // A report reads persisted results, including legitimate zero or missing grades.
-        // It never replays scoring or serializes loaded answers/option keys.
+        // Pre-release manual quizzes hide numeric grades from student serializers until released.
         return [
             'id' => $this->id,
             'quiz_id' => $this->quiz_id,
@@ -24,11 +27,11 @@ class StoredAttemptGradeResource extends JsonResource
             'started_at' => $this->started_at->toIso8601String(),
             'finished_at' => $this->finished_at?->toIso8601String(),
             'expires_at' => $this->expires_at?->toIso8601String(),
-            'teacher_feedback' => $this->teacher_feedback,
+            'teacher_feedback' => $resultsVisible ? $this->teacher_feedback : null,
             'graded_at' => $this->graded_at?->toIso8601String(),
-            'score' => $this->score,
-            'final_grade' => $finished ? $this->final_grade : null,
-            'graded' => $finished && $this->final_grade !== null,
+            'score' => $resultsVisible ? $this->score : null,
+            'final_grade' => ($finished && $resultsVisible) ? $this->final_grade : null,
+            'graded' => $finished && $resultsVisible && $this->final_grade !== null,
             'streak_max' => $this->streak_max,
             'multiplier_max' => $this->multiplier_max,
             'progress_percentage' => $this->progress_percentage,

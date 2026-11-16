@@ -175,7 +175,7 @@ class QuizGenerationService
         $queue = config('queue.connections.quiz-generation', []);
         if (($queue['driver'] ?? null) !== 'database' || ($queue['connection'] ?? null) !== null
             || ($queue['after_commit'] ?? null) !== false || ($queue['table'] ?? null) !== 'jobs'
-            || ($queue['retry_after'] ?? 0) <= 75) {
+            || ($queue['retry_after'] ?? 0) <= 135) {
             throw new ServiceUnavailableHttpException;
         }
     }

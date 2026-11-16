@@ -6,7 +6,7 @@ import { useAuthStore } from "../../stores/authStore.js";
 const authStore = useAuthStore();
 
 const step = ref("request");
-const email = ref(authStore.user?.email || "teacher@example.test");
+const email = ref(authStore.user?.email || "");
 const resetToken = ref("");
 const password = ref("");
 const passwordConfirmation = ref("");

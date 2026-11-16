@@ -7,9 +7,8 @@ import { useAuthStore } from "../../stores/authStore.js";
 const router = useRouter();
 const authStore = useAuthStore();
 
-const email = ref(authStore.user?.email || "teacher@example.test");
-const password = ref("DemoPassword123!");
-const emailInput = ref(null);
+const email = ref("");
+const password = ref("");
 
 function navigateAfterAuth(userRole) {
   if (userRole === "student") {
@@ -26,23 +25,6 @@ async function handleEmailSubmit() {
   });
   if (result.ok) {
     navigateAfterAuth(result.user?.role || authStore.currentRole);
-  }
-}
-
-function handleSsoClick() {
-  authStore.triggerSsoPlaceholder();
-  emailInput.value?.focus();
-}
-
-function fillDemoEmail(role) {
-  authStore.error = "";
-  authStore.notice = "";
-  if (role === "student") {
-    email.value = "student1@example.test";
-    password.value = "DemoPassword123!";
-  } else {
-    email.value = "teacher@example.test";
-    password.value = "DemoPassword123!";
   }
 }
 </script>
@@ -65,32 +47,16 @@ function fillDemoEmail(role) {
         {{ authStore.notice }}
       </div>
 
-      <!-- Tombol SSO (Tulisan "SSO" saja sesuai spesifikasi Opsi A) -->
-      <button
-        type="button"
-        class="auth-sso-btn"
-        :disabled="authStore.loading"
-        @click="handleSsoClick"
-      >
-        SSO
-      </button>
-
-      <div class="auth-divider">
-        <span>atau masuk dengan email</span>
-      </div>
-
-      <!-- Form Login Email -->
       <form class="auth-email-form" @submit.prevent="handleEmailSubmit">
         <div class="auth-field">
           <label for="login-email" class="auth-field-label">Email</label>
           <input
             id="login-email"
-            ref="emailInput"
             v-model="email"
             class="input auth-input"
             type="email"
             autocomplete="email"
-            placeholder="teacher@example.test"
+            placeholder="Masukkan email"
             required
           />
         </div>
@@ -118,29 +84,9 @@ function fillDemoEmail(role) {
           class="btn primary auth-submit-btn"
           :disabled="authStore.loading"
         >
-          {{ authStore.loading ? "Memproses..." : "Masuk dengan Email" }}
+          {{ authStore.loading ? "Memproses..." : "Masuk" }}
         </button>
       </form>
-
-      <div class="auth-quick-demo">
-        <span class="auth-quick-label">Akun Demo Email (`DemoPassword123!`):</span>
-        <div class="auth-quick-pills">
-          <button
-            type="button"
-            class="auth-quick-pill"
-            @click="fillDemoEmail('teacher')"
-          >
-            Pengajar (teacher@example.test)
-          </button>
-          <button
-            type="button"
-            class="auth-quick-pill"
-            @click="fillDemoEmail('student')"
-          >
-            Peserta (student1@example.test)
-          </button>
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -176,13 +122,6 @@ function fillDemoEmail(role) {
   font-size: clamp(1.3rem, 1.1rem + 1vw, 1.5rem);
 }
 
-.auth-form-header p {
-  margin: 0;
-  font-family: var(--font-content);
-  font-size: 0.875rem;
-  color: var(--muted);
-}
-
 .auth-alert {
   padding: 0.75rem 0.95rem;
   border-radius: 10px;
@@ -201,45 +140,6 @@ function fillDemoEmail(role) {
   background: #e6f4ec;
   color: #1f6b4f;
   border: 1px solid #a6d9be;
-}
-
-.auth-sso-btn {
-  width: 100%;
-  min-height: 48px;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #1b365d;
-  background: #1b365d;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.875rem;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.auth-sso-btn:hover {
-  background: #132847;
-}
-
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.auth-divider::before,
-.auth-divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #dce2d5;
 }
 
 .auth-email-form {
@@ -290,46 +190,5 @@ function fillDemoEmail(role) {
   min-height: 48px;
   justify-content: center;
   font-size: 0.875rem;
-}
-
-.auth-quick-demo {
-  padding-top: 0.85rem;
-  border-top: 1px dashed #dce2d5;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.auth-quick-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-}
-
-.auth-quick-pills {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-}
-
-.auth-quick-pill {
-  min-height: 44px;
-  border: 1px solid #dce2d5;
-  background: #f1f2eb;
-  color: var(--ink);
-  padding: 0.5rem 0.85rem;
-  border-radius: 12px;
-  font-family: var(--font-content);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-.auth-quick-pill:hover {
-  border-color: #1f6b4f;
-  color: #1f6b4f;
-  background: #e6f4ec;
 }
 </style>

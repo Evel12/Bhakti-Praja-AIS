@@ -14,6 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->isProduction()) {
+            throw new \RuntimeException('DemoAssessmentSeeder cannot run in production. Run ProductionAdminSeeder instead.');
+        }
+
         $this->call(DemoAssessmentSeeder::class);
     }
 }

@@ -64,6 +64,8 @@ describe("Approach C: real AI PDF generation & review sync in Assessment Builder
     const updateQ = vi.spyOn(apiClient, "updateQuestion").mockResolvedValue({});
     const replaceOpts = vi.spyOn(apiClient, "replaceOptions").mockResolvedValue([]);
     vi.spyOn(apiClient, "updateQuiz").mockResolvedValue({});
+    vi.spyOn(apiClient, "listQuestionBank").mockResolvedValue([]);
+    vi.spyOn(apiClient, "getQuizGrades").mockResolvedValue([]);
 
     const store = useAssessmentStore();
     store.setRole("teacher");
@@ -182,5 +184,39 @@ describe("Approach C: real AI PDF generation & review sync in Assessment Builder
     const reviewCheckbox = wrapper.get('input[type="checkbox"]');
     expect(reviewCheckbox.element.checked).toBe(false);
     wrapper.unmount();
+  });
+
+  it("maps backend error_code into clear Indonesian message when AI service fails", async () => {
+    setStoredToken("live-teacher-token");
+    setStoredSession({
+      user: { id: 10, name: "Guru Biologi", email: "guru@test.id", role: "teacher" },
+      apiConnected: true,
+    });
+
+    const assessmentStore = useAssessmentStore();
+    const lmsStore = useLmsStore();
+    lmsStore.classes = [{ id: 7, name: "Biologi X · Kelas A", class_code: "BIO10" }];
+
+    vi.spyOn(apiClient, "requestQuizGeneration").mockResolvedValue({
+      id: 401,
+      status: "queued",
+    });
+    vi.spyOn(apiClient, "getQuizGeneration").mockResolvedValue({
+      id: 401,
+      status: "failed",
+      error_code: "ai_unavailable",
+    });
+
+    await expect(
+      assessmentStore.generateQuestionsFromPdf(
+        { course: "Biologi X", className: "Kelas A", title: "Kuis Uji" },
+        null,
+        { moduleId: 33, count: 5 },
+      ),
+    ).rejects.toThrow("Layanan AI (Ollama) sedang sibuk atau belum aktif.");
+
+    await expect(lmsStore.pollQuizGeneration(401, { maxAttempts: 1, pollWaitMs: 0 })).rejects.toThrow(
+      "Layanan AI (Ollama) sedang sibuk atau belum aktif.",
+    );
   });
 });

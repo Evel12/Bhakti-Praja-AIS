@@ -73,13 +73,20 @@ export function saveAssessment(db, a) {
   else db.assessments[index] = next;
   return next;
 }
+export function cloneQuestionForDraft(question) {
+  const copy = { ...clone(question), id: uid() };
+  delete copy.backendQuestionId;
+  delete copy.backendOptionIds;
+  return copy;
+}
 export function duplicateAssessment(a) {
   const next = clone(a);
+  delete next.backendQuizId;
   next.id = uid();
   next.title = `${a.title} (salinan)`;
   next.state = "draft";
   next.released = false;
-  next.questions = next.questions.map((q) => ({ ...q, id: uid() }));
+  next.questions = next.questions.map(cloneQuestionForDraft);
   next.createdAt = next.updatedAt = new Date().toISOString();
   return next;
 }

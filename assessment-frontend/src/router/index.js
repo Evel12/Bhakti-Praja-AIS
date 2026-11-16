@@ -42,10 +42,14 @@ const router = createRouter({
       component: () => import("../views/auth/ResetPasswordView.vue"),
       meta: { auth: true },
     },
-    {
-      path: "/motion-lab",
-      component: () => import("../views/MotionLabView.vue"),
-    },
+    ...(import.meta.env.DEV
+      ? [
+          {
+            path: "/motion-lab",
+            component: () => import("../views/MotionLabView.vue"),
+          },
+        ]
+      : []),
     ...routes,
     { path: "/:pathMatch(.*)*", redirect: "/login" },
   ],
@@ -56,7 +60,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  if (to.meta.auth || to.path === "/motion-lab") {
+  if (to.meta.auth || (import.meta.env.DEV && to.path === "/motion-lab")) {
     return true;
   }
 

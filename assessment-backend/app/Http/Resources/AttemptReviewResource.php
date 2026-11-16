@@ -15,9 +15,7 @@ class AttemptReviewResource extends JsonResource
         // Check completion and ownership before constructing any answer-key fields.
         Gate::forUser($user)->authorize('review', $this->resource);
         $answers = $this->answers->keyBy('question_id');
-        $resultsVisible = $user->role->value === 'teacher'
-            || ($this->quiz->release_mode ?? 'immediate') === 'immediate'
-            || (bool) ($this->quiz->results_released ?? false);
+        $resultsVisible = $this->quiz->resultsVisibleFor($user);
 
         return [
             'attempt' => new StoredAttemptGradeResource($this->resource),

@@ -87,7 +87,7 @@ class DemoSeederTest extends TestCase
     public function test_question_storage_failure_leaves_no_partial_seed(): void
     {
         DB::listen(function ($query): void {
-            if (str_starts_with($query->sql, 'insert into "questions"')) {
+            if (preg_match('/^insert into ["`]questions["`]/', $query->sql) === 1) {
                 throw new \RuntimeException('Simulated question storage failure');
             }
         });

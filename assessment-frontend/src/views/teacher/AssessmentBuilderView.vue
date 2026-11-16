@@ -14,6 +14,7 @@ import { apiClient } from "../../services/apiClient.js";
 import { findMatchingLmsClass } from "../../domain/classSync.js";
 import {
   clone,
+  cloneQuestionForDraft,
   newQuestion,
   uid,
 } from "../../domain/assessment.js";
@@ -213,10 +214,7 @@ async function generateAiQuestions() {
 function addBank() {
   const qs = store.db.bank
     .filter((q) => selected.value.includes(q.id))
-    .map((q) => ({
-      ...clone(q),
-      id: uid(),
-    }));
+    .map(cloneQuestionForDraft);
   if (!qs.length) {
     ui.toast("Pilih minimal satu soal.", true);
     return;

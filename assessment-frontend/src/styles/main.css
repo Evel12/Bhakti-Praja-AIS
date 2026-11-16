@@ -615,12 +615,17 @@ dialog::backdrop {
     white-space: nowrap;
   }
   .sidebar .sidebar-bottom {
-    padding: 13px 0 0;
+    padding: 14px 0 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .sidebar .profile {
+    margin-top: 0;
     min-block-size: 38px;
     justify-content: flex-start;
-    padding-inline: 7px;
+    padding: 2px 7px;
     gap: 0;
   }
   .sidebar .profile-copy {
@@ -636,6 +641,7 @@ dialog::backdrop {
     white-space: nowrap;
   }
   .sidebar .sidebar-logout-btn {
+    margin-top: 0;
     justify-content: flex-start;
     padding-inline: 15px;
     gap: 0;
@@ -693,6 +699,45 @@ dialog::backdrop {
   }
   .sidebar.is-closing {
     pointer-events: none;
+  }
+  .sidebar .sidebar-bottom {
+    margin-top: auto;
+    flex-shrink: 0;
+    padding: 16px 0 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sidebar .sidebar-bottom .nav-label {
+    margin-bottom: 0;
+  }
+  .sidebar .profile {
+    margin-top: 0;
+    min-width: 0;
+    padding: 4px 7px;
+    gap: 10px;
+  }
+  .sidebar .profile-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .sidebar .profile-copy strong,
+  .sidebar .profile-copy p {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sidebar .sidebar-help-btn,
+  .sidebar .sidebar-logout-btn {
+    margin-top: 0;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 15px;
+    gap: 10px;
+    min-height: 44px;
   }
   .drawer-overlay.is-closing {
     pointer-events: none;
@@ -931,10 +976,6 @@ dialog::backdrop {
   }
   .topbar-help-btn {
     display: none;
-  }
-  .sidebar-help-btn {
-    width: 100%;
-    justify-content: flex-start;
   }
   .exam-shell .content {
     padding-bottom: calc(28px + var(--safe-bottom));

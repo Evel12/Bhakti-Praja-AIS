@@ -16,7 +16,7 @@ class GenerateQuiz implements ShouldQueue
 
     public int $tries = 3;
 
-    public int $timeout = 75;
+    public int $timeout = 135;
 
     public bool $failOnTimeout = true;
 

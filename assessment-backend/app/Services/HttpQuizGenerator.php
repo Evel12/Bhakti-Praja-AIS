@@ -94,7 +94,7 @@ class HttpQuizGenerator implements QuizGenerator
             || ! is_string($endpoint) || ! str_starts_with($endpoint, '/') || str_starts_with($endpoint, '//')
             || preg_match('/[\x00-\x20\\\\?#]/', $endpoint)
             || ! is_string($key) || trim($key) === '' || preg_match('/[\r\n]/', $key)
-            || ! is_int($timeout) || $timeout < 1 || $timeout > 60
+            || ! is_int($timeout) || $timeout < 1 || $timeout > 120
             || ! is_int($connectTimeout) || $connectTimeout < 1 || $connectTimeout > $timeout) {
             throw new QuizGenerationException('configuration_error');
         }

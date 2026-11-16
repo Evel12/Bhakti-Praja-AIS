@@ -37,7 +37,7 @@ return [
             'connection' => null,
             'table' => 'jobs',
             'queue' => 'quiz-generation',
-            'retry_after' => 120,
+            'retry_after' => 180,
             'after_commit' => false,
         ],
 

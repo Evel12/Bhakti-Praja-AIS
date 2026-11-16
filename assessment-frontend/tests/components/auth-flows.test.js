@@ -41,10 +41,9 @@ async function mountAuthRouter(initialPath = "/login") {
   return router;
 }
 
-describe("Opsi A Unified Login Card & Email Authentication", () => {
-  it("renders Opsi A Unified Card with a button labeled 'SSO' that prompts Email login", async () => {
+describe("Login Card & Email Authentication", () => {
+  it("renders clean email login card without SSO button or demo account pills", async () => {
     const router = await mountAuthRouter("/login");
-    const authStore = useAuthStore();
 
     expect(wrapper.find(".auth-unified-card").exists()).toBe(true);
     expect(wrapper.get(".brand-name").text()).toBe("SMK Bhakti Praja Batang");
@@ -54,13 +53,11 @@ describe("Opsi A Unified Login Card & Email Authentication", () => {
     expect(wrapper.get("#login-heading").text()).toBe(
       "Masuk ke SMK Bhakti Praja Batang",
     );
-    const ssoBtn = wrapper.get(".auth-sso-btn");
-    expect(ssoBtn.text()).toBe("SSO");
-
-    await ssoBtn.trigger("click");
-    await flushPromises();
-
-    expect(authStore.notice).toContain("Email");
+    expect(wrapper.find(".auth-sso-btn").exists()).toBe(false);
+    expect(wrapper.find(".auth-quick-demo").exists()).toBe(false);
+    expect(wrapper.findAll(".auth-quick-pill")).toHaveLength(0);
+    expect(wrapper.get("#login-email").element.value).toBe("");
+    expect(wrapper.get("#login-password").element.value).toBe("");
     expect(router.currentRoute.value.path).toBe("/login");
   });
 
@@ -89,6 +86,8 @@ describe("Opsi A Unified Login Card & Email Authentication", () => {
     const router = await mountAuthRouter("/login");
     const authStore = useAuthStore();
 
+    await wrapper.get("#login-email").setValue("teacher@example.test");
+    await wrapper.get("#login-password").setValue("DemoPassword123!");
     await wrapper.get("form.auth-email-form").trigger("submit");
     await flushPromises();
 
@@ -105,15 +104,16 @@ describe("Opsi A Unified Login Card & Email Authentication", () => {
     const router = await mountAuthRouter("/login");
     const authStore = useAuthStore();
 
-    await wrapper.get('input[type="password"]').setValue("WrongPassword");
+    await wrapper.get("#login-email").setValue("teacher@example.test");
+    await wrapper.get("#login-password").setValue("WrongPassword");
     await wrapper.get("form.auth-email-form").trigger("submit");
     await flushPromises();
 
     expect(authStore.error).toContain("tidak sesuai");
     expect(router.currentRoute.value.path).toBe("/login");
 
-    const studentPill = wrapper.findAll(".auth-quick-pill")[1];
-    await studentPill.trigger("click");
+    await wrapper.get("#login-email").setValue("student1@example.test");
+    await wrapper.get("#login-password").setValue("DemoPassword123!");
     await wrapper.get("form.auth-email-form").trigger("submit");
     await flushPromises();
 

@@ -284,9 +284,13 @@ async function handleGenerateQuizAi() {
     );
     notifySuccess("Memproses draf kuis AI Bahasa Indonesia...");
     if (job?.id) {
-      await lms.pollQuizGeneration(job.id, { maxAttempts: 12, pollWaitMs: 1200 });
-      notifySuccess("Draf kuis AI selesai. Lanjutkan review & publish di halaman Assessment.");
-      activeTab.value = "quizzes";
+      const finalJob = await lms.pollQuizGeneration(job.id, { maxAttempts: 65, pollWaitMs: 2000 });
+      if (finalJob?.status === "completed") {
+        notifySuccess("Draf kuis AI selesai. Lanjutkan review & publish di halaman Assessment.");
+        activeTab.value = "quizzes";
+      } else {
+        notifyError("Proses generate AI masih berjalan di latar belakang. Muat ulang tab Kuis beberapa saat lagi.");
+      }
     }
   } catch (err) {
     notifyError(lms.error || err.message || "Gagal generate soal AI.");
@@ -494,9 +498,6 @@ async function handleDeleteAnnouncement(item) {
         <div class="panel-header">
           <div>
             <h2>Kuis Kelas & Generate AI dari PDF</h2>
-            <p class="section-caption">
-              Buat draf soal AI 4 opsi Bahasa Indonesia dari materi PDF kelas, lalu review & publish melalui halaman Assessment
-            </p>
           </div>
           <RouterLink to="/assessments/all" class="btn soft small">
             Buka Halaman Assessment

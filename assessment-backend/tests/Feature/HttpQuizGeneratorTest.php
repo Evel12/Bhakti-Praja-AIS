@@ -128,7 +128,7 @@ class HttpQuizGeneratorTest extends TestCase
             'endpoint cannot change host' => ['endpoint', '//another.example.test/upload'],
             'endpoint must be a path' => ['endpoint', 'https://another.example.test/upload'],
             'timeout disabled' => ['timeout', 0],
-            'HTTP timeout exceeds worker budget' => ['timeout', 76],
+            'HTTP timeout exceeds worker budget' => ['timeout', 121],
             'connection timeout disabled' => ['connect_timeout', 0],
             'connection timeout exceeds total' => ['connect_timeout', 61],
         ];
