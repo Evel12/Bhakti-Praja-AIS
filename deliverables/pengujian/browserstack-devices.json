@@ -1,0 +1,438 @@
+{
+  "build": "LMS device matrix 2026-11-15T05:44:41.870Z",
+  "scope": "Read-only LMS compatibility; no AI inference, attendance or assessment tests",
+  "results": [
+    {
+      "name": "Laptop screen / Windows 10 Chrome",
+      "requested": {
+        "name": "Laptop screen / Windows 10 Chrome",
+        "os": "Windows",
+        "os_version": "10",
+        "browser": "chrome",
+        "browser_version": "latest",
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        }
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:34:15.387Z",
+      "browser_version": "157.0.8103.39",
+      "session_id": "8c65f179a7f131fea66ba3cac49c3630542268d4",
+      "dashboard_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/8c65f179a7f131fea66ba3cac49c3630542268d4",
+      "login_to_lms_ms": 13073,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 4,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-1.png",
+      "finished_at": "2026-11-15T05:34:42.550Z",
+      "build": "LMS device matrix 2026-11-15T05:34:04.769Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:57.0990420Z",
+      "provider_platform": {
+        "os": "Windows",
+        "os_version": "10",
+        "device": null,
+        "browser": "chrome",
+        "browser_version": "157.0"
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "PC screen / Windows 11 Edge",
+      "requested": {
+        "name": "PC screen / Windows 11 Edge",
+        "os": "Windows",
+        "os_version": "11",
+        "browser": "edge",
+        "browser_version": "latest",
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:34:42.551Z",
+      "browser_version": "157.0.4341.42",
+      "session_id": "71a6d20d6e5f23bca8d92d7311ca98f2c221f44b",
+      "dashboard_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/71a6d20d6e5f23bca8d92d7311ca98f2c221f44b",
+      "login_to_lms_ms": 7761,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 4,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-2.png",
+      "finished_at": "2026-11-15T05:35:04.952Z",
+      "build": "LMS device matrix 2026-11-15T05:34:04.769Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:57.4533124Z",
+      "provider_platform": {
+        "os": "Windows",
+        "os_version": "11",
+        "device": null,
+        "browser": "edge",
+        "browser_version": "157.0"
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Laptop screen / Windows 11 Firefox",
+      "requested": {
+        "name": "Laptop screen / Windows 11 Firefox",
+        "os": "Windows",
+        "os_version": "11",
+        "browser": "playwright-firefox",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:35:04.953Z",
+      "browser_version": "157.0",
+      "session_id": "7f929802206b4881ed9263f0f344dc51d3efc89d",
+      "dashboard_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/7f929802206b4881ed9263f0f344dc51d3efc89d",
+      "login_to_lms_ms": 11529,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:157.0) Gecko/20100101 Firefox/157.0",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 4,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-3.png",
+      "finished_at": "2026-11-15T05:35:33.111Z",
+      "build": "LMS device matrix 2026-11-15T05:34:04.769Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:57.7563294Z",
+      "provider_platform": {
+        "os": "Windows",
+        "os_version": "11",
+        "device": null,
+        "browser": "playwright-firefox",
+        "browser_version": "157.0"
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Laptop screen / macOS Sequoia WebKit",
+      "requested": {
+        "name": "Laptop screen / macOS Sequoia WebKit",
+        "os": "osx",
+        "os_version": "Sequoia",
+        "browser": "playwright-webkit",
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:35:33.111Z",
+      "browser_version": "27.2",
+      "session_id": "b25ad074d03b598a0b1d00c99fc03fe182389080",
+      "dashboard_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/b25ad074d03b598a0b1d00c99fc03fe182389080",
+      "login_to_lms_ms": 6362,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15",
+        "platform": "MacIntel",
+        "hardwareConcurrencyReported": 8,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-4.png",
+      "finished_at": "2026-11-15T05:35:50.567Z",
+      "build": "LMS device matrix 2026-11-15T05:34:04.769Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:58.0610881Z",
+      "provider_platform": {
+        "os": "OS X",
+        "os_version": "Sequoia",
+        "device": null,
+        "browser": "playwright-webkit",
+        "browser_version": "27.2"
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Phone / Galaxy S22 Android 12",
+      "requested": {
+        "name": "Phone / Galaxy S22 Android 12",
+        "kind": "android",
+        "browser": "chrome",
+        "deviceName": "Samsung Galaxy S22",
+        "osVersion": "12.0",
+        "realMobile": "true"
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "Small-screen navigation drawer",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:37:08.813Z",
+      "session_id": "96d106df556fbd3147b0fd6006d043366c7493f6",
+      "dashboard_url": "https://automate.browserstack.com/builds/2fb09f5aeadc5f545eae226af4cb9dee23899674/sessions/96d106df556fbd3147b0fd6006d043366c7493f6",
+      "login_to_lms_ms": 8587,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36",
+        "platform": "Linux armv81",
+        "hardwareConcurrencyReported": 8,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 360,
+          "height": 649
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-5.png",
+      "finished_at": "2026-11-15T05:37:36.107Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:58.3590974Z",
+      "provider_platform": {
+        "os": "android",
+        "os_version": "12.0",
+        "device": "Samsung Galaxy S22",
+        "browser": "chrome_android",
+        "browser_version": null
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Phone / Pixel 7 Android 13",
+      "build": "LMS device matrix 2026-11-15T05:40:04.772Z",
+      "requested": {
+        "name": "Phone / Pixel 7 Android 13",
+        "kind": "android",
+        "browser": "chrome",
+        "deviceName": "Google Pixel 7",
+        "osVersion": "13.0",
+        "realMobile": "true"
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "Small-screen navigation drawer",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:40:14.110Z",
+      "session_id": "c1266f481ced846a6f338abd46d1baa9e385877c",
+      "dashboard_url": "https://automate.browserstack.com/builds/e5865a39e7ebb9cf2b6fb6753b83f6d6831a696f/sessions/c1266f481ced846a6f338abd46d1baa9e385877c",
+      "login_to_lms_ms": 9375,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36",
+        "platform": "Linux armv81",
+        "hardwareConcurrencyReported": 8,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 411,
+          "height": 789
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-6.png",
+      "finished_at": "2026-11-15T05:40:41.367Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:58.6683783Z",
+      "provider_platform": {
+        "os": "android",
+        "os_version": "13.0",
+        "device": "Google Pixel 7",
+        "browser": "chrome_android",
+        "browser_version": null
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Tablet / Galaxy Tab S9 Android 13",
+      "build": "LMS device matrix 2026-11-15T05:40:53.506Z",
+      "requested": {
+        "name": "Tablet / Galaxy Tab S9 Android 13",
+        "kind": "android",
+        "browser": "chrome",
+        "deviceName": "Samsung Galaxy Tab S9",
+        "osVersion": "13.0",
+        "realMobile": "true"
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "Small-screen navigation drawer",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "started_at": "2026-11-15T05:41:02.898Z",
+      "session_id": "1a5521a0f26d11df566d64b97494c1ff6d6919ef",
+      "dashboard_url": "https://automate.browserstack.com/builds/e3236e435839ce6d14476144db6ab40d3dc0d505/sessions/1a5521a0f26d11df566d64b97494c1ff6d6919ef",
+      "login_to_lms_ms": 8497,
+      "client": {
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+        "platform": "Linux armv81",
+        "hardwareConcurrencyReported": 8,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 753,
+          "height": 1036
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-7.png",
+      "finished_at": "2026-11-15T05:41:26.396Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:58.9735963Z",
+      "provider_platform": {
+        "os": "android",
+        "os_version": "13.0",
+        "device": "Samsung Galaxy Tab S9",
+        "browser": "chrome_android",
+        "browser_version": null
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Phone / iPhone 15 iOS 17",
+      "build": "LMS device matrix 2026-11-15T05:44:41.870Z",
+      "requested": {
+        "name": "Phone / iPhone 15 iOS 17",
+        "kind": "ios",
+        "browser": "safari",
+        "deviceName": "iPhone 15",
+        "osVersion": "17",
+        "realMobile": "true"
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No horizontal page overflow"
+      ],
+      "started_at": "2026-11-15T05:44:51.174Z",
+      "session_id": "fff08b603db7a938014660c9ee7fe72073c1d194",
+      "transport": "W3C WebDriver / real iOS Safari",
+      "dashboard_url": "https://automate.browserstack.com/dashboard/v2/sessions/fff08b603db7a938014660c9ee7fe72073c1d194",
+      "login_to_lms_ms": 9710,
+      "client": {
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
+        "platform": "iPhone",
+        "hardwareConcurrencyReported": 4,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 393,
+          "height": 659
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-8.png",
+      "finished_at": "2026-11-15T05:45:23.851Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:59.2643223Z",
+      "provider_platform": {
+        "os": "ios",
+        "os_version": "17.3",
+        "device": "iPhone 15",
+        "browser": "iphone",
+        "browser_version": null
+      },
+      "platform_matches_request": true
+    },
+    {
+      "name": "Tablet / iPad 10th iOS 16",
+      "build": "LMS device matrix 2026-11-15T05:44:41.870Z",
+      "requested": {
+        "name": "Tablet / iPad 10th iOS 16",
+        "kind": "ios",
+        "browser": "safari",
+        "deviceName": "iPad 10th",
+        "osVersion": "16",
+        "realMobile": "true"
+      },
+      "status": "passed",
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No horizontal page overflow"
+      ],
+      "started_at": "2026-11-15T05:45:23.852Z",
+      "session_id": "405bf7f6ffede85635e329b5d6be3fefe7755c9b",
+      "transport": "W3C WebDriver / real iOS Safari",
+      "dashboard_url": "https://automate.browserstack.com/dashboard/v2/sessions/405bf7f6ffede85635e329b5d6be3fefe7755c9b",
+      "login_to_lms_ms": 9351,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+        "platform": "MacIntel",
+        "hardwareConcurrencyReported": 4,
+        "deviceMemoryReportedGiB": null,
+        "viewport": {
+          "width": 820,
+          "height": 1106
+        },
+        "horizontalOverflow": false
+      },
+      "screenshot": "variant-9.png",
+      "finished_at": "2026-11-15T05:45:56.644Z",
+      "browserstack_status": "passed",
+      "verified_at": "2026-11-15T05:46:59.5766004Z",
+      "provider_platform": {
+        "os": "ios",
+        "os_version": "16.0",
+        "device": "iPad 10th",
+        "browser": "ipad",
+        "browser_version": null
+      },
+      "platform_matches_request": true
+    }
+  ]
+}

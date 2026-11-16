@@ -17,7 +17,7 @@ function Fields({ fields, submit, label, busy, initial = {} }) {
 }
 
 export default function LmsPage({ user }) {
-  const teacher = user.role === 'guru'
+  const teacher = user.role === 'guru' || user.role === 'admin'
   const student = user.role === 'murid'
   const parent = user.role === 'wali_murid'
   const allowed = teacher || student || parent

@@ -18,7 +18,7 @@ class LmsController extends Controller
         return response()->json(['success' => true, 'data' => $data], $status);
     }
 
-    private function teacher(Request $r): bool { return $r->user()->role->name === 'guru'; }
+    private function teacher(Request $r): bool { return in_array($r->user()->role->name, ['admin', 'guru'], true); }
 
     private function learner(Request $r): int
     {
@@ -34,8 +34,8 @@ class LmsController extends Controller
     {
         $course = DB::table('lms_courses')->find($id);
         abort_unless($course, 404);
-        if ($this->teacher($r)) abort_unless($course->teacher_id === $r->user()->id, 403);
-        else {
+        if ($r->user()->role->name === 'guru') abort_unless($course->teacher_id === $r->user()->id, 403);
+        elseif ($r->user()->role->name !== 'admin') {
             abort_if($write, 403);
             abort_unless(DB::table('lms_members')->where('course_id', $id)->where('user_id', $this->learner($r))->exists(), 403);
         }
@@ -58,8 +58,8 @@ class LmsController extends Controller
     public function index(Request $r)
     {
         $q = DB::table('lms_courses');
-        if ($this->teacher($r)) $q->where('teacher_id', $r->user()->id);
-        else $q->whereIn('id', DB::table('lms_members')->where('user_id', $this->learner($r))->select('course_id'));
+        if ($r->user()->role->name === 'guru') $q->where('teacher_id', $r->user()->id);
+        elseif ($r->user()->role->name !== 'admin') $q->whereIn('id', DB::table('lms_members')->where('user_id', $this->learner($r))->select('course_id'));
         return $this->ok($q->orderByDesc('id')->get());
     }
 
@@ -217,7 +217,7 @@ class LmsController extends Controller
     public function schedules(Request $r)
     {
         $q = Schedule::with(['subject:id,name', 'classroom:id,name', 'room:id,name', 'teacher:id,name'])->where('status', 'active');
-        if ($this->teacher($r)) $q->whereIn('teacher_id', Teacher::where('user_id', $r->user()->id)->select('id'));
+        if ($r->user()->role->name === 'guru') $q->whereIn('teacher_id', Teacher::where('user_id', $r->user()->id)->select('id'));
         else {
             $student = Student::where('user_id', $this->learner($r))->first();
             $q = app(ParentScheduleReader::class)->forStudent($student?->id ?? 0)->with(['subject:id,name', 'classroom:id,name', 'room:id,name', 'teacher:id,name']);

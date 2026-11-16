@@ -1,0 +1,158 @@
+// Local functional regression using the disposable test app; never activates cloud monitoring.
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const { chromium } = require('playwright');
+const root = path.resolve(__dirname, '../..');
+const read = file => JSON.parse(fs.readFileSync(path.join(root, file), 'utf8').replace(/^\uFEFF/, ''));
+const account = read('.tools/browserstack/core-finance-profiles.json')[0].ais;
+const out = path.join(root, '.tools/browserstack/results/navigation-update');
+fs.mkdirSync(out, { recursive: true });
+const result = { started_at: new Date().toISOString(), scope: 'Local Chrome functional regression on isolated SQLite fixtures', checks: [], screenshots: [] };
+let browser, page;
+const base = 'http://127.0.0.1:4178';
+const stamp = Date.now();
+const teacherName = `Guru Navigasi ${stamp}`, studentName = `Siswa Navigasi ${stamp}`, className = `X NAV ${stamp}`;
+const password = require('node:crypto').randomBytes(18).toString('hex');
+const secrets = [account.password, password];
+const check = text => { result.checks.push(text); console.log('PASS '+text); };
+async function shot(name) { await page.screenshot({ path: path.join(out, name+'.png'), fullPage: true }); result.screenshots.push(name+'.png'); }
+async function waitFor(fn) { for (let i = 0; i < 50; i++) { if (await fn()) return; await page.waitForTimeout(150); } throw Error('Expected data did not arrive'); }
+async function api(resource, method = 'GET', payload) {
+  const token = await page.evaluate(() => localStorage.getItem('ais_token'));
+  const response = await page.request.fetch(base+'/api/'+resource, { method, headers: { Authorization: 'Bearer '+token, Accept: 'application/json' }, ...(payload ? { data: payload } : {}) });
+  assert(response.ok(), `API ${resource.split('?')[0]} returned ${response.status()}`);
+  return response.json();
+}
+async function goto(resource) { await page.goto(base+'/'+resource); await page.waitForLoadState('networkidle'); }
+async function pickContext(year, semester, classroom, registration = false) {
+  await page.getByLabel('1. Tahun ajaran', { exact: true }).selectOption(String(year));
+  await page.getByLabel('2. Semester', { exact: true }).selectOption(String(semester));
+  if (!registration) await page.getByLabel('3. Kelas', { exact: true }).selectOption(String(classroom));
+}
+async function createUser(name, role) {
+  await goto('users'); await page.getByRole('button', { name: 'Tambah Pengguna', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Nama', { exact: true }).fill(name);
+  await dialog.getByLabel('Email', { exact: true }).fill(`${role}.${stamp}@navigation-test.invalid`);
+  await dialog.getByLabel('Peran', { exact: true }).selectOption(role);
+  await dialog.getByLabel('Kata Sandi (minimal 8 karakter)', { exact: true }).fill(password);
+  await dialog.getByRole('button', { name: 'Simpan', exact: true }).click();
+  await dialog.waitFor({ state: 'hidden' });
+  const resource = role === 'guru' ? 'teachers' : 'students';
+  const profile = (await api(resource+'?search='+encodeURIComponent(name))).data.find(p => p.name === name);
+  assert(profile?.user_id, 'Academic profile is linked to the account');
+  return profile;
+}
+(async () => {
+  browser = await chromium.launch({ channel: 'chrome', headless: true });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  page = await context.newPage(); page.setDefaultTimeout(15000);
+  page.on('dialog', dialog => dialog.accept());
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await goto('login'); assert.equal(await page.locator('#portal').count(), 0);
+  assert.equal(await page.getByText('Akun demo admin', { exact: true }).count(), 0);
+  await page.getByLabel('Email', { exact: true }).fill(account.email);
+  await page.getByLabel('Kata Sandi', { exact: true }).fill(account.password);
+  await page.getByRole('button', { name: 'Masuk', exact: true }).click();
+  await page.getByRole('heading', { name: /Selamat datang,/ }).waitFor();
+  for (const name of ['Administrasi', 'Keuangan', 'LMS', 'Assessment']) await page.getByRole('heading', { name, exact: true }).waitFor();
+  check('Unified login opens the four service cards without a portal selector'); await shot('01-services');
+  await page.getByRole('link', { name: /Administrasi.*Buka layanan/ }).click();
+  await page.getByRole('heading', { name: 'Ringkasan Akademik' }).waitFor();
+  const nav = page.locator('aside nav');
+  assert.equal(await nav.locator('a[href^="/finance"],a[href^="/lms"],a[href^="/assessment"],a[href="/roles"]').count(), 0);
+  check('Administration navigation contains no finance, LMS, assessment or roles tab');
+  const teacher = await createUser(teacherName, 'guru');
+  const student = await createUser(studentName, 'murid');
+  await goto('teachers'); await page.getByPlaceholder('Cari guru...').fill(teacherName);
+  await page.getByRole('cell').filter({ hasText: teacherName }).waitFor();
+  check('Creating teacher/student accounts automatically creates linked academic profiles'); await shot('02-linked-teacher');
+  const years = (await api('academic-years?per_page=100')).data;
+  const semesters = (await api('semesters?per_page=100')).data;
+  const semester = semesters.find(s => years.some(y => y.id === s.academic_year_id)); assert(semester);
+  const year = semester.academic_year_id;
+  const programs = (await api('study-programs?per_page=100')).data; assert(programs.length);
+  await goto('classrooms'); await page.getByRole('button', { name: 'Buat kelas', exact: true }).click();
+  let dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Nama kelas', { exact: true }).fill(className);
+  await dialog.getByLabel('Tahun ajaran', { exact: true }).selectOption(String(year));
+  await dialog.getByLabel('Konsentrasi keahlian', { exact: true }).selectOption(String(programs[0].id));
+  await dialog.getByRole('button', { name: 'Simpan kelas' }).click(); await dialog.waitFor({ state: 'hidden' });
+  const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: className, exact: true }) });
+  await card.getByLabel('Wali kelas', { exact: true }).selectOption(String(teacher.id));
+  await page.getByText(`Wali kelas ${className} diperbarui.`, { exact: true }).waitFor();
+  const classroom = (await api('classrooms?search='+encodeURIComponent(className))).data.find(c => c.name === className);
+  assert.equal(classroom.homeroom_teacher_id, teacher.id);
+  check('Class cards create a class and assign its homeroom teacher directly'); await shot('03-classrooms');
+  await card.getByRole('link', { name: 'Atur siswa' }).click();
+  await page.getByLabel('2. Semester', { exact: true }).selectOption(String(semester.id));
+  await page.getByRole('button', { name: 'Pilih siswa untuk kelas' }).click();
+  await page.getByLabel('Cari siswa aktif', { exact: true }).fill(studentName);
+  await page.getByRole('checkbox', { name: new RegExp(studentName) }).check();
+  await page.getByRole('button', { name: 'Tempatkan 1 siswa', exact: true }).click();
+  await page.getByText('1 siswa berhasil ditempatkan.', { exact: true }).waitFor();
+  check('Class placement selects students without repeatedly filling academic relation fields'); await shot('04-placement');
+  await goto('academic-registrations'); await pickContext(year, semester.id, classroom.id, true);
+  await page.getByRole('button', { name: 'Daftarkan siswa', exact: true }).click();
+  await page.getByLabel('Cari siswa aktif', { exact: true }).fill(studentName);
+  await page.getByRole('checkbox', { name: new RegExp(studentName) }).check();
+  await page.getByRole('button', { name: 'Daftarkan 1 siswa', exact: true }).click();
+  await page.getByText('1 siswa berhasil didaftarkan.', { exact: true }).waitFor();
+  await page.getByRole('article').filter({ hasText: studentName }).getByRole('button', { name: 'Setujui', exact: true }).click();
+  await page.getByText('Status diperbarui.', { exact: true }).waitFor();
+  check('Registration offers student selection and direct approval actions'); await shot('05-registration');
+  const subjects = (await api('subjects?per_page=100')).data;
+  const subject = subjects.find(s => !s.study_program_id || s.study_program_id === programs[0].id); assert(subject);
+  await goto('teaching-loads'); await pickContext(year, semester.id, classroom.id);
+  await page.getByRole('button', { name: 'Tugaskan guru', exact: true }).click(); dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Guru', { exact: true }).selectOption(String(teacher.id));
+  await dialog.getByLabel('Mata pelajaran', { exact: true }).selectOption(String(subject.id));
+  await dialog.getByRole('button', { name: 'Simpan penugasan' }).click(); await dialog.waitFor({ state: 'hidden' });
+  await page.getByRole('heading', { name: teacherName, exact: true }).waitFor();
+  check('Teaching assignments are grouped by teacher with weekly hours'); await shot('06-teaching-load');
+  await goto('schedules'); await pickContext(year, semester.id, classroom.id);
+  await page.getByRole('button', { name: 'Tambah pelajaran Senin', exact: true }).click(); dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Guru', { exact: true }).selectOption(String(teacher.id));
+  await dialog.getByLabel('Mata pelajaran', { exact: true }).selectOption(String(subject.id));
+  await dialog.getByRole('button', { name: 'Simpan penugasan' }).click(); await dialog.waitFor({ state: 'hidden' });
+  await page.getByRole('article').filter({ hasText: teacherName }).waitFor();
+  check('Weekly schedule creates a lesson from its day column'); await shot('07-weekly-schedule');
+  await goto('academic-calendars'); await page.getByRole('button', { name: 'Buat kegiatan', exact: true }).click(); dialog = page.getByRole('dialog');
+  const eventName = 'Kegiatan navigasi '+stamp;
+  await dialog.getByLabel('Nama kegiatan', { exact: true }).fill(eventName);
+  await dialog.getByLabel('Tahun ajaran', { exact: true }).selectOption(String(year));
+  await dialog.getByRole('button', { name: 'Simpan kegiatan' }).click(); await dialog.waitFor({ state: 'hidden' });
+  await page.getByRole('button', { name: eventName, exact: true }).first().click(); dialog = page.getByRole('dialog');
+  await dialog.getByLabel('Nama kegiatan', { exact: true }).fill(eventName+' diubah');
+  await dialog.getByRole('button', { name: 'Simpan kegiatan' }).click(); await dialog.waitFor({ state: 'hidden' });
+  await page.getByRole('button', { name: eventName+' diubah', exact: true }).first().waitFor();
+  check('Calendar creates and edits events with persistent date and year relationships'); await shot('08-calendar');
+  await page.getByRole('button', { name: eventName+' diubah', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Hapus kegiatan', exact: true }).click(); await page.getByRole('dialog').waitFor({ state: 'hidden' });
+  check('Calendar event deletion updates the monthly view');
+  await goto('finance');
+  assert.equal(await nav.locator('a[href="/users"],a[href="/students"],a[href="/teachers"],a[href="/classrooms"],a[href="/lms"],a[href="/assessment"]').count(), 0);
+  await nav.getByRole('link', { name: 'Pilih layanan', exact: true }).click();
+  await page.getByRole('heading', { name: /Selamat datang,/ }).waitFor();
+  await page.getByRole('link', { name: /Assessment.*Buka layanan/ }).click();
+  assert.equal(await nav.locator('a').count(), 2); // home + assessment only
+  check('Finance and assessment each have their own navigation and return to the service hub'); await shot('09-assessment-shell');
+  await goto('login'); // Existing session redirects to the hub.
+  await page.getByRole('button', { name: 'Keluar', exact: true }).click();
+  await page.getByLabel('Email', { exact: true }).fill(`murid.${stamp}@navigation-test.invalid`);
+  await page.getByLabel('Kata Sandi', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Masuk', exact: true }).click(); await page.getByRole('heading', { name: /Selamat datang,/ }).waitFor();
+  await goto('users'); await page.getByRole('heading', { name: /Selamat datang,/ }).waitFor();
+  await page.getByRole('link', { name: /LMS.*Buka layanan/ }).click();
+  assert.equal(await nav.locator('a').count(), 2);
+  check('Student login uses the same entry, cannot open administration, and sees only LMS navigation inside LMS');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await goto(''); assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  check('Service hub fits a phone viewport'); await shot('10-mobile-services');
+  assert.deepEqual(errors, []); check('No uncaught browser exceptions');
+  result.status = 'passed';
+})().catch(async e => {
+  result.status = 'failed'; let message = String(e.message || e); for (const secret of secrets) message = message.split(secret).join('[REDACTED]'); result.error = message;
+  if (page) await shot('failure').catch(() => {}); process.exitCode = 1;
+}).finally(async () => { result.ended_at = new Date().toISOString(); fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify(result, null, 2)); if (browser) await browser.close(); console.log(result.status); if (result.error) console.log(result.error); });

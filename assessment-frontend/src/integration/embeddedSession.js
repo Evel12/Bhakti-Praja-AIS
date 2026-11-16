@@ -23,6 +23,8 @@ export const embedded =
  */
 export function initializeEmbeddedSession() {
   if (!embedded || typeof window === "undefined") return Promise.resolve(false);
+  const parentOrigin = window.location.origin;
+
   return new Promise((resolve) => {
     let settled = false;
     const finish = (applied) => {
@@ -33,15 +35,14 @@ export function initializeEmbeddedSession() {
       resolve(applied);
     };
     const onMessage = (event) => {
-      // Only trust messages from the same origin (the AIS host app).
-      if (event.origin !== window.location.origin) return;
+      if (event.origin !== parentOrigin || event.source !== window.parent) return;
       const data = event?.data;
       if (!data || data.type !== "ais-session" || !data.user) return;
       const role = ROLE_MAP[data.user.role];
       if (!role) return finish(false);
-      setStoredToken(data.token || "embedded-ais-session");
+      setStoredToken(`local-ais-sso-${data.user.id}`);
       setStoredSession({
-        user: { ...data.user, role },
+        user: { ...data.user, aisRole: data.user.role, role },
         authMethod: "ais-sso",
         apiConnected: false,
       });
@@ -49,6 +50,6 @@ export function initializeEmbeddedSession() {
     };
     const timeout = setTimeout(() => finish(false), 2500);
     window.addEventListener("message", onMessage);
-    window.parent?.postMessage({ type: "assessment-ready" }, window.location.origin);
+    window.parent?.postMessage({ type: "assessment-ready" }, parentOrigin);
   });
 }

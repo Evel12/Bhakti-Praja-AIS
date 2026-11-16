@@ -34,12 +34,12 @@
   color: var(--muted);
 }
 .soft-field-trigger:hover:not(:disabled) {
-  border-color: #c5ceb9;
+  border-color: #b9c9ce;
 }
 .soft-field-trigger:focus-visible {
-  outline: 2px solid #719581;
+  outline: 2px solid #718c95;
   outline-offset: 2px;
-  border-color: #719581;
+  border-color: #718c95;
 }
 .soft-field-trigger[aria-expanded="true"] {
   border-color: var(--green);
@@ -74,11 +74,11 @@
   flex: none;
 }
 .soft-field-option.is-active {
-  background: #f1f4ed;
+  background: #edf2f4;
 }
 .soft-field-option[aria-selected="true"] {
-  background: #e2eee4;
-  color: #285d43;
+  background: #e2ebee;
+  color: #28505d;
   font-weight: 500;
 }
 .soft-field-option[aria-disabled="true"] {
@@ -110,5 +110,5 @@
   height: 4px;
   margin: -6px auto 12px;
   border-radius: 999px;
-  background: #d3d8cb;
+  background: #cbd5d8;
 }

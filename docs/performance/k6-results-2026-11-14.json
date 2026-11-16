@@ -1,0 +1,249 @@
+{
+  "generated_at_utc": "2026-11-14T11:03:40.012162+00:00",
+  "target": "http://127.0.0.1:8086",
+  "execution": "local Apache 2.4 / PHP 8.2.12, 64 threads, isolated SQLite WAL",
+  "grafana_stack": "https://tancoconut1625.grafana.net/",
+  "cloud_authenticated_run": false,
+  "runs": [
+    {
+      "users": 10,
+      "max_observed_vus": 10,
+      "requests": 386,
+      "requests_per_second": 7.765577322611853,
+      "duration_seconds": 49.7065426,
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "response_ms": {
+        "avg": 202.72889533678753,
+        "min": 154.4201,
+        "med": 196.23215,
+        "max": 465.3469,
+        "p(90)": 219.3013,
+        "p(95)": 241.993725,
+        "p(99)": 343.27043499999803
+      },
+      "steady_peak_response_p95_ms": 237.94468999999998,
+      "status_counts": {
+        "200": 386
+      },
+      "thresholds": {
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "http_req_failed: rate<0.01": true,
+        "application_failure_rate: rate<0.01": true,
+        "checks: rate>0.99": true,
+        "rate_limited_rate: rate<0.01": true
+      },
+      "passed": true,
+      "endpoints": {
+        "GET /api/auth/me": {
+          "requests": 68,
+          "avg_ms": 204.49404117647057,
+          "p95_ms": 284.592645
+        },
+        "GET /api/lms/courses": {
+          "requests": 68,
+          "avg_ms": 201.1492867647059,
+          "p95_ms": 224.783355
+        },
+        "GET /api/lms/courses/:id": {
+          "requests": 70,
+          "avg_ms": 207.42640714285713,
+          "p95_ms": 253.89379999999997
+        },
+        "GET /api/lms/drafts/:id": {
+          "requests": 60,
+          "avg_ms": 195.86997833333334,
+          "p95_ms": 212.892305
+        },
+        "GET /api/lms/materials/:id/download": {
+          "requests": 20,
+          "avg_ms": 196.40653,
+          "p95_ms": 210.497465
+        },
+        "GET /api/lms/models": {
+          "requests": 8,
+          "avg_ms": 195.325275,
+          "p95_ms": 218.84345
+        },
+        "GET /api/lms/schedules": {
+          "requests": 68,
+          "avg_ms": 201.86830735294117,
+          "p95_ms": 224.97484999999998
+        },
+        "GET /up": {
+          "requests": 1,
+          "avg_ms": 215.854,
+          "p95_ms": 215.854
+        },
+        "POST /api/lms/materials/:id/read": {
+          "requests": 23,
+          "avg_ms": 215.82297391304348,
+          "p95_ms": 319.39849999999984
+        }
+      },
+      "html_report": "E:/final/.tools/k6/results/local-lms-10.html"
+    },
+    {
+      "users": 25,
+      "max_observed_vus": 25,
+      "requests": 837,
+      "requests_per_second": 16.804764486827306,
+      "duration_seconds": 49.8073032,
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "response_ms": {
+        "avg": 332.89501935483884,
+        "min": 160.0595,
+        "med": 244.0227,
+        "max": 1355.0203,
+        "p(90)": 562.0645799999999,
+        "p(95)": 793.0596999999996,
+        "p(99)": 1216.1083359999998
+      },
+      "steady_peak_response_p95_ms": 975.3393449999999,
+      "status_counts": {
+        "200": 837
+      },
+      "thresholds": {
+        "checks: rate>0.99": true,
+        "rate_limited_rate: rate<0.01": true,
+        "http_req_failed: rate<0.01": true,
+        "application_failure_rate: rate<0.01": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true
+      },
+      "passed": true,
+      "endpoints": {
+        "GET /api/auth/me": {
+          "requests": 149,
+          "avg_ms": 373.78719261744965,
+          "p95_ms": 1031.9738399999999
+        },
+        "GET /api/lms/courses": {
+          "requests": 149,
+          "avg_ms": 343.0123489932886,
+          "p95_ms": 728.2766999999997
+        },
+        "GET /api/lms/courses/:id": {
+          "requests": 151,
+          "avg_ms": 356.0517105960265,
+          "p95_ms": 824.1558
+        },
+        "GET /api/lms/drafts/:id": {
+          "requests": 130,
+          "avg_ms": 290.66865615384614,
+          "p95_ms": 529.196525
+        },
+        "GET /api/lms/materials/:id/download": {
+          "requests": 38,
+          "avg_ms": 294.4589947368421,
+          "p95_ms": 640.1062099999999
+        },
+        "GET /api/lms/models": {
+          "requests": 19,
+          "avg_ms": 306.4596894736842,
+          "p95_ms": 576.5999899999993
+        },
+        "GET /api/lms/schedules": {
+          "requests": 149,
+          "avg_ms": 322.47645033557046,
+          "p95_ms": 683.1839199999994
+        },
+        "GET /up": {
+          "requests": 1,
+          "avg_ms": 160.0595,
+          "p95_ms": 160.0595
+        },
+        "POST /api/lms/materials/:id/read": {
+          "requests": 51,
+          "avg_ms": 295.2556745098039,
+          "p95_ms": 659.38085
+        }
+      },
+      "html_report": "E:/final/.tools/k6/results/local-lms-25.html"
+    },
+    {
+      "users": 50,
+      "max_observed_vus": 50,
+      "requests": 1710,
+      "requests_per_second": 33.288757480794125,
+      "duration_seconds": 51.3686941,
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "response_ms": {
+        "min": 150.3412,
+        "med": 251.75824999999998,
+        "max": 793.2404,
+        "p(90)": 439.25369000000006,
+        "p(95)": 506.54979,
+        "p(99)": 629.32965,
+        "avg": 291.3849742690057
+      },
+      "steady_peak_response_p95_ms": 485.6747050000002,
+      "status_counts": {
+        "200": 1710
+      },
+      "thresholds": {
+        "rate_limited_rate: rate<0.01": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "http_req_failed: rate<0.01": true,
+        "application_failure_rate: rate<0.01": true,
+        "checks: rate>0.99": true
+      },
+      "passed": true,
+      "endpoints": {
+        "GET /api/auth/me": {
+          "requests": 305,
+          "avg_ms": 301.23341672131147,
+          "p95_ms": 533.52526
+        },
+        "GET /api/lms/courses": {
+          "requests": 305,
+          "avg_ms": 285.55581508196724,
+          "p95_ms": 471.71138
+        },
+        "GET /api/lms/courses/:id": {
+          "requests": 307,
+          "avg_ms": 300.97266449511403,
+          "p95_ms": 516.96239
+        },
+        "GET /api/lms/drafts/:id": {
+          "requests": 270,
+          "avg_ms": 291.5428425925926,
+          "p95_ms": 497.543815
+        },
+        "GET /api/lms/materials/:id/download": {
+          "requests": 79,
+          "avg_ms": 280.2760367088608,
+          "p95_ms": 503.7970399999999
+        },
+        "GET /api/lms/models": {
+          "requests": 35,
+          "avg_ms": 283.56063714285716,
+          "p95_ms": 468.03274999999996
+        },
+        "GET /api/lms/schedules": {
+          "requests": 305,
+          "avg_ms": 289.75579180327867,
+          "p95_ms": 521.80592
+        },
+        "GET /up": {
+          "requests": 1,
+          "avg_ms": 150.3412,
+          "p95_ms": 150.3412
+        },
+        "POST /api/lms/materials/:id/read": {
+          "requests": 103,
+          "avg_ms": 267.86531941747575,
+          "p95_ms": 435.4661599999999
+        }
+      },
+      "html_report": "E:/final/.tools/k6/results/local-lms-50.html"
+    }
+  ]
+}

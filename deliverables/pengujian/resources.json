@@ -1,0 +1,98 @@
+{
+  "scope": "Local Windows Chrome process tree; verified CPU affinity and aggregate committed-memory caps. Not physical RAM or CPU-model emulation; backend unconstrained.",
+  "host": {
+    "physical_ram_bytes": 33514369024,
+    "logical_processors": 32,
+    "cpu_model": "AMD Ryzen 9 8940HX with Radeon Graphics        "
+  },
+  "tested_at": "2026-11-15T12:43:16+0700",
+  "results": [
+    {
+      "logical_cpu_limit": 1,
+      "committed_memory_limit_mib": 512,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 1,
+        "committed_memory_bytes": 536870912
+      },
+      "verified_process_affinity_mask": 1,
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "login_to_lms_ms": 3256,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 32,
+        "deviceMemoryReportedGiB": 32,
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "horizontalOverflow": false
+      },
+      "peak_job_committed_memory_mib": 372.91
+    },
+    {
+      "logical_cpu_limit": 2,
+      "committed_memory_limit_mib": 1024,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 3,
+        "committed_memory_bytes": 1073741824
+      },
+      "verified_process_affinity_mask": 3,
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "login_to_lms_ms": 3030,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 32,
+        "deviceMemoryReportedGiB": 32,
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "horizontalOverflow": false
+      },
+      "peak_job_committed_memory_mib": 432.77
+    },
+    {
+      "logical_cpu_limit": 4,
+      "committed_memory_limit_mib": 2048,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 15,
+        "committed_memory_bytes": 2147483648
+      },
+      "verified_process_affinity_mask": 15,
+      "checks": [
+        "Teacher login and LMS rendering",
+        "Qwen default and alternate model selection (no inference)",
+        "Course and material tab navigation",
+        "No uncaught browser errors or HTTP 5xx"
+      ],
+      "login_to_lms_ms": 2716,
+      "client": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+        "platform": "Win32",
+        "hardwareConcurrencyReported": 32,
+        "deviceMemoryReportedGiB": 32,
+        "viewport": {
+          "width": 1366,
+          "height": 768
+        },
+        "horizontalOverflow": false
+      },
+      "peak_job_committed_memory_mib": 429.76
+    }
+  ]
+}

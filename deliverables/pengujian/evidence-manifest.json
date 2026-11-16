@@ -1,0 +1,330 @@
+[
+  {
+    "figure": 1,
+    "file": "screenshots/k6-cloud-10-overview.png",
+    "caption": "Grafik Beban dan Waktu Respons untuk 10 VU",
+    "explanation": "Grafik Overview memperlihatkan perubahan VU, laju request, durasi request dan durasi iterasi sepanjang run. Kurva VU digunakan untuk memeriksa bahwa skenario benar-benar mencapai tingkat konkurensi yang diminta.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016374",
+    "sha256": "27112a646179d8f1690343124614cf3f98323ff79d0eac85b708f9e8491b7d97"
+  },
+  {
+    "figure": 2,
+    "file": "screenshots/k6-cloud-10-timings.png",
+    "caption": "Rincian Waktu HTTP dan Tingkat Kegagalan untuk 10 VU",
+    "explanation": "Bagian Timings memperlihatkan durasi request, tingkat kegagalan, request per detik, waktu tunggu server, pengiriman, penerimaan dan pembentukan koneksi. Garis kegagalan berada pada nol selama run yang dicatat.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016374",
+    "sha256": "c0df2d8d91fbe653d36b7c9298b53922e676ceaeb620a88ed23d203b37a9b7fa"
+  },
+  {
+    "figure": 3,
+    "file": "screenshots/k6-cloud-10-summary.png",
+    "caption": "Ringkasan Metrik untuk 10 VU",
+    "explanation": "Bagian Summary menampilkan agregat metrik, pemeriksaan, penghitung request, tingkat kegagalan dan VU maksimum. Angka presisi dalam tabel laporan diambil dari JSON summary, sehingga dapat lebih rinci daripada angka yang dibulatkan pada screenshot.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016374",
+    "sha256": "ef86f1280b6112563103272bf4e8599338782e1b362e12c0126cf9e4574cf0f4"
+  },
+  {
+    "figure": 4,
+    "file": "screenshots/k6-cloud-10-full.png",
+    "caption": "Screenshot Laporan Lengkap untuk 10 VU",
+    "explanation": "Screenshot utuh mempertahankan seluruh bagian laporan dari Overview sampai Summary. Versi per bagian di atas disertakan agar grafik dan angka tetap terbaca saat dimasukkan ke halaman Word.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016374",
+    "sha256": "2c590095b50d2d753162de07f8771e216623c9d14ceb8644bf42b2170b63a7cc"
+  },
+  {
+    "figure": 5,
+    "file": "screenshots/k6-cloud-25-overview.png",
+    "caption": "Grafik Beban dan Waktu Respons untuk 25 VU",
+    "explanation": "Grafik Overview memperlihatkan perubahan VU, laju request, durasi request dan durasi iterasi sepanjang run. Kurva VU digunakan untuk memeriksa bahwa skenario benar-benar mencapai tingkat konkurensi yang diminta.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016376",
+    "sha256": "5ec4ffdf25006a3037aaf583020a1713defb2e6b5e3721d1f696efadbec110a1"
+  },
+  {
+    "figure": 6,
+    "file": "screenshots/k6-cloud-25-timings.png",
+    "caption": "Rincian Waktu HTTP dan Tingkat Kegagalan untuk 25 VU",
+    "explanation": "Bagian Timings memperlihatkan durasi request, tingkat kegagalan, request per detik, waktu tunggu server, pengiriman, penerimaan dan pembentukan koneksi. Garis kegagalan berada pada nol selama run yang dicatat.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016376",
+    "sha256": "114faeaeff15d572f112f1911973b5dbe479746e513d323d0ed57f6b33d320a0"
+  },
+  {
+    "figure": 7,
+    "file": "screenshots/k6-cloud-25-summary.png",
+    "caption": "Ringkasan Metrik untuk 25 VU",
+    "explanation": "Bagian Summary menampilkan agregat metrik, pemeriksaan, penghitung request, tingkat kegagalan dan VU maksimum. Angka presisi dalam tabel laporan diambil dari JSON summary, sehingga dapat lebih rinci daripada angka yang dibulatkan pada screenshot.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016376",
+    "sha256": "cf4c2d3817457b150c16f1927e948b554372872c0190857b0e8b3f80e9dbb9c8"
+  },
+  {
+    "figure": 8,
+    "file": "screenshots/k6-cloud-25-full.png",
+    "caption": "Screenshot Laporan Lengkap untuk 25 VU",
+    "explanation": "Screenshot utuh mempertahankan seluruh bagian laporan dari Overview sampai Summary. Versi per bagian di atas disertakan agar grafik dan angka tetap terbaca saat dimasukkan ke halaman Word.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016376",
+    "sha256": "8d52e49084d63c645257147601bd5e17da0e6791833304d6dc5704b787b8a269"
+  },
+  {
+    "figure": 9,
+    "file": "screenshots/k6-cloud-50-overview.png",
+    "caption": "Grafik Beban dan Waktu Respons untuk 50 VU",
+    "explanation": "Grafik Overview memperlihatkan perubahan VU, laju request, durasi request dan durasi iterasi sepanjang run. Kurva VU digunakan untuk memeriksa bahwa skenario benar-benar mencapai tingkat konkurensi yang diminta.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016383",
+    "sha256": "4feacd2ac267e2e39cb1d93197576d84b7b023b95f36c7fe6fbdcc046855c2b4"
+  },
+  {
+    "figure": 10,
+    "file": "screenshots/k6-cloud-50-timings.png",
+    "caption": "Rincian Waktu HTTP dan Tingkat Kegagalan untuk 50 VU",
+    "explanation": "Bagian Timings memperlihatkan durasi request, tingkat kegagalan, request per detik, waktu tunggu server, pengiriman, penerimaan dan pembentukan koneksi. Garis kegagalan berada pada nol selama run yang dicatat.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016383",
+    "sha256": "adbd608560a33ed8705fc619c28480ff9372c20f904c57a08c5183e6622e470f"
+  },
+  {
+    "figure": 11,
+    "file": "screenshots/k6-cloud-50-summary.png",
+    "caption": "Ringkasan Metrik untuk 50 VU",
+    "explanation": "Bagian Summary menampilkan agregat metrik, pemeriksaan, penghitung request, tingkat kegagalan dan VU maksimum. Angka presisi dalam tabel laporan diambil dari JSON summary, sehingga dapat lebih rinci daripada angka yang dibulatkan pada screenshot.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016383",
+    "sha256": "fb1461cfa766b1c383f8ab409aa0218a6609872a25346cdb382d6047dbb3a6e8"
+  },
+  {
+    "figure": 12,
+    "file": "screenshots/k6-cloud-50-full.png",
+    "caption": "Screenshot Laporan Lengkap untuk 50 VU",
+    "explanation": "Screenshot utuh mempertahankan seluruh bagian laporan dari Overview sampai Summary. Versi per bagian di atas disertakan agar grafik dan angka tetap terbaca saat dimasukkan ke halaman Word.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9016383",
+    "sha256": "ce97a16d93e180c60dd75bbc78e5fd5140cee2addedc3358b0d23e16558699c9"
+  },
+  {
+    "figure": 13,
+    "file": "screenshots/variant-1.png",
+    "caption": "Laptop screen / Windows 10 Chrome",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/8c65f179a7f131fea66ba3cac49c3630542268d4",
+    "sha256": "f61ab33c61f5d2af4e984ae1788b1d6667ff92a35a52c913f9f191de4ef4a17f"
+  },
+  {
+    "figure": 14,
+    "file": "screenshots/variant-2.png",
+    "caption": "PC screen / Windows 11 Edge",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/71a6d20d6e5f23bca8d92d7311ca98f2c221f44b",
+    "sha256": "93efeaed3cdc7b556c72d98ed12b76a1af007a13224ce887d741f690e2983609"
+  },
+  {
+    "figure": 15,
+    "file": "screenshots/variant-3.png",
+    "caption": "Laptop screen / Windows 11 Firefox",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/7f929802206b4881ed9263f0f344dc51d3efc89d",
+    "sha256": "af3c59a99f6b5ff591d5f590c288c44b352d168a9ab18b60402cc69dccb01a30"
+  },
+  {
+    "figure": 16,
+    "file": "screenshots/variant-4.png",
+    "caption": "Laptop screen / macOS Sequoia WebKit",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/2f47817bb6a500e199b3fda35bc5e2d221492b22/sessions/b25ad074d03b598a0b1d00c99fc03fe182389080",
+    "sha256": "c94492806c94f07562b885b1cfb05e1515340865fdb66c799534505653cda7a5"
+  },
+  {
+    "figure": 17,
+    "file": "screenshots/variant-5.png",
+    "caption": "Phone / Galaxy S22 Android 12",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini. Capture full-page Android ini mengandung pengulangan hasil stitching screenshot. Pengulangan gambar tidak digunakan sebagai bukti bahwa konten aplikasi berulang; viewport dan hasil interaksi dicatat terpisah pada JSON sesi.",
+    "source_url": "https://automate.browserstack.com/builds/2fb09f5aeadc5f545eae226af4cb9dee23899674/sessions/96d106df556fbd3147b0fd6006d043366c7493f6",
+    "sha256": "8123bb92615864291447ddcdce8d4380f1c0cb7374900e7565e6fec8842cd95e"
+  },
+  {
+    "figure": 18,
+    "file": "screenshots/variant-6.png",
+    "caption": "Phone / Pixel 7 Android 13",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/e5865a39e7ebb9cf2b6fb6753b83f6d6831a696f/sessions/c1266f481ced846a6f338abd46d1baa9e385877c",
+    "sha256": "32370b84ff424dc33b03174f83afb7dca022e632a9b05bcf63561af29134463d"
+  },
+  {
+    "figure": 19,
+    "file": "screenshots/variant-7.png",
+    "caption": "Tablet / Galaxy Tab S9 Android 13",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/builds/e3236e435839ce6d14476144db6ab40d3dc0d505/sessions/1a5521a0f26d11df566d64b97494c1ff6d6919ef",
+    "sha256": "9e393609a8647b5e50f8ab5a30f982e907fa046203756d8f14bc1c4e3a26dfea"
+  },
+  {
+    "figure": 20,
+    "file": "screenshots/variant-8.png",
+    "caption": "Phone / iPhone 15 iOS 17",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/dashboard/v2/sessions/fff08b603db7a938014660c9ee7fe72073c1d194",
+    "sha256": "20de587f60d4996793b288890a26d524aebbabde5a1f6a2112540c6a7de912c8"
+  },
+  {
+    "figure": 21,
+    "file": "screenshots/variant-9.png",
+    "caption": "Tablet / iPad 10th iOS 16",
+    "explanation": "Screenshot memperlihatkan aplikasi LMS pada profil OS/perangkat yang tercantum. Hasil hanya menyatakan pemeriksaan kompatibilitas yang dijalankan berhasil; bukan bahwa seluruh fitur aplikasi telah diuji pada perangkat ini.",
+    "source_url": "https://automate.browserstack.com/dashboard/v2/sessions/405bf7f6ffede85635e329b5d6be3fefe7755c9b",
+    "sha256": "630bb4bb5dd2dd63445b07038f3a0e2940fb28462e74fd4327fb8af0998b495e"
+  },
+  {
+    "figure": 22,
+    "file": "screenshots/browserstack-1-teacher-desktop.png",
+    "caption": "Tampilan Guru pada Chrome / Windows 11",
+    "explanation": "Screenshot menunjukkan course, materi atau pekerjaan guru setelah langkah uji yang dicatat. Suite juga memeriksa PDF publik dan privat, pilihan model AI, tugas, serta pengumuman; screenshot ini tidak dengan sendirinya membuktikan seluruh langkah tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/260234a64693a6a09806882e35ab2767d520aa4f",
+    "sha256": "3981f3506a7531c248b7331035572a5947a40e95e3e1d79586dd12d159372506"
+  },
+  {
+    "figure": 23,
+    "file": "screenshots/browserstack-1-student-mobile.png",
+    "caption": "Tampilan Siswa pada Ukuran Layar HP pada Chrome / Windows 11",
+    "explanation": "Screenshot menunjukkan tampilan siswa saat uji menggunakan viewport kecil. Ini adalah pengubahan viewport pada browser desktop cloud, bukan perangkat HP nyata; pengujian HP nyata dibuktikan pada matriks perangkat sebelumnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/260234a64693a6a09806882e35ab2767d520aa4f",
+    "sha256": "abb787b01f715f31360d940062a83fe218050bc8599d33ac93ab4aa8ee322495"
+  },
+  {
+    "figure": 24,
+    "file": "screenshots/browserstack-1-student-progress.png",
+    "caption": "Progres dan Nilai Siswa pada Chrome / Windows 11",
+    "explanation": "Screenshot menunjukkan progres pembacaan materi dan nilai tugas dari data sintetis. Nilai 95 dan progres 100 persen merupakan fixture hasil alur uji, bukan data siswa sebenarnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/260234a64693a6a09806882e35ab2767d520aa4f",
+    "sha256": "fc4685d082aee952dfdfe46c355793f51a1def6dee6ee455375fb1a7dc21ad20"
+  },
+  {
+    "figure": 25,
+    "file": "screenshots/browserstack-1-parent-mobile.png",
+    "caption": "Tampilan Wali pada Ukuran Layar HP pada Chrome / Windows 11",
+    "explanation": "Screenshot memperlihatkan akses wali yang dihubungkan dengan siswa sintetis. Suite memeriksa tampilan nilai dan tidak tersedianya aksi pembuatan course pada UI wali. Profil ini menggunakan viewport kecil, bukan HP nyata.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/260234a64693a6a09806882e35ab2767d520aa4f",
+    "sha256": "b9cb03235199b9fef640238ecfa6e6bbec224329cb74356f9acb3f56b5dd84da"
+  },
+  {
+    "figure": 26,
+    "file": "screenshots/browserstack-2-teacher-desktop.png",
+    "caption": "Tampilan Guru pada Edge / Windows 11",
+    "explanation": "Screenshot menunjukkan course, materi atau pekerjaan guru setelah langkah uji yang dicatat. Suite juga memeriksa PDF publik dan privat, pilihan model AI, tugas, serta pengumuman; screenshot ini tidak dengan sendirinya membuktikan seluruh langkah tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+    "sha256": "ec21db53f6cd46342bc97928e0b34afa4c99541f9623e76aad9be5cf768410d4"
+  },
+  {
+    "figure": 27,
+    "file": "screenshots/browserstack-2-student-mobile.png",
+    "caption": "Tampilan Siswa pada Ukuran Layar HP pada Edge / Windows 11",
+    "explanation": "Screenshot menunjukkan tampilan siswa saat uji menggunakan viewport kecil. Ini adalah pengubahan viewport pada browser desktop cloud, bukan perangkat HP nyata; pengujian HP nyata dibuktikan pada matriks perangkat sebelumnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+    "sha256": "90272073576accea397f0046731e30ca4f6282913e45893d49d36c4543965076"
+  },
+  {
+    "figure": 28,
+    "file": "screenshots/browserstack-2-student-progress.png",
+    "caption": "Progres dan Nilai Siswa pada Edge / Windows 11",
+    "explanation": "Screenshot menunjukkan progres pembacaan materi dan nilai tugas dari data sintetis. Nilai 95 dan progres 100 persen merupakan fixture hasil alur uji, bukan data siswa sebenarnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+    "sha256": "68751593e46f448d2a8b641d83f933a17041f8553f18ca4dcdc37f96d62b38cf"
+  },
+  {
+    "figure": 29,
+    "file": "screenshots/browserstack-2-parent-mobile.png",
+    "caption": "Tampilan Wali pada Ukuran Layar HP pada Edge / Windows 11",
+    "explanation": "Screenshot memperlihatkan akses wali yang dihubungkan dengan siswa sintetis. Suite memeriksa tampilan nilai dan tidak tersedianya aksi pembuatan course pada UI wali. Profil ini menggunakan viewport kecil, bukan HP nyata.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+    "sha256": "997f9d2c5b2de7c566b436ecc336a822407630b7960309de915c83eb6bc0db48"
+  },
+  {
+    "figure": 30,
+    "file": "screenshots/browserstack-3-teacher-desktop.png",
+    "caption": "Tampilan Guru pada Firefox / Windows 11",
+    "explanation": "Screenshot menunjukkan course, materi atau pekerjaan guru setelah langkah uji yang dicatat. Suite juga memeriksa PDF publik dan privat, pilihan model AI, tugas, serta pengumuman; screenshot ini tidak dengan sendirinya membuktikan seluruh langkah tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/17320e53174134606e35f59fb908e1892607bb83",
+    "sha256": "fff62ac0d98fac22d410368200a35cb3514e5342713f6df97d1064232f3d23d4"
+  },
+  {
+    "figure": 31,
+    "file": "screenshots/browserstack-3-student-mobile.png",
+    "caption": "Tampilan Siswa pada Ukuran Layar HP pada Firefox / Windows 11",
+    "explanation": "Screenshot menunjukkan tampilan siswa saat uji menggunakan viewport kecil. Ini adalah pengubahan viewport pada browser desktop cloud, bukan perangkat HP nyata; pengujian HP nyata dibuktikan pada matriks perangkat sebelumnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/17320e53174134606e35f59fb908e1892607bb83",
+    "sha256": "75ec5ec71471458439d7140db3d11eccbc3b89d8db6461b466f28063a209b285"
+  },
+  {
+    "figure": 32,
+    "file": "screenshots/browserstack-3-student-progress.png",
+    "caption": "Progres dan Nilai Siswa pada Firefox / Windows 11",
+    "explanation": "Screenshot menunjukkan progres pembacaan materi dan nilai tugas dari data sintetis. Nilai 95 dan progres 100 persen merupakan fixture hasil alur uji, bukan data siswa sebenarnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/17320e53174134606e35f59fb908e1892607bb83",
+    "sha256": "ee5861fa44f75bd6a94038cf4e367f999563fac248a4fc216c583d57054b4511"
+  },
+  {
+    "figure": 33,
+    "file": "screenshots/browserstack-3-parent-mobile.png",
+    "caption": "Tampilan Wali pada Ukuran Layar HP pada Firefox / Windows 11",
+    "explanation": "Screenshot memperlihatkan akses wali yang dihubungkan dengan siswa sintetis. Suite memeriksa tampilan nilai dan tidak tersedianya aksi pembuatan course pada UI wali. Profil ini menggunakan viewport kecil, bukan HP nyata.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/17320e53174134606e35f59fb908e1892607bb83",
+    "sha256": "3e3ef1bb5c75a21caa9d17a9470620c7e2c27d311f3e74a4a848fb51c51e5ce8"
+  },
+  {
+    "figure": 34,
+    "file": "screenshots/browserstack-4-teacher-desktop.png",
+    "caption": "Tampilan Guru pada WebKit / macOS Sonoma",
+    "explanation": "Screenshot menunjukkan course, materi atau pekerjaan guru setelah langkah uji yang dicatat. Suite juga memeriksa PDF publik dan privat, pilihan model AI, tugas, serta pengumuman; screenshot ini tidak dengan sendirinya membuktikan seluruh langkah tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/d487aac5749eed162b76a3d3799bd34248c4e94a",
+    "sha256": "52e7523218a96ce6795070ecbdec034000af779eb01b7ee69ecc7530c6b58fc8"
+  },
+  {
+    "figure": 35,
+    "file": "screenshots/browserstack-4-student-mobile.png",
+    "caption": "Tampilan Siswa pada Ukuran Layar HP pada WebKit / macOS Sonoma",
+    "explanation": "Screenshot menunjukkan tampilan siswa saat uji menggunakan viewport kecil. Ini adalah pengubahan viewport pada browser desktop cloud, bukan perangkat HP nyata; pengujian HP nyata dibuktikan pada matriks perangkat sebelumnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/d487aac5749eed162b76a3d3799bd34248c4e94a",
+    "sha256": "62ec30e1abe19488f04c77fab61e483f0b12cd245fde03122a7b457e9c4e846b"
+  },
+  {
+    "figure": 36,
+    "file": "screenshots/browserstack-4-student-progress.png",
+    "caption": "Progres dan Nilai Siswa pada WebKit / macOS Sonoma",
+    "explanation": "Screenshot menunjukkan progres pembacaan materi dan nilai tugas dari data sintetis. Nilai 95 dan progres 100 persen merupakan fixture hasil alur uji, bukan data siswa sebenarnya.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/d487aac5749eed162b76a3d3799bd34248c4e94a",
+    "sha256": "79f1358a93be8be321e44dd7300563ea3505236421e6b43e3abcf3f11038ea7c"
+  },
+  {
+    "figure": 37,
+    "file": "screenshots/browserstack-4-parent-mobile.png",
+    "caption": "Tampilan Wali pada Ukuran Layar HP pada WebKit / macOS Sonoma",
+    "explanation": "Screenshot memperlihatkan akses wali yang dihubungkan dengan siswa sintetis. Suite memeriksa tampilan nilai dan tidak tersedianya aksi pembuatan course pada UI wali. Profil ini menggunakan viewport kecil, bukan HP nyata.",
+    "source_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/d487aac5749eed162b76a3d3799bd34248c4e94a",
+    "sha256": "e0f27b42b8c3dd38e56c2821b167554ae3a36822bffcb29c9ca727cf16403058"
+  },
+  {
+    "figure": 38,
+    "file": "screenshots/initial-browserstack-1-failure.png",
+    "caption": "Temuan Awal pada Chrome / Windows 11",
+    "explanation": "Screenshot ini berasal dari eksekusi awal yang berhenti pada masalah tanggal absensi atau validasi input. Bukti ini dipisahkan dari capture alur lanjutan; tautan mengarah ke sesi awal yang sesuai, bukan sesi kompatibilitas yang lulus.",
+    "source_url": "https://automate.browserstack.com/builds/45b2fa6740ca4a33de96f0b37a1949c89fb29907/sessions/020456e10c471a436618afd2f55f502981fe760d",
+    "sha256": "264862d7e38210052d23e6fd454c3ebfd1de37f916088521ef42c1a7fe3d66f2"
+  },
+  {
+    "figure": 39,
+    "file": "screenshots/initial-browserstack-2-failure.png",
+    "caption": "Temuan Awal pada Edge / Windows 11",
+    "explanation": "Screenshot ini berasal dari eksekusi awal yang berhenti pada masalah tanggal absensi atau validasi input. Bukti ini dipisahkan dari capture alur lanjutan; tautan mengarah ke sesi awal yang sesuai, bukan sesi kompatibilitas yang lulus.",
+    "source_url": "https://automate.browserstack.com/builds/45b2fa6740ca4a33de96f0b37a1949c89fb29907/sessions/9ae25ffbc28e54918c57eb74e2abbce5d8609406",
+    "sha256": "d2cd91418d5299b7f40ee227732bebdfff79872b3d9e2937c32ccce91c14a805"
+  },
+  {
+    "figure": 40,
+    "file": "screenshots/initial-browserstack-3-failure.png",
+    "caption": "Temuan Awal pada Firefox / Windows 11",
+    "explanation": "Screenshot ini berasal dari eksekusi awal yang berhenti pada masalah tanggal absensi atau validasi input. Bukti ini dipisahkan dari capture alur lanjutan; tautan mengarah ke sesi awal yang sesuai, bukan sesi kompatibilitas yang lulus.",
+    "source_url": "https://automate.browserstack.com/builds/45b2fa6740ca4a33de96f0b37a1949c89fb29907/sessions/36a66b4fb10b3e37f0fa1da77a6c498036408c6a",
+    "sha256": "fac48a4bd212ccf147f694ca805d73509769daacb38f2780903a914a1b0a3c23"
+  },
+  {
+    "figure": 41,
+    "file": "screenshots/initial-browserstack-4-failure.png",
+    "caption": "Temuan Awal pada WebKit / macOS Sonoma",
+    "explanation": "Screenshot ini berasal dari eksekusi awal yang berhenti pada masalah tanggal absensi atau validasi input. Bukti ini dipisahkan dari capture alur lanjutan; tautan mengarah ke sesi awal yang sesuai, bukan sesi kompatibilitas yang lulus.",
+    "source_url": "https://automate.browserstack.com/builds/45b2fa6740ca4a33de96f0b37a1949c89fb29907/sessions/11f4bfde095f172b2d8b90f7c558ecb286b73c22",
+    "sha256": "b960fcc26a0e9661a4a61ff2be7be5b44a5e9c498ebaf6afedc35f59fdb334b6"
+  }
+]

@@ -50,7 +50,7 @@ class AuthController extends Controller
         }
 
         $portal = $request->input('portal') ?? 'services';
-        $allowedRoles = match ($portal) { 'services', 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'lms' => ['guru', 'murid', 'wali_murid'], 'assessment' => ['admin', 'guru', 'murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
+        $allowedRoles = match ($portal) { 'services', 'communication', 'lms' => ['admin', 'guru', 'murid', 'wali_murid'], 'assessment' => ['admin', 'guru', 'murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
         if (! in_array($user->role?->name, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,

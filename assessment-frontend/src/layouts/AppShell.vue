@@ -31,6 +31,13 @@ const pendingGradingCount = computed(() =>
 );
 
 async function handleLogout() {
+  if (
+    new URLSearchParams(window.location.search).get("embedded") === "1" &&
+    window.parent !== window
+  ) {
+    window.parent.postMessage({ type: "ais-logout" }, window.location.origin);
+    return;
+  }
   logoutConfirm.value = false;
   await authStore.logout();
   router.push("/login");

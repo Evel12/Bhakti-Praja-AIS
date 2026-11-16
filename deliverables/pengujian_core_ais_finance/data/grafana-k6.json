@@ -1,0 +1,240 @@
+{
+  "tested_at": "2026-11-15T14:36:39.237593+00:00",
+  "environment": "Local isolated Apache/PHP SQLite WAL, 64 threads; execution local with cloud streaming",
+  "runs": [
+    {
+      "module": "core",
+      "users": 10,
+      "role_counts": {
+        "admin": 10
+      },
+      "max_observed_vus": 10,
+      "requests": 386,
+      "response_ms": {
+        "avg": 331.7049093264248,
+        "min": 289.8479,
+        "med": 328.43035,
+        "max": 484.4308,
+        "p(90)": 351.25795000000005,
+        "p(95)": 360.073775,
+        "p(99)": 457.9554849999999
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "checks: rate>0.99": true,
+        "rate_limited_rate: rate<0.01": true,
+        "application_failure_rate: rate<0.01": true,
+        "http_req_duration: p(99)<5000": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_failed: rate<0.01": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021859,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021859",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:26:54.432541Z",
+        "ended": "2026-11-15T14:28:51.184280Z"
+      }
+    },
+    {
+      "module": "core",
+      "users": 25,
+      "role_counts": {
+        "admin": 25
+      },
+      "max_observed_vus": 25,
+      "requests": 974,
+      "response_ms": {
+        "p(95)": 386.748055,
+        "p(99)": 489.064984,
+        "avg": 356.06328203285415,
+        "min": 286.8663,
+        "med": 354.2675,
+        "max": 535.8569,
+        "p(90)": 376.7946
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "http_req_failed: rate<0.01": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "application_failure_rate: rate<0.01": true,
+        "checks: rate>0.99": true,
+        "rate_limited_rate: rate<0.01": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021863,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021863",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:27:52.998550Z",
+        "ended": "2026-11-15T14:29:49.890819Z"
+      }
+    },
+    {
+      "module": "core",
+      "users": 50,
+      "role_counts": {
+        "admin": 50
+      },
+      "max_observed_vus": 50,
+      "requests": 1863,
+      "response_ms": {
+        "med": 380.8603,
+        "max": 594.8659,
+        "p(90)": 407.8525,
+        "p(95)": 418.47128999999995,
+        "p(99)": 533.9771539999992,
+        "avg": 384.3353162104131,
+        "min": 300.242
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "rate_limited_rate: rate<0.01": true,
+        "checks: rate>0.99": true,
+        "application_failure_rate: rate<0.01": true,
+        "http_req_failed: rate<0.01": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021865,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021865",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:28:50.847674Z",
+        "ended": "2026-11-15T14:30:46.028800Z"
+      }
+    },
+    {
+      "module": "finance",
+      "users": 10,
+      "role_counts": {
+        "admin": 1,
+        "murid": 4,
+        "wali_murid": 5
+      },
+      "max_observed_vus": 10,
+      "requests": 352,
+      "response_ms": {
+        "avg": 336.6177210227269,
+        "min": 274.9194,
+        "med": 334.38755,
+        "max": 737.6425,
+        "p(90)": 359.78753,
+        "p(95)": 370.32213,
+        "p(99)": 405.642732
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "rate_limited_rate: rate<0.01": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "checks: rate>0.99": true,
+        "application_failure_rate: rate<0.01": true,
+        "http_req_failed: rate<0.01": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021871,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021871",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:29:47.448818Z",
+        "ended": "2026-11-15T14:31:40.507124Z"
+      }
+    },
+    {
+      "module": "finance",
+      "users": 25,
+      "role_counts": {
+        "admin": 3,
+        "murid": 11,
+        "wali_murid": 11
+      },
+      "max_observed_vus": 25,
+      "requests": 892,
+      "response_ms": {
+        "min": 187.5406,
+        "med": 366.2732,
+        "max": 524.1751,
+        "p(90)": 399.85793,
+        "p(95)": 410.16222,
+        "p(99)": 493.006816,
+        "avg": 365.37560807174873
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "http_req_failed: rate<0.01": true,
+        "application_failure_rate: rate<0.01": true,
+        "rate_limited_rate: rate<0.01": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true,
+        "checks: rate>0.99": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021877,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021877",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:30:43.128047Z",
+        "ended": "2026-11-15T14:32:36.080000Z"
+      }
+    },
+    {
+      "module": "finance",
+      "users": 50,
+      "role_counts": {
+        "admin": 5,
+        "murid": 22,
+        "wali_murid": 23
+      },
+      "max_observed_vus": 50,
+      "requests": 1660,
+      "response_ms": {
+        "min": 294.1072,
+        "med": 400.69135,
+        "max": 1718.8927,
+        "p(90)": 453.62412,
+        "p(95)": 542.59372,
+        "p(99)": 891.6842810000028,
+        "avg": 419.1739400602413
+      },
+      "http_failure_rate": 0,
+      "application_failure_rate": 0,
+      "rate_limited_rate": 0,
+      "thresholds": {
+        "application_failure_rate: rate<0.01": true,
+        "rate_limited_rate: rate<0.01": true,
+        "http_req_failed: rate<0.01": true,
+        "checks: rate>0.99": true,
+        "http_req_duration: p(95)<2000": true,
+        "http_req_duration: p(99)<5000": true
+      },
+      "local_passed": true,
+      "cloud": {
+        "id": 9021880,
+        "url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021880",
+        "status": "completed",
+        "result": "passed",
+        "created": "2026-11-15T14:31:40.210245Z",
+        "ended": "2026-11-15T14:33:36.230848Z"
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ use App\Http\Controllers\Lms\LmsController;
 use App\Http\Middleware\Member4Role;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('lms')->middleware(['auth:sanctum', Member4Role::class.':guru,murid,wali_murid', 'throttle:120,1,lms-'])->group(function () {
+Route::prefix('lms')->middleware(['auth:sanctum', Member4Role::class.':admin,guru,murid,wali_murid', 'throttle:120,1,lms-'])->group(function () {
     Route::get('courses', [LmsController::class, 'index']);
     Route::get('schedules', [LmsController::class, 'schedules']);
     Route::get('models', [LmsController::class, 'models']);

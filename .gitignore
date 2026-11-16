@@ -8,6 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.tools/
+.recovery/
+**/__pycache__/
 .tools/k6/
 .tools/browserstack/
 .tools/uptime/

@@ -31,8 +31,8 @@
   min-height: 44px;
   height: 44px;
   padding: 0 12px;
-  background: var(--surface, #fcfcfa);
-  border: 1px solid #dfe3d6;
+  background: var(--surface, #fafcfc);
+  border: 1px solid #d6e0e3;
   border-radius: 12px;
   font-family: var(--font-ui, "Plus Jakarta Sans", sans-serif);
   font-size: 13px;
@@ -51,13 +51,13 @@
 }
 
 .custom-select-trigger:hover {
-  border-color: #94c9ab;
+  border-color: #94bcc9;
   background: #ffffff;
 }
 
 .custom-select-trigger:focus-visible,
 .custom-select-trigger.is-open {
-  border-color: #2d7053;
+  border-color: #2d5f70;
   outline: none;
   box-shadow: 0 0 0 3px rgba(45, 112, 83, 0.15);
   background: #ffffff;
@@ -99,7 +99,7 @@
   background: transparent;
   border: none;
   padding: 4px;
-  color: #949d89;
+  color: #89989d;
   cursor: pointer;
   border-radius: 6px;
 }
@@ -114,9 +114,9 @@
 }
 
 .trigger-clear-btn:focus-visible {
-  outline: 2px solid #2d7053;
+  outline: 2px solid #2d5f70;
   outline-offset: 1px;
-  color: #2d7053;
+  color: #2d5f70;
 }
 
 .trigger-chevron {
@@ -132,7 +132,7 @@
   left: 0;
   z-index: 60;
   background: #ffffff;
-  border: 1px solid #dfe3d6;
+  border: 1px solid #d6e0e3;
   border-radius: 16px;
   box-shadow: 0 14px 35px rgba(37, 42, 25, 0.12), 0 3px 8px rgba(37, 42, 25, 0.05);
   padding: 8px;
@@ -152,7 +152,7 @@
 
 .popover-divider {
   height: 1px;
-  background: #edf0e6;
+  background: #e6eef0;
   margin: 6px 4px;
 }
 
@@ -188,18 +188,18 @@
 .custom-dropdown-item:focus-visible,
 .custom-dropdown-item.is-focused,
 .custom-dropdown-item.has-sub-open {
-  background: #f4f4ef;
+  background: #eff3f4;
   color: var(--ink, #262923);
 }
 
 .custom-dropdown-item:focus-visible {
-  outline: 2px solid #2d7053;
+  outline: 2px solid #2d5f70;
   outline-offset: -2px;
 }
 
 .custom-dropdown-item.is-active {
-  background: #edf5ef;
-  color: #2d7053;
+  background: #edf3f5;
+  color: #2d5f70;
   font-weight: 600;
 }
 
@@ -231,21 +231,21 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 9999px;
-  background: #edf0e6;
-  color: #555c4d;
+  background: #e6eef0;
+  color: #4d585c;
   font-size: 11px;
   font-weight: 600;
 }
 
 .is-active .item-badge {
-  background: #dceee0;
-  color: #245942;
+  background: #dceaee;
+  color: #244c59;
 }
 
 .item-check {
   width: 14px;
   height: 14px;
-  color: #2d7053;
+  color: #2d5f70;
   flex-shrink: 0;
 }
 
@@ -267,7 +267,7 @@
   left: calc(100% + 6px);
   z-index: 70;
   background: #ffffff;
-  border: 1px solid #dfe3d6;
+  border: 1px solid #d6e0e3;
   border-radius: 16px;
   box-shadow: 0 14px 35px rgba(37, 42, 25, 0.12), 0 3px 8px rgba(37, 42, 25, 0.05);
   padding: 8px;
@@ -282,10 +282,10 @@
   min-height: 44px;
   height: 44px;
   padding: 0 12px;
-  background: #f7f9f4;
-  border: 1px dashed #c8cfbe;
+  background: #f4f8f9;
+  border: 1px dashed #becbcf;
   border-radius: 12px;
-  color: #68705f;
+  color: #5f6c70;
   font-family: var(--font-ui, "Plus Jakarta Sans", sans-serif);
   font-size: 12px;
   font-weight: 500;
@@ -299,7 +299,7 @@
 }
 
 .btn-reset-filters:focus-visible {
-  border-color: #2d7053;
+  border-color: #2d5f70;
   outline: none;
   box-shadow: 0 0 0 3px rgba(45, 112, 83, 0.15);
 }
@@ -324,29 +324,29 @@
   transform: translateY(-50%);
   width: 16px;
   height: 16px;
-  color: #949d89;
+  color: #89989d;
   pointer-events: none;
 }
 
 .toolbar-search input {
   padding-left: 36px !important;
   padding-right: 40px !important;
-  background: var(--surface, #fcfcfa) !important;
+  background: var(--surface, #fafcfc) !important;
   height: 44px !important;
   min-height: 44px !important;
-  border: 1px solid #dfe3d6 !important;
+  border: 1px solid #d6e0e3 !important;
   border-radius: 12px !important;
   font-size: 13px !important;
   color: var(--ink, #262923) !important;
 }
 
 .toolbar-search input:hover {
-  border-color: #94c9ab !important;
+  border-color: #94bcc9 !important;
   background: #ffffff !important;
 }
 
 .toolbar-search input:focus {
-  border-color: #2d7053 !important;
+  border-color: #2d5f70 !important;
   box-shadow: 0 0 0 3px rgba(45, 112, 83, 0.15) !important;
   outline: none !important;
   background: #ffffff !important;
@@ -361,7 +361,7 @@
   min-height: 34px;
   background: transparent;
   border: none;
-  color: #949d89;
+  color: #89989d;
   padding: 4px;
   border-radius: 8px;
   display: flex;
@@ -375,9 +375,9 @@
 }
 
 .clear-search-btn:focus-visible {
-  outline: 2px solid #2d7053;
+  outline: 2px solid #2d5f70;
   outline-offset: 1px;
-  color: #2d7053;
+  color: #2d5f70;
 }
 
 .clear-search-btn .icon {
@@ -395,9 +395,9 @@
   gap: 10px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #edf0e6;
+  border-bottom: 1px solid #e6eef0;
   font-size: 12px;
-  color: #68705f;
+  color: #5f6c70;
   flex-wrap: wrap;
 }
 
@@ -425,10 +425,10 @@
   align-items: center;
   gap: 6px;
   padding: 4px 6px 4px 10px;
-  background: #edf3ea;
-  border: 1px solid #dce5d7;
+  background: #eaf1f3;
+  border: 1px solid #d7e2e5;
   border-radius: 8px;
-  color: #2d4536;
+  color: #2d3f45;
   font-size: 11px;
   font-weight: 500;
 }
@@ -436,7 +436,7 @@
 .filter-chip em {
   font-style: normal;
   font-weight: 600;
-  color: #1f3629;
+  color: #1f3036;
 }
 
 .chip-close-btn {
@@ -466,9 +466,9 @@
 }
 
 .chip-close-btn:focus-visible {
-  outline: 2px solid #2d7053;
+  outline: 2px solid #2d5f70;
   outline-offset: 1px;
-  color: #2d7053;
+  color: #2d5f70;
 }
 
 /* Responsive adjustments */
@@ -526,7 +526,7 @@
     height: 4px;
     margin: -6px auto 12px;
     border-radius: 999px;
-    background: #d3d8cb;
+    background: #cbd5d8;
   }
 
   .cascade-sub-flyout {
@@ -535,7 +535,7 @@
     margin-left: 0;
     margin-top: 4px;
     box-shadow: none;
-    border: 1px dashed #dfe3d6;
+    border: 1px dashed #d6e0e3;
   }
 
   .btn-reset-filters {
@@ -591,11 +591,11 @@
 
 .table-sort-btn:hover {
   color: var(--ink, #262923);
-  background: #eef1e7;
+  background: #e7eff1;
 }
 
 .table-sort-btn:focus-visible {
-  outline: 2px solid #2d7053;
+  outline: 2px solid #2d5f70;
   outline-offset: 1px;
 }
 
@@ -639,7 +639,7 @@
 }
 
 .table-sort-btn.active {
-  color: #2d7053;
+  color: #2d5f70;
   font-weight: 600;
 }
 

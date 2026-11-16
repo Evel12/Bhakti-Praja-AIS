@@ -66,7 +66,7 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 5px;
-  background: #e9ece2;
+  background: #e2eaec;
   border-radius: 14px;
 }
 
@@ -163,19 +163,19 @@
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  background: #edf0e5;
-  color: #4f5e47;
+  background: #e5edf0;
+  color: #47585e;
   white-space: nowrap;
 }
 
 .lms-pill.is-success {
-  background: #e3eedb;
-  color: #2f4723;
+  background: #dbe9ee;
+  color: #233e47;
 }
 
 .lms-pill.is-warn {
-  background: #f5ebd4;
-  color: #7c5616;
+  background: #d4edf5;
+  color: #16637c;
 }
 
 .lms-pill.is-dark {
@@ -219,9 +219,9 @@
   display: grid;
   gap: 8px;
   padding: 18px;
-  border: 1.5px dashed #c9d4bd;
+  border: 1.5px dashed #bdced4;
   border-radius: 16px;
-  background: #f7f9f1;
+  background: #f1f7f9;
 }
 
 .lms-file-picker-head {
@@ -231,7 +231,7 @@
 }
 
 .lms-file-picker-head .icon {
-  color: #7e906f;
+  color: #6f8890;
   width: 22px;
   height: 22px;
   flex-shrink: 0;
@@ -274,7 +274,7 @@
 .lms-progress-track {
   height: 8px;
   width: 100%;
-  background: #edf0e5;
+  background: #e5edf0;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -282,7 +282,7 @@
 .lms-progress-fill {
   height: 100%;
   width: 100%;
-  background: #719581;
+  background: #718c95;
   border-radius: 999px;
   transform-origin: left center;
 }
@@ -386,9 +386,9 @@
 }
 
 .lms-option-chip.is-correct {
-  background: #e3eedb;
-  border-color: #6b8959;
-  color: #2f4723;
+  background: #dbe9ee;
+  border-color: #597d89;
+  color: #233e47;
 }
 
 .lms-notif-list {
@@ -425,8 +425,8 @@
 }
 
 .lms-notif-item.unread {
-  border-color: #719581;
-  background: #f4f7ef;
+  border-color: #718c95;
+  background: #eff5f7;
 }
 
 .lms-bell-btn {

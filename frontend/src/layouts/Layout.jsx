@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useState
 } from 'react'
 import { useSchool } from '../school-context'
@@ -222,6 +223,12 @@ export default function Layout({
     }
   }
 
+  useEffect(() => {
+    const onAssessmentLogout = () => handleLogout()
+    window.addEventListener('assessment-logout-request', onAssessmentLogout)
+    return () => window.removeEventListener('assessment-logout-request', onAssessmentLogout)
+  }, [user])
+
   return (
     <div className="
       min-h-screen
@@ -302,7 +309,7 @@ export default function Layout({
               bg-slate-900
               text-white
             ">
-              <BarChart3 size={20} />
+              <img src="/brand/assessment-school-logo.png" alt="" className="h-10 w-10 rounded-xl object-contain" />
             </div>
 
             {!collapsed && (

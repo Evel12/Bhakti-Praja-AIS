@@ -2,8 +2,10 @@ const TOKEN_STORAGE_KEY = 'examnia-auth-token-v1'
 const SESSION_STORAGE_KEY = 'examnia-auth-session-v1'
 
 function safeStorage() {
-  if (typeof window !== 'undefined' && window.localStorage) {
-    return window.localStorage
+  if (typeof window !== 'undefined') {
+    const embedded = new URLSearchParams(window.location.search).get('embedded') === '1'
+    const storage = embedded ? window.sessionStorage : window.localStorage
+    if (storage) return storage
   }
   return null
 }

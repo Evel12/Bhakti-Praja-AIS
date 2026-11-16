@@ -7,12 +7,73 @@
 @import "./assessment-toolbar.css";
 @import "./lms.css";
 :root {
-  --table-heading: #4f5e47;
-  --muted: #68705f;
+  --table-heading: #163c44;
+  --muted: #536879;
   --text-metadata: 0.75rem;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --sidebar-open-width: 264px;
   --sidebar-collapsed-width: 80px;
+}
+.sidebar .nav-item {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #536879;
+}
+.sidebar .nav-item:hover {
+  color: #163c44;
+  background: #f1f5f8;
+}
+.sidebar .nav-item.active {
+  color: #fff;
+  background: #163c44;
+  box-shadow: none;
+}
+.sidebar .nav-item.active .liquid-nav-indicator {
+  display: none;
+}
+.sidebar .brand-logo-slot {
+  border: 0;
+  border-radius: 12px;
+  background: #163c44;
+}
+.sidebar .brand-logo-slot img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+.service-selector {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: #163c44;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: 0 3px 8px #163c4418;
+}
+.service-selector:hover {
+  background: #f1f5f8;
+  border-color: #cbd9df;
+}
+.service-selector svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.sidebar.is-compact .service-selector {
+  justify-content: center;
+  padding-inline: 0;
+}
+.content > .topbar {
+  margin-inline: -24px;
+  padding-inline: 24px;
 }
 .exam-status-bar {
   grid-column: 1 / -1;
@@ -50,7 +111,7 @@
   scroll-margin-block-start: 116px;
 }
 .exam-question:focus-visible {
-  outline: 2px solid #719581;
+  outline: 2px solid #718c95;
   outline-offset: 5px;
 }
 .step,
@@ -70,15 +131,15 @@ th {
 }
 @theme {
   --font-sans:
-    "Plus Jakarta Sans",
+    "Inter",
     ui-sans-serif,
     system-ui,
     -apple-system,
     "Segoe UI",
     sans-serif;
-  --color-star-white: #efefe8;
-  --color-ink: #262923;
-  --color-sage: #bde1cd;
+  --color-star-white: #f6f8fc;
+  --color-ink: #172033;
+  --color-sage: #cfe1eb;
   --radius-panel: 26px;
 }
 @layer components {
@@ -158,8 +219,8 @@ th {
   block-size: 18px;
 }
 .collapse-control:hover {
-  background: #ebeede;
-  border-color: #d4dacb;
+  background: #deeaee;
+  border-color: #cbd6da;
   color: var(--ink);
 }
 .nav-item {
@@ -299,7 +360,7 @@ dialog::backdrop {
   min-width: 52px;
   min-height: 44px;
   padding: 6px 10px;
-  border: 1px solid #d7ded0;
+  border: 1px solid #d0dbde;
   border-radius: 10px;
   background: var(--surface);
   cursor: pointer;
@@ -307,15 +368,15 @@ dialog::backdrop {
   user-select: none;
 }
 .option-key-pill:hover {
-  background: #eff3ea;
+  background: #eaf1f3;
 }
 .option-key-pill:has(input:checked) {
-  background: #e3eedb;
-  border-color: #6b8959;
-  color: #2f4723;
+  background: #dbe9ee;
+  border-color: #597d89;
+  color: #233e47;
 }
 .option-key-pill:has(input:checked) .option-letter {
-  color: #2f4723;
+  color: #233e47;
   font-weight: 700;
 }
 .option-key-pill input[type="radio"] {
@@ -384,7 +445,7 @@ dialog::backdrop {
   gap: 6px;
   padding: 6px 12px;
   min-height: 33px;
-  border: 1px solid #d7dcd0;
+  border: 1px solid #d0d9dc;
   border-radius: 6px;
   background: var(--surface);
   color: var(--ink);
@@ -393,8 +454,8 @@ dialog::backdrop {
   text-decoration: none;
 }
 .minimal-box-btn:hover {
-  background: #f0f2ea;
-  border-color: #c3cab8;
+  background: #eaf0f2;
+  border-color: #b8c5ca;
   color: var(--ink);
   text-decoration: none;
 }
@@ -406,7 +467,7 @@ dialog::backdrop {
   margin-top: 12px;
   padding: 6px 12px;
   min-height: 33px;
-  border: 1px solid #d7dcd0;
+  border: 1px solid #d0d9dc;
   border-radius: 6px;
   background: var(--surface);
   color: var(--ink);
@@ -415,8 +476,8 @@ dialog::backdrop {
   text-decoration: none;
 }
 .deadline-entry:hover .deadline-action {
-  background: #f0f2ea;
-  border-color: #c3cab8;
+  background: #eaf0f2;
+  border-color: #b8c5ca;
   color: var(--ink);
   text-decoration: none;
 }
@@ -475,14 +536,14 @@ dialog::backdrop {
   padding: 13px 15px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #f5f7ef;
+  background: #eff5f7;
   min-height: 48px;
   margin-top: 16px;
   cursor: pointer;
 }
 .instructions-check-card:has(input:checked) {
-  background: #eaf1e2;
-  border-color: #9fb88d;
+  background: #e2edf1;
+  border-color: #8dadb8;
 }
 .instructions-actions {
   margin-top: 18px;
@@ -778,7 +839,7 @@ dialog::backdrop {
     width: 40px;
     height: 4px;
     border-radius: 999px;
-    background: #cdd3c3;
+    background: #c3cfd3;
     margin: 0 auto 12px;
   }
   .mobile-bottom-nav {
@@ -838,7 +899,7 @@ dialog::backdrop {
     padding: 0 5px;
     border-radius: 999px;
     background: var(--peach);
-    color: #68462c;
+    color: #2c5968;
     font-size: 0.6875rem;
     font-weight: 700;
     line-height: 17px;

@@ -1,0 +1,200 @@
+{
+  "build": "LMS Local 2026-11-14T17:11:03.542Z",
+  "mode": "browserstack-local",
+  "base": "http://bs-local.com:4178",
+  "tunnel_connected": true,
+  "connection_error": null,
+  "real_mobile_devices": false,
+  "tests_ai_generation": false,
+  "assessment_modified": false,
+  "results": [
+    {
+      "browser": "Chrome / Windows 11",
+      "status": "failed",
+      "checks": [
+        "Invalid login is rejected",
+        "Teacher login and course creation",
+        "Public and private PDF uploads",
+        "Qwen default and model selection",
+        "Assignment creation and publication",
+        "Teacher announcement",
+        "Student joins course; private PDF is blocked",
+        "Student PDF download",
+        "Student file submission and mobile layout",
+        "Teacher grading and attendance with a valid meeting date",
+        "Student progress and grade display",
+        "Linked parent sees grades with read-only UI",
+        "No browser exceptions or HTTP 5xx"
+      ],
+      "findings": [
+        {
+          "code": "attendance-date-timezone",
+          "browser_date": "2026-11-15",
+          "server_date_utc": "2026-11-14",
+          "status": 422,
+          "description": "Default local attendance date is rejected while the UTC backend is still on the previous day."
+        }
+      ],
+      "screenshots": [
+        "browserstack-1-teacher-desktop.png",
+        "browserstack-1-student-mobile.png",
+        "browserstack-1-student-progress.png",
+        "browserstack-1-parent-mobile.png"
+      ],
+      "started_at": "2026-11-14T17:11:11.132Z",
+      "browser_version": "157.0.8103.39",
+      "session_id": "260234a64693a6a09806882e35ab2767d520aa4f",
+      "dashboard_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/260234a64693a6a09806882e35ab2767d520aa4f",
+      "default_meeting_date": {
+        "value": "2026-11-15",
+        "valid": true
+      },
+      "page_errors": [],
+      "server_errors": [],
+      "finished_at": "2026-11-14T17:12:42.498Z",
+      "browserstack_status": "failed",
+      "verified_at": "2026-11-14T17:18:40.4555040Z"
+    },
+    {
+      "browser": "Edge / Windows 11",
+      "status": "failed",
+      "checks": [
+        "Invalid login is rejected",
+        "Teacher login and course creation",
+        "Public and private PDF uploads",
+        "Qwen default and model selection",
+        "Assignment creation and publication",
+        "Teacher announcement",
+        "Student joins course; private PDF is blocked",
+        "Student PDF download",
+        "Student file submission and mobile layout",
+        "Teacher grading and attendance with a valid meeting date",
+        "Student progress and grade display",
+        "Linked parent sees grades with read-only UI",
+        "No browser exceptions or HTTP 5xx"
+      ],
+      "findings": [
+        {
+          "code": "attendance-date-timezone",
+          "browser_date": "2026-11-15",
+          "server_date_utc": "2026-11-14",
+          "status": 422,
+          "description": "Default local attendance date is rejected while the UTC backend is still on the previous day."
+        }
+      ],
+      "screenshots": [
+        "browserstack-2-teacher-desktop.png",
+        "browserstack-2-student-mobile.png",
+        "browserstack-2-student-progress.png",
+        "browserstack-2-parent-mobile.png"
+      ],
+      "started_at": "2026-11-14T17:12:42.499Z",
+      "browser_version": "157.0.4341.42",
+      "session_id": "a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+      "dashboard_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/a3ccd4d671acd3a0936f2315b332ffb5f09799c2",
+      "default_meeting_date": {
+        "value": "2026-11-15",
+        "valid": true
+      },
+      "page_errors": [],
+      "server_errors": [],
+      "finished_at": "2026-11-14T17:14:17.102Z",
+      "browserstack_status": "failed",
+      "verified_at": "2026-11-14T17:18:40.7709544Z"
+    },
+    {
+      "browser": "Firefox / Windows 11",
+      "status": "failed",
+      "checks": [
+        "Invalid login is rejected",
+        "Teacher login and course creation",
+        "Public and private PDF uploads",
+        "Qwen default and model selection",
+        "Assignment creation and publication",
+        "Teacher announcement",
+        "Student joins course; private PDF is blocked",
+        "Student PDF download",
+        "Student file submission and mobile layout",
+        "Teacher grading and attendance with a valid meeting date",
+        "Student progress and grade display",
+        "Linked parent sees grades with read-only UI",
+        "No browser exceptions or HTTP 5xx"
+      ],
+      "findings": [
+        {
+          "code": "attendance-date-timezone",
+          "browser_date": "2026-11-15",
+          "server_date_utc": "2026-11-14",
+          "status": 422,
+          "description": "Default local attendance date is rejected while the UTC backend is still on the previous day."
+        }
+      ],
+      "screenshots": [
+        "browserstack-3-teacher-desktop.png",
+        "browserstack-3-student-mobile.png",
+        "browserstack-3-student-progress.png",
+        "browserstack-3-parent-mobile.png"
+      ],
+      "started_at": "2026-11-14T17:14:17.103Z",
+      "browser_version": "157.0",
+      "session_id": "17320e53174134606e35f59fb908e1892607bb83",
+      "dashboard_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/17320e53174134606e35f59fb908e1892607bb83",
+      "default_meeting_date": {
+        "value": "2026-11-15",
+        "valid": true
+      },
+      "page_errors": [],
+      "server_errors": [],
+      "finished_at": "2026-11-14T17:16:22.678Z",
+      "browserstack_status": "failed",
+      "verified_at": "2026-11-14T17:18:41.0764633Z"
+    },
+    {
+      "browser": "WebKit / macOS Sonoma",
+      "status": "failed",
+      "checks": [
+        "Invalid login is rejected",
+        "Teacher login and course creation",
+        "Public and private PDF uploads",
+        "Qwen default and model selection",
+        "Assignment creation and publication",
+        "Teacher announcement",
+        "Student joins course; private PDF is blocked",
+        "Student PDF download",
+        "Student file submission and mobile layout",
+        "Teacher grading and attendance with a valid meeting date",
+        "Student progress and grade display",
+        "Linked parent sees grades with read-only UI",
+        "No browser exceptions or HTTP 5xx"
+      ],
+      "findings": [
+        {
+          "code": "attendance-date-input",
+          "browser_date": "(empty)",
+          "server_date_utc": "2026-11-14",
+          "status": "client-validation",
+          "description": "The default attendance date is empty or invalid; native form validation blocks submission."
+        }
+      ],
+      "screenshots": [
+        "browserstack-4-teacher-desktop.png",
+        "browserstack-4-student-mobile.png",
+        "browserstack-4-student-progress.png",
+        "browserstack-4-parent-mobile.png"
+      ],
+      "started_at": "2026-11-14T17:16:22.679Z",
+      "browser_version": "18.2",
+      "session_id": "d487aac5749eed162b76a3d3799bd34248c4e94a",
+      "dashboard_url": "https://automate.browserstack.com/builds/cbc2cf340ceface871ecc7d26f6ae5436e01e441/sessions/d487aac5749eed162b76a3d3799bd34248c4e94a",
+      "default_meeting_date": {
+        "value": "",
+        "valid": false
+      },
+      "page_errors": [],
+      "server_errors": [],
+      "finished_at": "2026-11-14T17:17:44.621Z",
+      "browserstack_status": "failed",
+      "verified_at": "2026-11-14T17:18:41.3823434Z"
+    }
+  ]
+}

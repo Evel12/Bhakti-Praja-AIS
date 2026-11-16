@@ -1,0 +1,113 @@
+{
+  "scope": "Local Windows Chrome process tree; verified CPU affinity and aggregate committed-memory caps. Not physical RAM or CPU-model emulation; backend unconstrained.",
+  "host": {
+    "physical_ram_bytes": 33514369024,
+    "logical_processors": 32,
+    "cpu_model": "AMD Ryzen 9 8940HX with Radeon Graphics        "
+  },
+  "tested_at": "2026-11-15T22:01:20+0700",
+  "results": [
+    {
+      "logical_cpu_limit": 1,
+      "committed_memory_limit_mib": 512,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 1,
+        "committed_memory_bytes": 536870912
+      },
+      "verified_process_affinity_mask": 1,
+      "checks": [
+        "Core: Siswa renders populated rows and API returns 200",
+        "Core: Jadwal Pembelajaran renders populated rows and API returns 200",
+        "Core: Registrasi Akademik renders populated rows and API returns 200",
+        "Finance: own invoice renders; admin-only report denied",
+        "No uncaught JavaScript exceptions"
+      ],
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "screenshots": [
+        {
+          "module": "core",
+          "file": "core-finance-resource-1-512-core.png"
+        },
+        {
+          "module": "finance",
+          "file": "core-finance-resource-1-512-finance.png"
+        }
+      ],
+      "core_login_ms": 2121,
+      "finance_login_ms": 3971,
+      "peak_job_committed_memory_mib": 450.77
+    },
+    {
+      "logical_cpu_limit": 2,
+      "committed_memory_limit_mib": 1024,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 3,
+        "committed_memory_bytes": 1073741824
+      },
+      "verified_process_affinity_mask": 3,
+      "checks": [
+        "Core: Siswa renders populated rows and API returns 200",
+        "Core: Jadwal Pembelajaran renders populated rows and API returns 200",
+        "Core: Registrasi Akademik renders populated rows and API returns 200",
+        "Finance: own invoice renders; admin-only report denied",
+        "No uncaught JavaScript exceptions"
+      ],
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "screenshots": [
+        {
+          "module": "core",
+          "file": "core-finance-resource-2-1024-core.png"
+        },
+        {
+          "module": "finance",
+          "file": "core-finance-resource-2-1024-finance.png"
+        }
+      ],
+      "core_login_ms": 1224,
+      "finance_login_ms": 1219,
+      "peak_job_committed_memory_mib": 490.74
+    },
+    {
+      "logical_cpu_limit": 4,
+      "committed_memory_limit_mib": 2048,
+      "status": "passed",
+      "verified_job_limits": {
+        "affinity_mask": 15,
+        "committed_memory_bytes": 2147483648
+      },
+      "verified_process_affinity_mask": 15,
+      "checks": [
+        "Core: Siswa renders populated rows and API returns 200",
+        "Core: Jadwal Pembelajaran renders populated rows and API returns 200",
+        "Core: Registrasi Akademik renders populated rows and API returns 200",
+        "Finance: own invoice renders; admin-only report denied",
+        "No uncaught JavaScript exceptions"
+      ],
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "screenshots": [
+        {
+          "module": "core",
+          "file": "core-finance-resource-4-2048-core.png"
+        },
+        {
+          "module": "finance",
+          "file": "core-finance-resource-4-2048-finance.png"
+        }
+      ],
+      "core_login_ms": 1101,
+      "finance_login_ms": 1083,
+      "peak_job_committed_memory_mib": 484.21
+    }
+  ]
+}

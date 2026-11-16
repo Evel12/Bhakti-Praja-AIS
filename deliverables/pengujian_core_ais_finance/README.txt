@@ -1,0 +1,1 @@
+Ekstrak ZIP, lalu buka index.html. Laporan terpisah ada pada core_ais.html dan finance.html. Semua gambar PNG asli ada di screenshots. Data hasil dan status provider ada di data. Gambar k6 berasal dari ekspor HTML hasil run yang dikirim ke Grafana Cloud; tautan run aslinya tersedia. Tidak ada kredensial, password atau token dalam paket.

@@ -1,0 +1,1472 @@
+[
+  {
+    "module": "core",
+    "figure": 1,
+    "file": "screenshots/core/core-10-overview.png",
+    "caption": "Core AIS 10 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021859",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "8251837fff753751bb38e9915ccb93f05a97519152061872228799469f36654c"
+  },
+  {
+    "module": "core",
+    "figure": 2,
+    "file": "screenshots/core/core-10-timings.png",
+    "caption": "Core AIS 10 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021859",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "a62ca0ee2d2d0a1f06b852b1e8219ec26b50b263a8465cecf4aa13a1c1283d5f"
+  },
+  {
+    "module": "core",
+    "figure": 3,
+    "file": "screenshots/core/core-10-summary.png",
+    "caption": "Core AIS 10 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021859",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "d031f361bb0f5c922e6f841a26a096ed82407283d484b92cd83776120a882467"
+  },
+  {
+    "module": "core",
+    "figure": 4,
+    "file": "screenshots/core/core-10-full.png",
+    "caption": "Core AIS 10 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021859",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "f380fb651f5aec444ef9eb499b0a3c24a5db2b50d58294b16477b551ad5d0131"
+  },
+  {
+    "module": "core",
+    "figure": 5,
+    "file": "screenshots/core/core-25-overview.png",
+    "caption": "Core AIS 25 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021863",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "7bca5bf5339ce65ceb9eabc46bd69ab0115a7acf17acdc90a9cd589b6ae73113"
+  },
+  {
+    "module": "core",
+    "figure": 6,
+    "file": "screenshots/core/core-25-timings.png",
+    "caption": "Core AIS 25 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021863",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "2ac7e8b180794e38d68c7787e9f39c3bce5ef3c896181f17ce22247bfcdb9cef"
+  },
+  {
+    "module": "core",
+    "figure": 7,
+    "file": "screenshots/core/core-25-summary.png",
+    "caption": "Core AIS 25 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021863",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "582e33bf70c5489be9457a041348a18f0825d99992c4a821b40e1ba8c3f5c6d0"
+  },
+  {
+    "module": "core",
+    "figure": 8,
+    "file": "screenshots/core/core-25-full.png",
+    "caption": "Core AIS 25 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021863",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "0ff62cdf9f54cddee9d324f44f7d9dffa33f946e9ae6e793d750f1d3278cc126"
+  },
+  {
+    "module": "core",
+    "figure": 9,
+    "file": "screenshots/core/core-50-overview.png",
+    "caption": "Core AIS 50 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021865",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "40a43cf855b4537ab4311f1a1a0fe9a398f133bc21864e0655dc6d12b96d508a"
+  },
+  {
+    "module": "core",
+    "figure": 10,
+    "file": "screenshots/core/core-50-timings.png",
+    "caption": "Core AIS 50 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021865",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "88971693e357d6f77c2ac2c620283f46f6ba687250c899f480c17adf65ba0d3c"
+  },
+  {
+    "module": "core",
+    "figure": 11,
+    "file": "screenshots/core/core-50-summary.png",
+    "caption": "Core AIS 50 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021865",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "0f99003e94fd02332595f4f871fd2989db2f39e10349d3e3d00f8fd6a2e0b2b6"
+  },
+  {
+    "module": "core",
+    "figure": 12,
+    "file": "screenshots/core/core-50-full.png",
+    "caption": "Core AIS 50 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021865",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "ff2e2a0c740874c51e77f78c7526069e75ba6b41ba1a2545468aa6ee37949dbe"
+  },
+  {
+    "module": "core",
+    "figure": 13,
+    "file": "screenshots/core/1-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Laptop Windows 10 Chrome",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9a94f466c4b64a16ebd680c6666f4cc5d66ecc34646ee4b00116df09f3ef1e69"
+  },
+  {
+    "module": "core",
+    "figure": 14,
+    "file": "screenshots/core/1-core-students.png",
+    "caption": "Data Siswa pada Laptop Windows 10 Chrome",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "176121e19314b756e6620ecff249d0947aefeaed6b48b82779616646c31865d2"
+  },
+  {
+    "module": "core",
+    "figure": 15,
+    "file": "screenshots/core/1-core-classrooms.png",
+    "caption": "Data Kelas pada Laptop Windows 10 Chrome",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "78c892925d06b262a0eeb1827934f7b0c78ff37fd5025f011deff18a3cc8eddf"
+  },
+  {
+    "module": "core",
+    "figure": 16,
+    "file": "screenshots/core/1-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Laptop Windows 10 Chrome",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2337ab224a0b884879669ece28821e4dd58301477cf42821ef182fb659bec566"
+  },
+  {
+    "module": "core",
+    "figure": 17,
+    "file": "screenshots/core/1-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Laptop Windows 10 Chrome",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "941f2a13c6a1a2cd2d8f174fedc742841ac78f34ec61f117a97871b049f234c9"
+  },
+  {
+    "module": "core",
+    "figure": 18,
+    "file": "screenshots/core/1-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Laptop Windows 10 Chrome",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "165ef8484339204ac60f736c7da41dd11b8166c414ef972b7cf2fb4fd49fe8e8"
+  },
+  {
+    "module": "core",
+    "figure": 19,
+    "file": "screenshots/core/2-core-dashboard.png",
+    "caption": "Dashboard Akademik pada PC Windows 11 Edge",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "86d722c3bec41d8a058030cd4468ad8af955373ac2899924fe6ebe53542a260c"
+  },
+  {
+    "module": "core",
+    "figure": 20,
+    "file": "screenshots/core/2-core-students.png",
+    "caption": "Data Siswa pada PC Windows 11 Edge",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "1a0645d8bd9cd9cdc72144f8e819c88a7e7c86ff59287eab92194632fefbd7f0"
+  },
+  {
+    "module": "core",
+    "figure": 21,
+    "file": "screenshots/core/2-core-classrooms.png",
+    "caption": "Data Kelas pada PC Windows 11 Edge",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "bab9870e3f0de3c27ff0667297a83acb8b5dea1be53ca2e90b869b2ac3122256"
+  },
+  {
+    "module": "core",
+    "figure": 22,
+    "file": "screenshots/core/2-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada PC Windows 11 Edge",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "8a2a8dcc04444b4cd25dbf36427f16d12bc061274921312d0a3b89d331383fec"
+  },
+  {
+    "module": "core",
+    "figure": 23,
+    "file": "screenshots/core/2-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada PC Windows 11 Edge",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "edc79db063e9826b5a5b14ac1aee7dc620019039cffe21ad92fe159bc9ca29ea"
+  },
+  {
+    "module": "core",
+    "figure": 24,
+    "file": "screenshots/core/2-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada PC Windows 11 Edge",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "0c52179b1d748d03e236f89021dbb0cb9aa1bab17b0876b45e7ac1281e714517"
+  },
+  {
+    "module": "core",
+    "figure": 25,
+    "file": "screenshots/core/3-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Laptop Windows 11 Firefox",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "fc9b5c05ae04a6134aaf0f77c3b4b0846439976aad535a038384237e55883d6e"
+  },
+  {
+    "module": "core",
+    "figure": 26,
+    "file": "screenshots/core/3-core-students.png",
+    "caption": "Data Siswa pada Laptop Windows 11 Firefox",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "49e1bd76c3cb526cb37af364d8f0729fa8c348184f4e853fd05c89e12467183c"
+  },
+  {
+    "module": "core",
+    "figure": 27,
+    "file": "screenshots/core/3-core-classrooms.png",
+    "caption": "Data Kelas pada Laptop Windows 11 Firefox",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "fc2e378fe8ab3ad1ec59bd4aa57c9a8fee07cede48ed34f35f9bdbb4e1837faa"
+  },
+  {
+    "module": "core",
+    "figure": 28,
+    "file": "screenshots/core/3-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Laptop Windows 11 Firefox",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2791d03c4dacf791def414710c88ce0c938c8f43c0afc6714a954c15ba51dddb"
+  },
+  {
+    "module": "core",
+    "figure": 29,
+    "file": "screenshots/core/3-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Laptop Windows 11 Firefox",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e0bcbcdcadfcea7914b37847e6229f786071ebeef09124f6931aa5c758968346"
+  },
+  {
+    "module": "core",
+    "figure": 30,
+    "file": "screenshots/core/3-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Laptop Windows 11 Firefox",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "fb688e8887ea7eb1ea48a00c0c063b1d392f4cf5d5b9d64929cb86873171967e"
+  },
+  {
+    "module": "core",
+    "figure": 31,
+    "file": "screenshots/core/4-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Laptop macOS Sequoia Safari",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9482463e554373c1ad30cf0af45e09b617f0557eada95ef2d85792387a49f124"
+  },
+  {
+    "module": "core",
+    "figure": 32,
+    "file": "screenshots/core/4-core-students.png",
+    "caption": "Data Siswa pada Laptop macOS Sequoia Safari",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "0693e83a135297837fb20c7d346e11601de7a7e47f8cec9cee71fa25706e9049"
+  },
+  {
+    "module": "core",
+    "figure": 33,
+    "file": "screenshots/core/4-core-classrooms.png",
+    "caption": "Data Kelas pada Laptop macOS Sequoia Safari",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "a4a0d4566151b646c8d82abf9b99f22c27564ecd424affeae2747836e34ee7b8"
+  },
+  {
+    "module": "core",
+    "figure": 34,
+    "file": "screenshots/core/4-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Laptop macOS Sequoia Safari",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "7d73af1c48ee2bbe8536a842e32e703a91836be37c6ad96c6e7a63302644e305"
+  },
+  {
+    "module": "core",
+    "figure": 35,
+    "file": "screenshots/core/4-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Laptop macOS Sequoia Safari",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "3368126204eb5151cd0c5ac40af553e88acab9d18927b0654c27053a9a6f7e3f"
+  },
+  {
+    "module": "core",
+    "figure": 36,
+    "file": "screenshots/core/4-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Laptop macOS Sequoia Safari",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "b8ee22521bef5af7d2d815feb65b8464c96ceb35761f356001f140710adeba04"
+  },
+  {
+    "module": "core",
+    "figure": 37,
+    "file": "screenshots/core/5-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Galaxy S22 Android 12",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "77a86de0830dc66795e6a84fb79fd9e040f4133359c521cd279024fbbcde305c"
+  },
+  {
+    "module": "core",
+    "figure": 38,
+    "file": "screenshots/core/5-core-students.png",
+    "caption": "Data Siswa pada Galaxy S22 Android 12",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "d107d1fbe5d3c3ee87aae75283a13a7ef35b3c8b3b033b9314c64ee534a44fc8"
+  },
+  {
+    "module": "core",
+    "figure": 39,
+    "file": "screenshots/core/5-core-classrooms.png",
+    "caption": "Data Kelas pada Galaxy S22 Android 12",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "7eb12cea5e9fcc699fa4877294a710e2c6de34299ebcecf14502c94dc3607583"
+  },
+  {
+    "module": "core",
+    "figure": 40,
+    "file": "screenshots/core/5-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Galaxy S22 Android 12",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "4e099ccfb1868bc515168586f4e17de2458dd0f6d915ec0ef43889637e682ab6"
+  },
+  {
+    "module": "core",
+    "figure": 41,
+    "file": "screenshots/core/5-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Galaxy S22 Android 12",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "1b4b93dfeb2117f8d4b67e40d4225485be623c20c396f63e79e7932fc279d02e"
+  },
+  {
+    "module": "core",
+    "figure": 42,
+    "file": "screenshots/core/5-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Galaxy S22 Android 12",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2ba5d2e61b9fafd517122762b86ea97ed4894341a04411234b02705153338b05"
+  },
+  {
+    "module": "core",
+    "figure": 43,
+    "file": "screenshots/core/6-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Pixel 7 Android 13",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "032d5c67e31b22b0fa9e7c5f42c8c49b91666690a08b21bdad91b749dd477ae3"
+  },
+  {
+    "module": "core",
+    "figure": 44,
+    "file": "screenshots/core/6-core-students.png",
+    "caption": "Data Siswa pada Pixel 7 Android 13",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e6fdd5536f37ce3a33c2d663d878e313c6db2aefda3d41598b84244c8e441a24"
+  },
+  {
+    "module": "core",
+    "figure": 45,
+    "file": "screenshots/core/6-core-classrooms.png",
+    "caption": "Data Kelas pada Pixel 7 Android 13",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "50d52df2642e4b90d21cd566e072dd2a78807aa1306fa859c97443ef49d53682"
+  },
+  {
+    "module": "core",
+    "figure": 46,
+    "file": "screenshots/core/6-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Pixel 7 Android 13",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "3f770f48397447ebbea55d2f785ae06ed0bdeb84656417828f002bc865761de6"
+  },
+  {
+    "module": "core",
+    "figure": 47,
+    "file": "screenshots/core/6-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Pixel 7 Android 13",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9a49c6133b8d0ddf1ac68740ecf82a4da4a1fbe2487519b1f51d1c0f03b09858"
+  },
+  {
+    "module": "core",
+    "figure": 48,
+    "file": "screenshots/core/6-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Pixel 7 Android 13",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "bb0e8dd69275b81923395e605bbcda499aa1a3760bbfd32d9409f3cb2baf737e"
+  },
+  {
+    "module": "core",
+    "figure": 49,
+    "file": "screenshots/core/7-core-dashboard.png",
+    "caption": "Dashboard Akademik pada Galaxy Tab S9 Android 13",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "85b0cb7fd1b1b2902bd8aff350332bb78f7aee71492d58d1333e3142dab7bf31"
+  },
+  {
+    "module": "core",
+    "figure": 50,
+    "file": "screenshots/core/7-core-students.png",
+    "caption": "Data Siswa pada Galaxy Tab S9 Android 13",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "89d5d1575e143488d69da719679fb12bf9e81c0427624e1d9e329c93a59bd8a3"
+  },
+  {
+    "module": "core",
+    "figure": 51,
+    "file": "screenshots/core/7-core-classrooms.png",
+    "caption": "Data Kelas pada Galaxy Tab S9 Android 13",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "28aff3a39228906206b95842352e74a26f55ddc5ba4171976039844ef361a2a5"
+  },
+  {
+    "module": "core",
+    "figure": 52,
+    "file": "screenshots/core/7-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada Galaxy Tab S9 Android 13",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "f67dc3b3c67eebd08ead7b1ad6168bee5a5461d0bb709dd3b3c9a36f0beb48af"
+  },
+  {
+    "module": "core",
+    "figure": 53,
+    "file": "screenshots/core/7-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada Galaxy Tab S9 Android 13",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "8b3a5a727a10791380986725b4eae195e8e6d4b5af5f1a2393134295bf52e925"
+  },
+  {
+    "module": "core",
+    "figure": 54,
+    "file": "screenshots/core/7-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada Galaxy Tab S9 Android 13",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "cf8abaf85bdef8f2e036d4a472eee37e990a015b228f745f17c4ea9f7714a1d6"
+  },
+  {
+    "module": "core",
+    "figure": 55,
+    "file": "screenshots/core/8-core-dashboard.png",
+    "caption": "Dashboard Akademik pada iPhone 15 iOS 17",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "4fb60c28a00691f609911f813f20ce50cca4c0848cd31015e9b9f85e233480a0"
+  },
+  {
+    "module": "core",
+    "figure": 56,
+    "file": "screenshots/core/8-core-students.png",
+    "caption": "Data Siswa pada iPhone 15 iOS 17",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "880eb99f226d4fca895003f02e0010ca1647075641a12fd79de25a6ae00abfc7"
+  },
+  {
+    "module": "core",
+    "figure": 57,
+    "file": "screenshots/core/8-core-classrooms.png",
+    "caption": "Data Kelas pada iPhone 15 iOS 17",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "7e43001f9a841c0bce9547e9c16a9892999e8a2206c4a46e95307998ad7e7d60"
+  },
+  {
+    "module": "core",
+    "figure": 58,
+    "file": "screenshots/core/8-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada iPhone 15 iOS 17",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2c46a5a94b224554e9a20091971069420f8de503dfec4eb09f49dfb77a90afa9"
+  },
+  {
+    "module": "core",
+    "figure": 59,
+    "file": "screenshots/core/8-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada iPhone 15 iOS 17",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "85b68438800531d8fe6ad34be10907f1753a35005e9b4ad0983df89bccb42848"
+  },
+  {
+    "module": "core",
+    "figure": 60,
+    "file": "screenshots/core/8-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada iPhone 15 iOS 17",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "3c23af21530b92516a42fbf1e687f8123fe50f902500b1ab3d8dc427c0484aa4"
+  },
+  {
+    "module": "core",
+    "figure": 61,
+    "file": "screenshots/core/9-core-dashboard.png",
+    "caption": "Dashboard Akademik pada iPad 10th iOS 16",
+    "description": "Ringkasan data akademik berhasil dibuka setelah login admin.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "66bae5a94a4be4a8a36d8e320b31cdf32bfc266043968971bfde1c4add9d5b8d"
+  },
+  {
+    "module": "core",
+    "figure": 62,
+    "file": "screenshots/core/9-core-students.png",
+    "caption": "Data Siswa pada iPad 10th iOS 16",
+    "description": "Daftar siswa terisi data sintetis. Endpoint daftar diverifikasi mengembalikan HTTP 200.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9d0c7b6bc099fda09e257e4131433280efeff490d3a87728ae139ea8af4fe65f"
+  },
+  {
+    "module": "core",
+    "figure": 63,
+    "file": "screenshots/core/9-core-classrooms.png",
+    "caption": "Data Kelas pada iPad 10th iOS 16",
+    "description": "Daftar kelas terisi dan relasi data akademik dapat dibaca.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "7b83ae69cc8b683d1fff15470e5603401cbcf0a8f441bb5b7519914a5d79f63f"
+  },
+  {
+    "module": "core",
+    "figure": 64,
+    "file": "screenshots/core/9-core-schedules.png",
+    "caption": "Jadwal Pembelajaran pada iPad 10th iOS 16",
+    "description": "Jadwal akademik terisi, sehingga pemeriksaan tidak hanya mengukur daftar kosong.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "43764e8e002cfa581986479f5e0a286daf260bfb7bee58577b2b89d8b2a1cd17"
+  },
+  {
+    "module": "core",
+    "figure": 65,
+    "file": "screenshots/core/9-core-academic-registrations.png",
+    "caption": "Registrasi Akademik pada iPad 10th iOS 16",
+    "description": "Data registrasi sintetis berhasil dimuat pada UI dan API.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "3459cb4190387dd42b8cff6c465830b2bf304547a60c7519dcb57af593245e2c"
+  },
+  {
+    "module": "core",
+    "figure": 66,
+    "file": "screenshots/core/9-core-created.png",
+    "caption": "Pembuatan Program Keahlian pada iPad 10th iOS 16",
+    "description": "Program keahlian sintetis dibuat melalui UI dan keberadaannya diperiksa melalui API. Alur berikutnya menguji perubahan, validasi kode duplikat dan penghapusan data uji tersebut.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "c34487883901d304a81452a29793805a7ad37949f3cda3e4890e36e60e057054"
+  },
+  {
+    "module": "core",
+    "figure": 67,
+    "file": "screenshots/core/core-finance-resource-1-512-core.png",
+    "caption": "Core AIS pada 1 CPU dan 512 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "3546ae595bf406b450bae6803f77c5101baa01a06db1f4152497a7404722a851"
+  },
+  {
+    "module": "core",
+    "figure": 68,
+    "file": "screenshots/core/core-finance-resource-2-1024-core.png",
+    "caption": "Core AIS pada 2 CPU dan 1024 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "3546ae595bf406b450bae6803f77c5101baa01a06db1f4152497a7404722a851"
+  },
+  {
+    "module": "core",
+    "figure": 69,
+    "file": "screenshots/core/core-finance-resource-4-2048-core.png",
+    "caption": "Core AIS pada 4 CPU dan 2048 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "3546ae595bf406b450bae6803f77c5101baa01a06db1f4152497a7404722a851"
+  },
+  {
+    "module": "finance",
+    "figure": 1,
+    "file": "screenshots/finance/finance-10-overview.png",
+    "caption": "Finance 10 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021871",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "47f031d23236fbda690c7c035344353da82ea01aa449878604d8634f00146674"
+  },
+  {
+    "module": "finance",
+    "figure": 2,
+    "file": "screenshots/finance/finance-10-timings.png",
+    "caption": "Finance 10 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021871",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "2e3e2ec7dd4bb860e0f55a9d2382f84b60b36ec8a1b69147d4bff218426b7171"
+  },
+  {
+    "module": "finance",
+    "figure": 3,
+    "file": "screenshots/finance/finance-10-summary.png",
+    "caption": "Finance 10 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021871",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "493693ae7bf5aeace8655ea0c1d054b8a174d7c2bf54768c0dd1aff646ed23ad"
+  },
+  {
+    "module": "finance",
+    "figure": 4,
+    "file": "screenshots/finance/finance-10-full.png",
+    "caption": "Finance 10 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021871",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "c3be90c63af579428003b131ced17bef6e525abed96fd35d3cbdc602bcde999b"
+  },
+  {
+    "module": "finance",
+    "figure": 5,
+    "file": "screenshots/finance/finance-25-overview.png",
+    "caption": "Finance 25 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021877",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "9e7f0a3cf117a7681800c4200193a1499298d45d12d627e01b51e853004522e3"
+  },
+  {
+    "module": "finance",
+    "figure": 6,
+    "file": "screenshots/finance/finance-25-timings.png",
+    "caption": "Finance 25 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021877",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "f20bc165c65ea4e3c76b766ffe63a6096ec2e66cfbf701d23b0e12bbc51e258a"
+  },
+  {
+    "module": "finance",
+    "figure": 7,
+    "file": "screenshots/finance/finance-25-summary.png",
+    "caption": "Finance 25 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021877",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "e68d78ca6a5be2e15e8e65156aba4b28101bf88f9824168420172a19ad9e03b1"
+  },
+  {
+    "module": "finance",
+    "figure": 8,
+    "file": "screenshots/finance/finance-25-full.png",
+    "caption": "Finance 25 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021877",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "8e5a51e1284563d892f2161c5971344e0982133f00536d484348f1bd37953e7e"
+  },
+  {
+    "module": "finance",
+    "figure": 9,
+    "file": "screenshots/finance/finance-50-overview.png",
+    "caption": "Finance 50 VU Overview",
+    "description": "Grafik memperlihatkan perubahan VU, laju request dan durasi sepanjang run. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021880",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "e3b4497dbb6c8ade5798fc2de0acd41de50b9ad5a77a110587ff5cbcc3cf1fb1"
+  },
+  {
+    "module": "finance",
+    "figure": 10,
+    "file": "screenshots/finance/finance-50-timings.png",
+    "caption": "Finance 50 VU Rincian Waktu HTTP",
+    "description": "Bagian ini memperlihatkan durasi HTTP, kegagalan request, waktu tunggu, pengiriman, penerimaan dan koneksi. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021880",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "620e0bdea6e54bd5234ffdcba5d7098851eee534930d6ae88c12106745eb2c32"
+  },
+  {
+    "module": "finance",
+    "figure": 11,
+    "file": "screenshots/finance/finance-50-summary.png",
+    "caption": "Finance 50 VU Ringkasan Metrik",
+    "description": "Tabel menunjukkan agregat metrik dan pemeriksaan. Angka presisi pada laporan diambil dari JSON summary; angka screenshot dapat dibulatkan. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021880",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "8c80bed48a65867d9485958a62e2295b2b7b4237e8180c9442f90b9538286771"
+  },
+  {
+    "module": "finance",
+    "figure": 12,
+    "file": "screenshots/finance/finance-50-full.png",
+    "caption": "Finance 50 VU Laporan Utuh",
+    "description": "Screenshot utuh dari Overview sampai Summary. Versi per bagian disertakan agar angka tetap terbaca. Gambar berasal dari laporan HTML hasil run yang dikirim ke Grafana Cloud, bukan screenshot antarmuka web Grafana Cloud.",
+    "source_url": "https://tancoconut1625.grafana.net/a/k6-app/runs/9021880",
+    "provenance": "k6 exported HTML report capture",
+    "sha256": "22ef17ca9b6a88ccaf4cd8a6bbddf2f9cd5cd54f01d66e8bfc0648e8e3ead370"
+  },
+  {
+    "module": "finance",
+    "figure": 13,
+    "file": "screenshots/finance/1-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Laptop Windows 10 Chrome",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "324fbdab51652feb43ca07cbd5205955602fd4f2be34573c6753954d37e76628"
+  },
+  {
+    "module": "finance",
+    "figure": 14,
+    "file": "screenshots/finance/1-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Laptop Windows 10 Chrome",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "1ddfae6e58dbfd6282644c76c0274cf0e2ebd2aca096cbcd504c03832b463cec"
+  },
+  {
+    "module": "finance",
+    "figure": 15,
+    "file": "screenshots/finance/1-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Laptop Windows 10 Chrome",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "a277b52d305b5f4abd4f2d855ebac017e38ace535252c2438cbb97eb61e4899e"
+  },
+  {
+    "module": "finance",
+    "figure": 16,
+    "file": "screenshots/finance/1-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Laptop Windows 10 Chrome",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9a4b69e0b2c0c410d08baf76bfeff42168830eba84f29d86a7b927bfec8c78ee"
+  },
+  {
+    "module": "finance",
+    "figure": 17,
+    "file": "screenshots/finance/1-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Laptop Windows 10 Chrome",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "83398bf1d86185cd1574083b398931ea7bdbbdf04c7128f64b5c77c6b0c8cd86"
+  },
+  {
+    "module": "finance",
+    "figure": 18,
+    "file": "screenshots/finance/1-finance-report.png",
+    "caption": "Laporan Keuangan pada Laptop Windows 10 Chrome",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "77021b8150a96a7e1d86cb45133360a1d7ceea646056df8baa5356dc9a190e3f"
+  },
+  {
+    "module": "finance",
+    "figure": 19,
+    "file": "screenshots/finance/1-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Laptop Windows 10 Chrome",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "44c6e022fb003312d175c8b8e4f0407baf6e7af5063b8a6780e18ed90efb8f7f"
+  },
+  {
+    "module": "finance",
+    "figure": 20,
+    "file": "screenshots/finance/2-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada PC Windows 11 Edge",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "a48933dc8686768b9ce433a055281335ef7a8e58788e2c788f2a48abab9a90aa"
+  },
+  {
+    "module": "finance",
+    "figure": 21,
+    "file": "screenshots/finance/2-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada PC Windows 11 Edge",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e7c94d170d8b05b5f17e80da4422ab0b1b4b43574856a284a012abdc22419b42"
+  },
+  {
+    "module": "finance",
+    "figure": 22,
+    "file": "screenshots/finance/2-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada PC Windows 11 Edge",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "ff49163ef34d75a4394025a4bb50116191a7d4574471dcc8b61cd93ef1651ead"
+  },
+  {
+    "module": "finance",
+    "figure": 23,
+    "file": "screenshots/finance/2-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada PC Windows 11 Edge",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "d7de392b3457bdb5e1683d366eaca12553d252e69e8d93a22b0954bca3c853e0"
+  },
+  {
+    "module": "finance",
+    "figure": 24,
+    "file": "screenshots/finance/2-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada PC Windows 11 Edge",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "cb5149eb45f07bd8603dfb71abc35cf0c70ad40326d2c40420df8809a14e1001"
+  },
+  {
+    "module": "finance",
+    "figure": 25,
+    "file": "screenshots/finance/2-finance-report.png",
+    "caption": "Laporan Keuangan pada PC Windows 11 Edge",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "d83ad6a7ef982b75c26c6fc527e657106cbb4c05d777bc8634f071252c3305cb"
+  },
+  {
+    "module": "finance",
+    "figure": 26,
+    "file": "screenshots/finance/2-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada PC Windows 11 Edge",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "41cb4f3c171ea13afe34515358fe3f27d4e1fe9c5f5ba5e7a8eb35037bbf7130"
+  },
+  {
+    "module": "finance",
+    "figure": 27,
+    "file": "screenshots/finance/3-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Laptop Windows 11 Firefox",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2eda15d661729cbbfe4db14ba18f9f1105eed7dec0377e73d5c081750d02eafa"
+  },
+  {
+    "module": "finance",
+    "figure": 28,
+    "file": "screenshots/finance/3-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Laptop Windows 11 Firefox",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "0156ba5a68f908dc8b948b838da25a12e3e10f1fd8e15450066a9d7242330cf8"
+  },
+  {
+    "module": "finance",
+    "figure": 29,
+    "file": "screenshots/finance/3-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Laptop Windows 11 Firefox",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "50d89f667f1e062dc85cfd8100c70f1a6150fc79e8505ee4ff10c7554dd52db8"
+  },
+  {
+    "module": "finance",
+    "figure": 30,
+    "file": "screenshots/finance/3-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Laptop Windows 11 Firefox",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9ecfeb521d2b1fea3ae458a3c7d6639651934a298ae19c004979ab6297e8ec3d"
+  },
+  {
+    "module": "finance",
+    "figure": 31,
+    "file": "screenshots/finance/3-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Laptop Windows 11 Firefox",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "df28307c9daa8d4b15dd6f662341287febf265e61510893fbca2c7335ba2dc75"
+  },
+  {
+    "module": "finance",
+    "figure": 32,
+    "file": "screenshots/finance/3-finance-report.png",
+    "caption": "Laporan Keuangan pada Laptop Windows 11 Firefox",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "7065357c3b43e13bca1fc8f457d6b6b23fd0eb0e1ba2b23f1b9be5d89d13aac0"
+  },
+  {
+    "module": "finance",
+    "figure": 33,
+    "file": "screenshots/finance/3-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Laptop Windows 11 Firefox",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "596a4634e232d4aee6791dd8a4bbbd67ff088de81399c8c88c0b9610e0538cce"
+  },
+  {
+    "module": "finance",
+    "figure": 34,
+    "file": "screenshots/finance/4-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Laptop macOS Sequoia Safari",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "dc776c967de02da7ae678b133b3d5170b47d67b462137f4b3f98f919408a07d5"
+  },
+  {
+    "module": "finance",
+    "figure": 35,
+    "file": "screenshots/finance/4-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Laptop macOS Sequoia Safari",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "dba1f3848df9ff36b6ff14207a2f5af6a186f0b2c0805271aa9f0546f2dee036"
+  },
+  {
+    "module": "finance",
+    "figure": 36,
+    "file": "screenshots/finance/4-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Laptop macOS Sequoia Safari",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "5594d82c0481fce9b5bb386b9d5d269fabd9a6a1d6e7d9791acd0b0020e2f15c"
+  },
+  {
+    "module": "finance",
+    "figure": 37,
+    "file": "screenshots/finance/4-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Laptop macOS Sequoia Safari",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "355eeba010d572aad16e9aead2145d007d5c78d3eabe24190b28b4e8dfbfcdb2"
+  },
+  {
+    "module": "finance",
+    "figure": 38,
+    "file": "screenshots/finance/4-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Laptop macOS Sequoia Safari",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "13278faca6a3a56989eb7d71903def27b62d7b06cad2771d52d4c8d8bfcb9687"
+  },
+  {
+    "module": "finance",
+    "figure": 39,
+    "file": "screenshots/finance/4-finance-report.png",
+    "caption": "Laporan Keuangan pada Laptop macOS Sequoia Safari",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "64f57c4b9800edf5bf87e9e41d0dfbc5d3be30c855de6ae200992a775f1e7983"
+  },
+  {
+    "module": "finance",
+    "figure": 40,
+    "file": "screenshots/finance/4-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Laptop macOS Sequoia Safari",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "df515df4eef30b1c52db3cfba93ea6cdb5be85e4c1eec435e55247fd8c0829fc"
+  },
+  {
+    "module": "finance",
+    "figure": 41,
+    "file": "screenshots/finance/5-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Galaxy S22 Android 12",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "cc694761d2095dabe149272654831a7fa5be28de578fa13e991b4402071c1e81"
+  },
+  {
+    "module": "finance",
+    "figure": 42,
+    "file": "screenshots/finance/5-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Galaxy S22 Android 12",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9cf4cca118d947771e6bfd1fe602b5dfaee1dcd499851139bd9aea9c151cbbd4"
+  },
+  {
+    "module": "finance",
+    "figure": 43,
+    "file": "screenshots/finance/5-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Galaxy S22 Android 12",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "365030f155b2132a35116af982f2cea6fd03b1ac0ae7b695ababf3c40bb4e792"
+  },
+  {
+    "module": "finance",
+    "figure": 44,
+    "file": "screenshots/finance/5-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Galaxy S22 Android 12",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "458b0063c51e8a728df7ebe40bfcefdde65ec46bb6aa6996e1b9abc74023654d"
+  },
+  {
+    "module": "finance",
+    "figure": 45,
+    "file": "screenshots/finance/5-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Galaxy S22 Android 12",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "4aa0ec8edc97cdd93c8112fff0e9b2792c68913c604f860cb6fc750dfd893cf6"
+  },
+  {
+    "module": "finance",
+    "figure": 46,
+    "file": "screenshots/finance/5-finance-report.png",
+    "caption": "Laporan Keuangan pada Galaxy S22 Android 12",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "878d5c17a1529af81855494a2162ea2446d71446a8692e7b50c86823f669c712"
+  },
+  {
+    "module": "finance",
+    "figure": 47,
+    "file": "screenshots/finance/5-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Galaxy S22 Android 12",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "0217d338ddb2df06a4489c0ee47c87b69058dce0861f0165305483ffa04eb2bb"
+  },
+  {
+    "module": "finance",
+    "figure": 48,
+    "file": "screenshots/finance/6-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Pixel 7 Android 13",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "60b31f01898a65e9c1b445789b08fa7b8b5d90e224a5d35c5f236d457b1f4cbf"
+  },
+  {
+    "module": "finance",
+    "figure": 49,
+    "file": "screenshots/finance/6-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Pixel 7 Android 13",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "945531c7b292a1fb7265d19f51eca6e8e1330a13e8816917190d37cd3249818c"
+  },
+  {
+    "module": "finance",
+    "figure": 50,
+    "file": "screenshots/finance/6-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Pixel 7 Android 13",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "4b3ccff59fbe2e0e648a49f43c91b8695af9810b231d8d858bf782d697880c47"
+  },
+  {
+    "module": "finance",
+    "figure": 51,
+    "file": "screenshots/finance/6-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Pixel 7 Android 13",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "2330ba108d0af422ac1c65b02013848523e46ae5104eca74c87d696a77abf791"
+  },
+  {
+    "module": "finance",
+    "figure": 52,
+    "file": "screenshots/finance/6-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Pixel 7 Android 13",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "0ad1d66e21fe8f82b4e43c4671d23a90281bc2836184f0a7d094a1fd05ba02cf"
+  },
+  {
+    "module": "finance",
+    "figure": 53,
+    "file": "screenshots/finance/6-finance-report.png",
+    "caption": "Laporan Keuangan pada Pixel 7 Android 13",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "fa613fb9a3d5539bcc888021ad3df3e48cf8658ce7491c119f5385ebb4b2acb6"
+  },
+  {
+    "module": "finance",
+    "figure": 54,
+    "file": "screenshots/finance/6-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Pixel 7 Android 13",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "5c737512095b70007a161164a7d3dd17843fa7bb450d97e2ea404d46157550cf"
+  },
+  {
+    "module": "finance",
+    "figure": 55,
+    "file": "screenshots/finance/7-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada Galaxy Tab S9 Android 13",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "9adaed6716f8329f0ee47167f8e34557d1e3669f20ca7f2018c53fffdeb2e676"
+  },
+  {
+    "module": "finance",
+    "figure": 56,
+    "file": "screenshots/finance/7-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada Galaxy Tab S9 Android 13",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e10109d8090c150a21c49a5aebf680f0f8f9149ebbd8e11c2b4140eda7fd55a8"
+  },
+  {
+    "module": "finance",
+    "figure": 57,
+    "file": "screenshots/finance/7-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada Galaxy Tab S9 Android 13",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "26835d9197cc875762079aa34a29a56c0662b6f8497878239df171a4fc9d452a"
+  },
+  {
+    "module": "finance",
+    "figure": 58,
+    "file": "screenshots/finance/7-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada Galaxy Tab S9 Android 13",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "a2196b8d98a57dc3a6e45824ce8d7f560c95abe809725528a706cbcdccfd2a74"
+  },
+  {
+    "module": "finance",
+    "figure": 59,
+    "file": "screenshots/finance/7-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada Galaxy Tab S9 Android 13",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "bec4d0be04ba7885233ce2fad1e54cbe77959de22a69fbd61d99776c3fb77136"
+  },
+  {
+    "module": "finance",
+    "figure": 60,
+    "file": "screenshots/finance/7-finance-report.png",
+    "caption": "Laporan Keuangan pada Galaxy Tab S9 Android 13",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "f87b721241ee90c06c5e40301db9bd4a7148f7c2706c57275b4ac4ecf6d9cfc0"
+  },
+  {
+    "module": "finance",
+    "figure": 61,
+    "file": "screenshots/finance/7-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada Galaxy Tab S9 Android 13",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "c2e296547b38ee29060c312c71699fe5ae2b7be941f499d493e8109f75cc38cb"
+  },
+  {
+    "module": "finance",
+    "figure": 62,
+    "file": "screenshots/finance/8-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada iPhone 15 iOS 17",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "8144e8ffc3fe7dc179973359a807e27b3399166a32ce109d778c2c9bf28b095f"
+  },
+  {
+    "module": "finance",
+    "figure": 63,
+    "file": "screenshots/finance/8-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada iPhone 15 iOS 17",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "bb250debd7afefbc4829923788b0027f368e125ccba7c1d0a3aab93bb982478d"
+  },
+  {
+    "module": "finance",
+    "figure": 64,
+    "file": "screenshots/finance/8-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada iPhone 15 iOS 17",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "4ede08b4c520067be4645f9d8a760de8589a105e41580b1b5bc7c5120b009965"
+  },
+  {
+    "module": "finance",
+    "figure": 65,
+    "file": "screenshots/finance/8-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada iPhone 15 iOS 17",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "8a6e013531d81c0f2426ad8f13e271bb0aac432df91051a681393a63e0c0e3ae"
+  },
+  {
+    "module": "finance",
+    "figure": 66,
+    "file": "screenshots/finance/8-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada iPhone 15 iOS 17",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "927b08233de22352c66a84b9451a9dce4d9105a16bfa76f319acca9ad8aefe66"
+  },
+  {
+    "module": "finance",
+    "figure": 67,
+    "file": "screenshots/finance/8-finance-report.png",
+    "caption": "Laporan Keuangan pada iPhone 15 iOS 17",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "a25bb278a69de1fba9c06efdb443080531f4abf0927b38be1fb92c78518353dc"
+  },
+  {
+    "module": "finance",
+    "figure": 68,
+    "file": "screenshots/finance/8-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada iPhone 15 iOS 17",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "6206f339528384bd462fd76dfa3dd1dc1f26b33d9b367dfbf8b5e904e7327e52"
+  },
+  {
+    "module": "finance",
+    "figure": 69,
+    "file": "screenshots/finance/9-finance-dashboard.png",
+    "caption": "Ringkasan Keuangan pada iPad 10th iOS 16",
+    "description": "Dashboard finance memuat jumlah tagihan, pembayaran terverifikasi, sisa tagihan dan pengajuan pending.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e4ba662516df4e94c8f88886affb10985e8cc6205c359c8a150f831a6a3aa236"
+  },
+  {
+    "module": "finance",
+    "figure": 70,
+    "file": "screenshots/finance/9-finance-invoice-created.png",
+    "caption": "Pembuatan Tagihan pada iPad 10th iOS 16",
+    "description": "Admin membuat tagihan sintetis sebesar Rp150.000 melalui UI. Alur berikutnya memeriksa perubahan menjadi Rp151.000 sebelum ada pembayaran.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "96ea449821a3c94be1cccbc5e72f62a4f1cb649a83dc011fff0280a6ec6c8fe7"
+  },
+  {
+    "module": "finance",
+    "figure": 71,
+    "file": "screenshots/finance/9-finance-parent-invoice.png",
+    "caption": "Tagihan Milik Anak pada iPad 10th iOS 16",
+    "description": "Wali yang terhubung dapat melihat tagihan anak sintetis. Permintaan ke tagihan siswa lain diperiksa terpisah dan harus ditolak dengan HTTP 404.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e1a262a3b7db0a67ec0ea67086f301e5c3945f6f63d6a62461da79b56dd9ae53"
+  },
+  {
+    "module": "finance",
+    "figure": 72,
+    "file": "screenshots/finance/9-finance-payment-pending.png",
+    "caption": "Pembayaran Menunggu Verifikasi pada iPad 10th iOS 16",
+    "description": "PNG sintetis dipasok ke input file menggunakan File dan DataTransfer, lalu dikirim melalui form multipart aplikasi. Ini tidak menguji dialog pemilih file OS. Tagihan harus tetap memiliki sisa Rp151.000 selama status pembayaran pending.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "e2a00f959137889f53d2d648e94238c71e801d096d0db65228eafcc1720666f2"
+  },
+  {
+    "module": "finance",
+    "figure": 73,
+    "file": "screenshots/finance/9-finance-payment-verified.png",
+    "caption": "Pembayaran Diterima pada iPad 10th iOS 16",
+    "description": "Admin menerima pengajuan melalui UI. API memverifikasi tagihan lunas dengan sisa nol. Penerimaan ulang yang sama harus idempotent, sedangkan perubahan keputusan yang bertentangan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "846227e975717afa79fdbe3bd77957e2767f298e73747b0318e4efbc560fcb7f"
+  },
+  {
+    "module": "finance",
+    "figure": 74,
+    "file": "screenshots/finance/9-finance-report.png",
+    "caption": "Laporan Keuangan pada iPad 10th iOS 16",
+    "description": "Laporan memuat pembayaran terverifikasi. Jumlah terverifikasi pada tagihan yang diuji diperiksa tepat Rp151.000 satu kali; agregat sekolah dapat meningkat lebih banyak karena profil lain juga memakai data sintetis terpisah.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "c6fdfcc0d36eab999adc8aa69d63c8f75f0652994ece20f61b323f960a267aca"
+  },
+  {
+    "module": "finance",
+    "figure": 75,
+    "file": "screenshots/finance/9-finance-student-paid.png",
+    "caption": "Tagihan Lunas pada Akun Siswa pada iPad 10th iOS 16",
+    "description": "Siswa yang berhak melihat status lunas. Akses ke tagihan siswa lain tetap diperiksa dan ditolak.",
+    "source_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+    "provenance": "BrowserStack W3C screenshot",
+    "sha256": "1a498f08dff9ec27dbcde440e5b665b4d58180e05c81870a89789d7b7fddaab7"
+  },
+  {
+    "module": "finance",
+    "figure": 76,
+    "file": "screenshots/finance/core-finance-resource-1-512-finance.png",
+    "caption": "Finance pada 1 CPU dan 512 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "bcf2f576bf800c3c08bbae313337398cad7baf8f5a114b4de62e5f8b10c01189"
+  },
+  {
+    "module": "finance",
+    "figure": 77,
+    "file": "screenshots/finance/core-finance-resource-2-1024-finance.png",
+    "caption": "Finance pada 2 CPU dan 1024 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "bcf2f576bf800c3c08bbae313337398cad7baf8f5a114b4de62e5f8b10c01189"
+  },
+  {
+    "module": "finance",
+    "figure": 78,
+    "file": "screenshots/finance/core-finance-resource-4-2048-finance.png",
+    "caption": "Finance pada 4 CPU dan 2048 MiB",
+    "description": "Screenshot dari browser lokal dengan batas proses yang diverifikasi, bukan perangkat cloud.",
+    "source_url": null,
+    "provenance": "Local constrained Chrome screenshot",
+    "sha256": "bcf2f576bf800c3c08bbae313337398cad7baf8f5a114b4de62e5f8b10c01189"
+  }
+]

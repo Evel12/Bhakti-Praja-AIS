@@ -1,0 +1,1715 @@
+{
+  "build": "Core AIS and Finance 2026-11-15T15:07:09.369Z",
+  "scope": "Core AIS administration and finance UI workflows, role boundaries and synthetic payment lifecycle. Assessment unchanged.",
+  "results": [
+    {
+      "profile": "Laptop Windows 10 Chrome",
+      "requested": {
+        "name": "Laptop Windows 10 Chrome",
+        "browserName": "Chrome",
+        "os": "Windows",
+        "osVersion": "10",
+        "width": 1366,
+        "height": 768
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "1-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "1-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "1-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "1-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "1-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "1-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "1-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "1-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "1-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "1-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "1-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "1-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "1-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:49:09.561Z",
+      "session_id": "1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/1fcc5e3f3a00aed4cd76c58742d14041a96d2865",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
+        "viewport": {
+          "height": 617,
+          "width": 1350
+        }
+      },
+      "synthetic_invoice_id": 158,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "Windows",
+        "os_version": "10",
+        "device": null,
+        "browser": "chrome",
+        "browser_version": "157.0",
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:33.6409651Z",
+      "finished_at": "2026-11-15T14:52:34.970Z"
+    },
+    {
+      "profile": "PC Windows 11 Edge",
+      "requested": {
+        "name": "PC Windows 11 Edge",
+        "browserName": "MicrosoftEdge",
+        "os": "Windows",
+        "osVersion": "11",
+        "width": 1920,
+        "height": 1080
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "2-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "2-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "2-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "2-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "2-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "2-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "2-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "2-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "2-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "2-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "2-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "2-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "2-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:49:09.577Z",
+      "session_id": "13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/13fdadc3e0051da291e2ec3aaea5c4ef2bb706bd",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36 Edg/157.0.0.0",
+        "viewport": {
+          "height": 941,
+          "width": 1896
+        }
+      },
+      "synthetic_invoice_id": 159,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "Windows",
+        "os_version": "11",
+        "device": null,
+        "browser": "edge",
+        "browser_version": "157.0",
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:34.6424098Z",
+      "finished_at": "2026-11-15T14:52:57.134Z"
+    },
+    {
+      "profile": "Laptop Windows 11 Firefox",
+      "requested": {
+        "name": "Laptop Windows 11 Firefox",
+        "browserName": "Firefox",
+        "os": "Windows",
+        "osVersion": "11",
+        "width": 1440,
+        "height": 900
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "3-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "3-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "3-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "3-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "3-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "3-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "3-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "3-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "3-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "3-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "3-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "3-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "3-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:49:09.578Z",
+      "session_id": "b050ea420ac650d81d55273299eb133334c4a34e",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/b050ea420ac650d81d55273299eb133334c4a34e",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:160.0) Gecko/20100101 Firefox/160.0",
+        "viewport": {
+          "height": 806,
+          "width": 1424
+        }
+      },
+      "synthetic_invoice_id": 160,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "Windows",
+        "os_version": "11",
+        "device": null,
+        "browser": "firefox",
+        "browser_version": "160.0",
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:36.0529161Z",
+      "finished_at": "2026-11-15T14:53:13.025Z"
+    },
+    {
+      "profile": "Laptop macOS Sequoia Safari",
+      "requested": {
+        "name": "Laptop macOS Sequoia Safari",
+        "browserName": "Safari",
+        "os": "OS X",
+        "osVersion": "Sequoia",
+        "width": 1440,
+        "height": 900
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "4-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "4-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "4-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "4-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "4-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "4-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "4-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "4-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "4-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "4-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "4-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "4-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "4-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:52:34.970Z",
+      "session_id": "3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/3e1d2d5271e4ba20f77252e32d1fa5ee10196dde",
+      "client": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15",
+        "viewport": {
+          "width": 1440,
+          "height": 848
+        },
+        "horizontalOverflow": false
+      },
+      "synthetic_invoice_id": 161,
+      "default_payment_date": {
+        "value": "2026-11-15",
+        "max": "2026-11-15",
+        "valid": true
+      },
+      "provider": {
+        "status": "passed",
+        "os": "OS X",
+        "os_version": "Sequoia",
+        "device": null,
+        "browser": "safari",
+        "browser_version": "18.4",
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:36.4571374Z",
+      "finished_at": "2026-11-15T14:56:16.662Z"
+    },
+    {
+      "profile": "Galaxy S22 Android 12",
+      "requested": {
+        "name": "Galaxy S22 Android 12",
+        "browserName": "Chrome",
+        "deviceName": "Samsung Galaxy S22",
+        "osVersion": "12.0"
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "5-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "5-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "5-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "5-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "5-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "5-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "5-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "5-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "5-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "5-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "5-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "5-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "5-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:52:57.135Z",
+      "session_id": "54a4bacd1ed576f58933160957c0a22124aaf4e9",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/54a4bacd1ed576f58933160957c0a22124aaf4e9",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36",
+        "viewport": {
+          "height": 649,
+          "width": 360
+        }
+      },
+      "synthetic_invoice_id": 163,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "android",
+        "os_version": "12.0",
+        "device": "Samsung Galaxy S22",
+        "browser": "chrome_android",
+        "browser_version": null,
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:36.7974310Z",
+      "finished_at": "2026-11-15T14:57:37.002Z"
+    },
+    {
+      "profile": "Pixel 7 Android 13",
+      "requested": {
+        "name": "Pixel 7 Android 13",
+        "browserName": "Chrome",
+        "deviceName": "Google Pixel 7",
+        "osVersion": "13.0"
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "6-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "6-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "6-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "6-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "6-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "6-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "6-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "6-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "6-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "6-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "6-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "6-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "6-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:53:13.026Z",
+      "session_id": "a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/a45c2d76cf26142efc60c70d3ce57deacb83eaa9",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36",
+        "viewport": {
+          "height": 789,
+          "width": 411
+        }
+      },
+      "synthetic_invoice_id": 162,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "android",
+        "os_version": "13.0",
+        "device": "Google Pixel 7",
+        "browser": "chrome_android",
+        "browser_version": null,
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:37.2802972Z",
+      "finished_at": "2026-11-15T14:57:18.958Z"
+    },
+    {
+      "profile": "Galaxy Tab S9 Android 13",
+      "requested": {
+        "name": "Galaxy Tab S9 Android 13",
+        "browserName": "Chrome",
+        "deviceName": "Samsung Galaxy Tab S9",
+        "osVersion": "13.0"
+      },
+      "build": "Core AIS and Finance 2026-11-15T14:49:02.432Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "7-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "7-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "7-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "7-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "7-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "7-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "7-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "7-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "7-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "7-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "7-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "7-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "7-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T14:56:16.663Z",
+      "session_id": "db3d68a5730285f75c3c3b1698e192ad791ad791",
+      "dashboard_url": "https://automate.browserstack.com/builds/5759ed23e81eca3f7691d76e44f0a7ef6aac735a/sessions/db3d68a5730285f75c3c3b1698e192ad791ad791",
+      "client": {
+        "horizontalOverflow": false,
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36",
+        "viewport": {
+          "height": 1036,
+          "width": 753
+        }
+      },
+      "synthetic_invoice_id": 164,
+      "default_payment_date": {
+        "max": "2026-11-15",
+        "valid": true,
+        "value": "2026-11-15"
+      },
+      "provider": {
+        "status": "passed",
+        "os": "android",
+        "os_version": "13.0",
+        "device": "Samsung Galaxy Tab S9",
+        "browser": "chrome_android",
+        "browser_version": null,
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:37.6066091Z",
+      "finished_at": "2026-11-15T15:00:43.354Z"
+    },
+    {
+      "profile": "iPhone 15 iOS 17",
+      "requested": {
+        "name": "iPhone 15 iOS 17",
+        "browserName": "Safari",
+        "deviceName": "iPhone 15",
+        "osVersion": "17"
+      },
+      "build": "Core AIS and Finance 2026-11-15T15:07:09.369Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "8-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "8-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "8-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "8-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "8-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "8-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "8-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "8-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "8-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "8-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "8-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "8-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "8-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T15:07:16.558Z",
+      "session_id": "14569e48da653dc65f4a3590bec24820e49dce55",
+      "dashboard_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/14569e48da653dc65f4a3590bec24820e49dce55",
+      "client": {
+        "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+        "viewport": {
+          "width": 393,
+          "height": 659
+        },
+        "horizontalOverflow": false
+      },
+      "synthetic_invoice_id": 166,
+      "default_payment_date": {
+        "value": "2026-11-15",
+        "max": "2026-11-15",
+        "valid": true
+      },
+      "provider": {
+        "status": "passed",
+        "os": "ios",
+        "os_version": "17.5",
+        "device": "iPhone 15",
+        "browser": "iphone",
+        "browser_version": null,
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:38.0176120Z",
+      "finished_at": "2026-11-15T15:13:06.772Z"
+    },
+    {
+      "profile": "iPad 10th iOS 16",
+      "requested": {
+        "name": "iPad 10th iOS 16",
+        "browserName": "Safari",
+        "deviceName": "iPad 10th",
+        "osVersion": "16"
+      },
+      "build": "Core AIS and Finance 2026-11-15T15:07:09.369Z",
+      "status": "passed",
+      "module_status": {
+        "core": "passed",
+        "finance": "passed"
+      },
+      "checks": [
+        {
+          "module": "core",
+          "name": "Admin login and academic dashboard"
+        },
+        {
+          "module": "core",
+          "name": "Populated Siswa list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Kelas list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Jadwal Pembelajaran list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Populated Registrasi Akademik list and responsive layout"
+        },
+        {
+          "module": "core",
+          "name": "Create department through the UI and verify persisted data"
+        },
+        {
+          "module": "core",
+          "name": "Edit department through UI"
+        },
+        {
+          "module": "core",
+          "name": "Duplicate department code rejected (422)"
+        },
+        {
+          "module": "core",
+          "name": "Referenced department cannot be deleted (422)"
+        },
+        {
+          "module": "core",
+          "name": "Delete only newly created synthetic department"
+        },
+        {
+          "module": "finance",
+          "name": "Finance admin login and summary"
+        },
+        {
+          "module": "finance",
+          "name": "Create real synthetic invoice through UI"
+        },
+        {
+          "module": "finance",
+          "name": "Edit unpaid invoice before payments"
+        },
+        {
+          "module": "finance",
+          "name": "Parent cannot access Core AIS, admin report or unrelated invoice"
+        },
+        {
+          "module": "finance",
+          "name": "Parent submits proof through UI; pending payment does not reduce outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Admin accepts payment through UI; invoice becomes paid with zero outstanding"
+        },
+        {
+          "module": "finance",
+          "name": "Repeated acceptance is idempotent; conflicting decision rejected (409)"
+        },
+        {
+          "module": "finance",
+          "name": "Verified invoice counts payment once; aggregate finance report includes payment"
+        },
+        {
+          "module": "finance",
+          "name": "Linked student sees paid invoice; unrelated invoice remains hidden"
+        }
+      ],
+      "findings": [],
+      "screenshots": [
+        {
+          "module": "core",
+          "label": "core-dashboard",
+          "file": "9-core-dashboard.png"
+        },
+        {
+          "module": "core",
+          "label": "core-students",
+          "file": "9-core-students.png"
+        },
+        {
+          "module": "core",
+          "label": "core-classrooms",
+          "file": "9-core-classrooms.png"
+        },
+        {
+          "module": "core",
+          "label": "core-schedules",
+          "file": "9-core-schedules.png"
+        },
+        {
+          "module": "core",
+          "label": "core-academic-registrations",
+          "file": "9-core-academic-registrations.png"
+        },
+        {
+          "module": "core",
+          "label": "core-created",
+          "file": "9-core-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-dashboard",
+          "file": "9-finance-dashboard.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-invoice-created",
+          "file": "9-finance-invoice-created.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-parent-invoice",
+          "file": "9-finance-parent-invoice.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-pending",
+          "file": "9-finance-payment-pending.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-payment-verified",
+          "file": "9-finance-payment-verified.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-report",
+          "file": "9-finance-report.png"
+        },
+        {
+          "module": "finance",
+          "label": "finance-student-paid",
+          "file": "9-finance-student-paid.png"
+        }
+      ],
+      "started_at": "2026-11-15T15:07:16.576Z",
+      "session_id": "8f81617844a4e3dcb44077ccab02ca85232125a5",
+      "dashboard_url": "https://automate.browserstack.com/builds/745ca6af1a1350ac6ba1b560cc330062abed901d/sessions/8f81617844a4e3dcb44077ccab02ca85232125a5",
+      "client": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+        "viewport": {
+          "width": 820,
+          "height": 1106
+        },
+        "horizontalOverflow": false
+      },
+      "synthetic_invoice_id": 165,
+      "default_payment_date": {
+        "value": "2026-11-15",
+        "max": "2026-11-15",
+        "valid": true
+      },
+      "provider": {
+        "status": "passed",
+        "os": "ios",
+        "os_version": "16.0",
+        "device": "iPad 10th",
+        "browser": "ipad",
+        "browser_version": null,
+        "platform_matches_request": true
+      },
+      "verified_at": "2026-11-15T15:14:38.4250052Z",
+      "finished_at": "2026-11-15T15:11:48.237Z"
+    }
+  ]
+}

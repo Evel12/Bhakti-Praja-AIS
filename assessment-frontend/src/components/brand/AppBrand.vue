@@ -5,7 +5,7 @@ defineProps({
   compact: Boolean,
   interactive: { type: Boolean, default: true },
 });
-const logo = "/brand/smk-bhakti-praja-batang.png";
+const logo = `${import.meta.env.BASE_URL}brand/assessment-school-logo.png`;
 const logoAvailable = ref(true);
 </script>
 <template>

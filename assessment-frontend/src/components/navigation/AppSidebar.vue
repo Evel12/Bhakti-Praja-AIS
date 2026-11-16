@@ -24,6 +24,26 @@ const route = useRoute(),
   closing = ref(false),
   mobile = ref(false);
 const compact = computed(() => ui.collapsed && !mobile.value);
+const embedded = new URLSearchParams(window.location.search).get("embedded") === "1";
+const canOpenLms = computed(
+  () => embedded && ["admin", "guru", "murid"].includes(authStore.user?.aisRole),
+);
+function openLms() {
+  if (embedded && window.parent !== window) {
+    window.parent.postMessage(
+      { type: "assessment-navigate", path: "/lms" },
+      window.location.origin,
+    );
+  }
+}
+function openServices() {
+  if (embedded && window.parent !== window) {
+    window.parent.postMessage(
+      { type: "assessment-navigate", path: "/" },
+      window.location.origin,
+    );
+  }
+}
 const profileName = computed(() => {
   if (authStore.isAuthenticated && authStore.user?.name) {
     return authStore.user.name;
@@ -294,6 +314,16 @@ onBeforeUnmount(() => {
       </button>
     </div>
     <nav id="sidebar-navigation" class="nav-list">
+      <button
+        type="button"
+        class="service-selector tip-parent"
+        aria-label="Pilih layanan"
+        @click="openServices"
+      >
+        <Icon name="grid" />
+        <span v-if="!compact" class="sidebar-copy">Pilih layanan</span>
+        <span v-if="compact" class="rail-tooltip" role="tooltip">Pilih layanan</span>
+      </button>
       <p v-if="!compact" class="nav-label sidebar-copy">Workspace</p>
       <template v-if="!route.meta.student">
         <SidebarItem
@@ -310,6 +340,17 @@ onBeforeUnmount(() => {
           :compact="compact"
           :active="/assessments|builder/.test(route.path)"
         />
+        <button
+          v-if="canOpenLms"
+          type="button"
+          class="nav-item tip-parent"
+          aria-label="LMS"
+          @click="openLms"
+        >
+          <Icon name="book" />
+          <span v-if="!compact" class="nav-item-label sidebar-copy">LMS</span>
+          <span v-if="compact" class="rail-tooltip" role="tooltip">LMS</span>
+        </button>
         <SidebarItem
           to="/classes"
           label="Kelas"
@@ -338,7 +379,19 @@ onBeforeUnmount(() => {
           label="Assessment saya"
           icon="book"
           :compact="compact"
-          :active="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" /><SidebarItem
+          :active="!/^\/(my-results|student\/classes|student\/notifications)/.test(route.path)" />
+        <button
+          v-if="canOpenLms"
+          type="button"
+          class="nav-item tip-parent"
+          aria-label="LMS"
+          @click="openLms"
+        >
+          <Icon name="book" />
+          <span v-if="!compact" class="nav-item-label sidebar-copy">LMS</span>
+          <span v-if="compact" class="rail-tooltip" role="tooltip">LMS</span>
+        </button>
+        <SidebarItem
           to="/student/classes"
           label="Kelas & Materi"
           icon="people"
