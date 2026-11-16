@@ -190,6 +190,12 @@ export default function App() {
         }
       />
 
+      {/* Keep the standalone Assessment app outside the AIS service shell. */}
+      <Route
+        path="/assessment/*"
+        element={user ? <AssessmentPage user={user} /> : <Navigate to="/login" replace />}
+      />
+
       <Route
         path="/*"
         element={
@@ -203,7 +209,6 @@ export default function App() {
             >
               <ServiceBoundary user={user}><Routes>
                 <Route path="/lms/*" element={<LmsPage user={user} />} />
-                <Route path="/assessment/*" element={<AssessmentPage user={user} />} />
                 <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
                 <Route path="/parent/*" element={<ParentPortal user={user} />} />
                 <Route path="/communication/*" element={<CommunicationPages user={user} />} />
