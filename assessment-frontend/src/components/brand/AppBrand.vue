@@ -1,9 +1,12 @@
 <script setup>
+import { ref } from "vue";
+
 defineProps({
   compact: Boolean,
   interactive: { type: Boolean, default: true },
 });
 const logo = "/brand/smk-bhakti-praja-batang.png";
+const logoAvailable = ref(true);
 </script>
 <template>
   <component
@@ -14,12 +17,20 @@ const logo = "/brand/smk-bhakti-praja-batang.png";
         : {}
     "
     class="brand"
-    ><img
-      :src="logo"
-      alt="Logo SMK Bhakti Praja Batang"
-      :width="compact ? 40 : 48"
-      :height="compact ? 40 : 48"
-    />
+    ><span
+      class="brand-logo-slot"
+      :class="{ 'is-compact': compact }"
+      role="img"
+      :aria-label="logoAvailable ? 'Logo SMK Bhakti Praja Batang' : 'Placeholder logo sekolah'"
+    >
+      <img
+        v-if="logoAvailable"
+        :src="logo"
+        alt=""
+        @error="logoAvailable = false"
+      />
+      <span v-else class="brand-logo-fallback" aria-hidden="true">LOGO</span>
+    </span>
     <div v-if="!compact" class="brand-copy sidebar-copy">
       <div class="brand-copy-inner">
         <div class="brand-name">SMK Bhakti Praja Batang</div>

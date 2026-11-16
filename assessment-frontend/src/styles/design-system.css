@@ -40,7 +40,7 @@
 }
 body {
   margin: 0;
-  background: var(--star-white);
+  background: var(--amber);
   font-family: var(--font-ui);
   font-size: 0.875rem;
   line-height: 1.55;
@@ -191,6 +191,32 @@ button .icon {
 }
 .brand > div {
   min-width: 0;
+}
+.brand-logo-slot {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 48px;
+  block-size: 48px;
+  overflow: hidden;
+  border: 1.5px dashed var(--amber);
+  border-radius: 13px;
+  background: #fffaf3;
+  color: var(--amber);
+}
+.brand-logo-slot.is-compact {
+  inline-size: 40px;
+  block-size: 40px;
+}
+.brand-logo-slot img {
+  inline-size: 82%;
+  block-size: 82%;
+  object-fit: contain;
+}
+.brand-logo-fallback {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
 }
 .brand-name {
   font-size: 16px;

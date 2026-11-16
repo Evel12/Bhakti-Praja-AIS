@@ -25,8 +25,8 @@ export default function AssessmentPage({ user }) {
     return () => window.removeEventListener('message', onMessage)
   }, [user, generation])
 
-  return <main className="fixed inset-0 z-[100] h-dvh w-screen overflow-hidden bg-[#EFEFE8]">
+  return <main className="fixed inset-0 z-[100] h-dvh w-screen max-w-none overflow-hidden bg-[#865B2D]" style={{ width: '100vw', maxWidth: 'none', margin: 0, background: '#865B2D' }}>
     {!loaded && <div role="status" className="absolute inset-0 z-10 grid place-items-center bg-[#EFEFE8] text-sm text-slate-600">Memuat assessment asli...</div>}
-    <iframe key={`${user.id}-${generation}`} ref={frameRef} title="Assessment" src={`/assessment-app/?embedded=1#${home}`} onLoad={() => setLoaded(true)} className="block h-full w-full border-0 bg-[#EFEFE8]" />
+    <iframe key={`${user.id}-${generation}`} ref={frameRef} title="Assessment" src={`/assessment-app/index.html?embedded=1#${home}`} onLoad={() => setLoaded(true)} className="block h-full w-full border-0 bg-[#865B2D]" />
   </main>
 }
