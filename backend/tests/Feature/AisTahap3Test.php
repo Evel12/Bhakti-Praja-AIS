@@ -77,6 +77,7 @@ class AisTahap3Test extends TestCase
         $this->postJson('/api/auth/login', [
             'email' => 'budi@akademik.test',
             'password' => 'password',
+            'portal' => 'ais',
         ])->assertStatus(403);
     }
 

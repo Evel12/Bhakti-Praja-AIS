@@ -100,7 +100,7 @@ class AisTahap7Test extends TestCase
 
         // Login non-admin ditolak
         foreach (['guru@akademik.test', 'murid@akademik.test', 'wali@akademik.test'] as $email) {
-            $this->postJson('/api/auth/login', ['email' => $email, 'password' => 'password123'])->assertStatus(403);
+            $this->postJson('/api/auth/login', ['email' => $email, 'password' => 'password123', 'portal' => 'ais'])->assertStatus(403);
         }
 
         // Token langsung pun tetap 403 di semua endpoint admin

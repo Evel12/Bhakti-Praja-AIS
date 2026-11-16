@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Services\AcademicProfiles;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -63,13 +65,24 @@ class TeacherController extends Controller
             'email.unique' => 'Email sudah digunakan.',
         ]);
 
+        $validator->after(function ($validator) use ($request) {
+            if ($request->filled('user_id')) {
+                $role = \App\Models\User::find($request->input('user_id'))?->role?->name;
+                if ($role !== 'guru') $validator->errors()->add('user_id', 'Pilih akun dengan peran guru.');
+            }
+        });
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
-        $item = Teacher::create($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id']) + [
-            'status' => $request->input('status', 'active'),
-        ]);
+        $item = DB::transaction(function () use ($request) {
+            $item = Teacher::create($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id']) + [
+                'status' => $request->input('status', 'active'),
+            ]);
+            app(AcademicProfiles::class)->syncAccount($item);
+            return $item;
+        });
 
         return response()->json(['success' => true, 'message' => 'Guru berhasil dibuat.', 'data' => $item], 201);
     }
@@ -91,12 +104,22 @@ class TeacherController extends Controller
             'status' => ['nullable', Rule::in(['active', 'inactive'])],
         ]);
 
+        $validator->after(function ($validator) use ($request) {
+            if ($request->filled('user_id')) {
+                $role = \App\Models\User::find($request->input('user_id'))?->role?->name;
+                if ($role !== 'guru') $validator->errors()->add('user_id', 'Pilih akun dengan peran guru.');
+            }
+        });
+
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
         $item->fill($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id', 'status']));
-        $item->save();
+        DB::transaction(function () use ($item) {
+            $item->save();
+            app(AcademicProfiles::class)->syncAccount($item);
+        });
 
         return response()->json(['success' => true, 'message' => 'Guru berhasil diperbarui.', 'data' => $item]);
     }
@@ -112,6 +135,8 @@ class TeacherController extends Controller
         if ($item->homeroomClasses()->exists()) {
             return response()->json(['success' => false, 'message' => 'Guru tidak dapat dihapus karena masih menjadi wali kelas.'], 422);
         }
+
+        if ($item->user_id) return response()->json(['success' => false, 'message' => 'Profil terhubung dengan akun. Nonaktifkan akun atau profil untuk mempertahankan riwayat akademik.'], 422);
 
         $item->delete();
 

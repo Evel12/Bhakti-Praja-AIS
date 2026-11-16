@@ -25,7 +25,7 @@ class AisAuditTest extends TestCase
         $create = function ($resource, $payload) use ($h, &$records) {
             $item = $this->postJson('/api/'.$resource, $payload, $h)->assertCreated()->json('data');
             $this->getJson('/api/'.$resource.'/'.$item['id'], $h)->assertOk()->assertJsonPath('data.id', $item['id']);
-            $this->getJson('/api/'.$resource.'?per_page=1', $h)->assertOk()->assertJsonPath('meta.total', $resource === 'users' ? 2 : 1);
+            $this->getJson('/api/'.$resource.'?per_page=1', $h)->assertOk()->assertJsonPath('meta.total', in_array($resource, ['users', 'students']) ? 2 : 1);
             $this->putJson('/api/'.$resource.'/'.$item['id'], $payload, $h)->assertOk();
             $records[] = [$resource, $item['id']];
             return $item['id'];

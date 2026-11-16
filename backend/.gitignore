@@ -6,6 +6,8 @@
 !app/**/
 !app/Http/Controllers/Lms/LmsController.php
 !app/Jobs/Lms/GenerateQuiz.php
+!app/Services/
+!app/Services/AcademicProfiles.php
 !config/
 !config/lms.php
 !routes/
@@ -16,3 +18,4 @@
 !tests/
 !tests/Feature/
 !tests/Feature/LmsTest.php
+!tests/Feature/AcademicProfilesTest.php

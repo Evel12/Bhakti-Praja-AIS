@@ -49,8 +49,8 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $portal = $request->input('portal') ?? 'ais';
-        $allowedRoles = match ($portal) { 'lms' => ['guru', 'murid', 'wali_murid'], 'assessment' => ['admin', 'guru', 'murid'], 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
+        $portal = $request->input('portal') ?? 'services';
+        $allowedRoles = match ($portal) { 'services', 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'lms' => ['guru', 'murid', 'wali_murid'], 'assessment' => ['admin', 'guru', 'murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
         if (! in_array($user->role?->name, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,

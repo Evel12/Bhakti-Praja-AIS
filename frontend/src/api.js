@@ -64,7 +64,7 @@ function extractCredentials(emailOrObject, password) {
     return {
       email: emailOrObject.email ?? '',
       password: emailOrObject.password ?? '',
-      portal: emailOrObject.portal ?? 'ais',
+      ...(emailOrObject.portal ? { portal: emailOrObject.portal } : {}),
     }
   }
 
@@ -194,6 +194,11 @@ export async function updateUserStatus(
       { status },
     )
 
+  return response.data
+}
+
+export async function promoteStudent(id, payload) {
+  const response = await api.post(`/students/${id}/promote`, payload)
   return response.data
 }
 

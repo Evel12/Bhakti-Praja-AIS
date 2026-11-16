@@ -24,7 +24,12 @@ import CrudPage
 
 import Layout
   from './layouts/Layout'
-import Roles from './pages/Roles'
+import Services from './pages/Services'
+import { serviceForPath, canOpenService } from './services'
+import { useLocation } from 'react-router-dom'
+import AcademicCalendar from './pages/AcademicCalendar'
+import Classrooms from './pages/Classrooms'
+import AcademicWorkspace from './pages/AcademicWorkspace'
 import FinanceRoutes from './finance/FinancePages'
 import ParentPortal from './parent/ParentPortal'
 import CommunicationPages from './communication/CommunicationPages'
@@ -114,6 +119,14 @@ const resources = {
   },
 }
 
+function ServiceBoundary({ user, children }) {
+  const { pathname } = useLocation()
+  const service = serviceForPath(pathname)
+  // Communication remains available to teachers even though they have no finance access.
+  const allowed = pathname.startsWith('/communication') || !service || canOpenService(service, user.role)
+  return allowed ? children : <Navigate to="/" replace />
+}
+
 export default function App() {
   const [loginDestination, setLoginDestination] = useState('/')
   const [logoutNotice, setLogoutNotice] = useState('')
@@ -188,22 +201,25 @@ export default function App() {
                 setUser(null)
               }}
             >
-              <Routes>
+              <ServiceBoundary user={user}><Routes>
                 <Route path="/lms/*" element={<LmsPage user={user} />} />
                 <Route path="/assessment/*" element={<AssessmentPage user={user} />} />
                 <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
                 <Route path="/parent/*" element={<ParentPortal user={user} />} />
                 <Route path="/communication/*" element={<CommunicationPages user={user} />} />
-                {user.role === 'admin' && <Route path="/roles" element={<Roles />} />}
 
                 <Route
                   path="/"
-                  element={user.role === 'admin' ? <Dashboard /> : <Navigate to={user.role === 'wali_murid' ? '/parent' : user.role === 'guru' ? '/communication' : '/finance'} replace />}
+                  element={<Services user={user} />}
                 />
 
+                {user.role === 'admin' && <Route path="/administration" element={<Dashboard />} />}
+                {user.role === 'admin' && <Route path="/academic-calendars" element={<AcademicCalendar />} />}
+                {user.role === 'admin' && <Route path="/classrooms" element={<Classrooms />} />}
+                {user.role === 'admin' && ['class-students', 'academic-registrations', 'teaching-loads', 'schedules'].map(resource => <Route key={resource} path={`/${resource}`} element={<AcademicWorkspace key={resource} resource={resource} />} />)}
                 {user.role === 'admin' && Object.entries(
                   resources
-                ).map(
+                ).filter(([key]) => !['academic-calendars', 'classrooms', 'class-students', 'academic-registrations', 'teaching-loads', 'schedules'].includes(key)).map(
                   ([
                     key,
                     config
@@ -237,7 +253,7 @@ export default function App() {
                   }
                 />
 
-              </Routes>
+              </Routes></ServiceBoundary>
             </Layout>
           ) : (
             <Navigate

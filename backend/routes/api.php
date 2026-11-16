@@ -118,6 +118,8 @@ Route::middleware(['auth:sanctum', AdminOnly::class])
         */
 
         Route::apiResource('class-students', ClassStudentController::class);
+        Route::post('/students/{student}/promote', [ClassStudentController::class, 'promote'])->whereNumber('student');
+        Route::post('/students/{student}/promote', [ClassStudentController::class, 'promote'])->whereNumber('student');
         Route::apiResource('academic-registrations', AcademicRegistrationController::class);
         Route::apiResource('schedules', ScheduleController::class);
         Route::apiResource('teaching-loads', \App\Http\Controllers\TeachingLoadController::class);

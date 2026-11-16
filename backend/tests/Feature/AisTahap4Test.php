@@ -204,6 +204,7 @@ class AisTahap4Test extends TestCase
         $guruToken = $this->postJson('/api/auth/login', [
             'email' => 'guru@akademik.test',
             'password' => 'password',
+            'portal' => 'ais',
         ]);
 
         // Guru bahkan tidak bisa login ke area admin

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AcademicProfiles;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -126,13 +128,17 @@ class UserController extends Controller
             $roleId = Role::where('name', 'murid')->value('id');
         }
 
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password'),
-            'role_id' => $roleId,
-            'status' => $request->input('status', User::STATUS_ACTIVE),
-        ]);
+        $user = DB::transaction(function () use ($request, $roleId) {
+            $user = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => $request->input('password'),
+                'role_id' => $roleId,
+                'status' => $request->input('status', User::STATUS_ACTIVE),
+            ]);
+            app(AcademicProfiles::class)->sync($user);
+            return $user;
+        });
 
         return response()->json([
             'success' => true,
@@ -208,7 +214,10 @@ class UserController extends Controller
             $user->status = $newStatus;
         }
 
-        $user->save();
+        DB::transaction(function () use ($user) {
+            $user->save();
+            app(AcademicProfiles::class)->sync($user);
+        });
 
         if ($user->status === User::STATUS_INACTIVE || $user->wasChanged('role_id')) {
             $user->tokens()->delete();
@@ -254,7 +263,10 @@ class UserController extends Controller
         }
 
         $user->status = $request->input('status');
-        $user->save();
+        DB::transaction(function () use ($user) {
+            $user->save();
+            app(AcademicProfiles::class)->sync($user);
+        });
 
         if ($user->status === User::STATUS_INACTIVE) {
             $user->tokens()->delete();
@@ -300,8 +312,12 @@ class UserController extends Controller
             }
         }
 
-        $user->tokens()->delete();
-        $user->delete();
+        DB::transaction(function () use ($user) {
+            \App\Models\Student::where('user_id', $user->id)->update(['status' => 'inactive']);
+            \App\Models\Teacher::where('user_id', $user->id)->update(['status' => 'inactive']);
+            $user->tokens()->delete();
+            $user->delete();
+        });
 
         return response()->json([
             'success' => true,

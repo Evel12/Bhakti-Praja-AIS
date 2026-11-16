@@ -25,12 +25,8 @@ export default function AssessmentPage({ user }) {
     return () => window.removeEventListener('message', onMessage)
   }, [user, generation])
 
-  return <section className="min-w-0 space-y-4">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div><h1 className="text-2xl font-bold text-slate-900">Assessment Pembelajaran</h1><p className="mt-1 text-sm text-slate-500">Ruang tugas, kuis, ujian, dan hasil pembelajaran.</p></div>
-      <button type="button" className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm" onClick={() => { setLoaded(false); setGeneration(value => value + 1) }}>Muat ulang assessment</button>
-    </div>
-    {!loaded && <p role="status" className="text-sm text-slate-500">Memuat ruang assessment...</p>}
-    <iframe key={`${user.id}-${generation}`} ref={frameRef} title="Ruang assessment pembelajaran" src={`/assessment-app/?embedded=1#${home}`} onLoad={() => setLoaded(true)} className="block w-full rounded-xl border border-slate-200 bg-white" style={{ height: 'max(720px, calc(100dvh - 220px))' }} />
-  </section>
+  return <main className="fixed inset-0 z-[100] h-dvh w-screen overflow-hidden bg-[#EFEFE8]">
+    {!loaded && <div role="status" className="absolute inset-0 z-10 grid place-items-center bg-[#EFEFE8] text-sm text-slate-600">Memuat assessment asli...</div>}
+    <iframe key={`${user.id}-${generation}`} ref={frameRef} title="Assessment" src={`/assessment-app/?embedded=1#${home}`} onLoad={() => setLoaded(true)} className="block h-full w-full border-0 bg-[#EFEFE8]" />
+  </main>
 }

@@ -70,9 +70,9 @@ class Member4FoundationTest extends TestCase
         ]);
     }
 
-    public function test_member4_session_uses_existing_login_without_changing_default_admin_login(): void
+    public function test_member4_session_supports_unified_login_and_keeps_admin_routes_protected(): void
     {
-        $this->postJson('/api/auth/login', ['email' => $this->parent->email, 'password' => 'password123'])->assertForbidden();
+        $this->postJson('/api/auth/login', ['email' => $this->parent->email, 'password' => 'password123'])->assertOk();
         $response = $this->postJson('/api/auth/login', ['email' => $this->parent->email, 'password' => 'password123', 'portal' => 'member4'])->assertOk()->assertJsonPath('data.role', 'wali_murid');
         $headers = ['Authorization' => 'Bearer '.$response->json('token')];
         $this->getJson('/api/auth/me', $headers)->assertOk()->assertJsonPath('data.id', $this->parent->id);

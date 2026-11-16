@@ -12,7 +12,6 @@ export default function Login({ onLogin, notice = '' }) {
     const [form, setForm] = useState({
         email: "",
         password: "",
-        portal: "ais",
     });
 
     const [loading, setLoading] = useState(false);
@@ -36,7 +35,7 @@ export default function Login({ onLogin, notice = '' }) {
             await login(form);
 
             const profile = await me();
-            const destination = form.portal === 'lms' ? '/lms' : form.portal === 'assessment' ? '/assessment' : form.portal === 'communication' ? '/communication' : '/';
+            const destination = '/';
 
             if (onLogin) {
                 onLogin(profile.data, destination);
@@ -55,7 +54,7 @@ export default function Login({ onLogin, notice = '' }) {
             <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl lg:grid-cols-2">
                 <div className="hidden flex-col justify-between bg-slate-900 p-12 text-white lg:flex">
                     <div className="flex items-center gap-3 text-sm font-semibold"><GraduationCap size={28} /> {school.name}</div>
-                    <div className="my-16"><p className="mb-4 text-xs font-semibold uppercase tracking-[.2em] text-teal-200">Core Academic Information System</p><h2 className="text-4xl font-bold leading-tight">Administrasi rapi.<br />Akademik terintegrasi.</h2><p className="mt-6 leading-7 text-teal-100/80">Kelola data sekolah, periode belajar, dan administrasi akademik dari satu ruang kerja.</p></div>
+                    <div className="my-16"><p className="mb-4 text-xs font-semibold uppercase tracking-[.2em] text-teal-200">Portal Sekolah</p><h2 className="text-4xl font-bold leading-tight">Satu akun.<br />Ruang kerja terarah.</h2><p className="mt-6 leading-7 text-teal-100/80">Masuk untuk mengakses administrasi, keuangan, LMS, dan assessment sesuai hak akses akun Anda.</p></div>
                     <div><p className="flex items-center gap-2 text-sm text-teal-100"><ShieldCheck size={18} /> NPSN {school.npsn}</p><p className="mt-3 text-xs leading-5 text-teal-100/80">{school.address}</p></div>
                 </div>
                 <div className="p-8 sm:p-12">
@@ -66,7 +65,7 @@ export default function Login({ onLogin, notice = '' }) {
                         </h1>
 
                         <p className="text-gray-500 mt-2">
-                            Sistem Akademik {school.name}
+                            Masuk ke Sistem Akademik {school.name}, lalu pilih layanan Anda.
                         </p>
                     </div>
 
@@ -78,16 +77,6 @@ export default function Login({ onLogin, notice = '' }) {
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label htmlFor="portal" className="block text-sm font-medium text-gray-700 mb-2">Layanan</label>
-                            <select id="portal" name="portal" value={form.portal} onChange={handleChange} className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-teal-500">
-                                <option value="ais">Administrasi akademik</option>
-                                <option value="member4">Portal wali dan keuangan pendidikan</option>
-                                <option value="communication">Komunikasi sekolah (semua peran)</option>
-                                <option value="lms">LMS pembelajaran (guru, siswa, dan wali)</option>
-                                <option value="assessment">Assessment pembelajaran (guru dan siswa)</option>
-                            </select>
-                        </div>
-                        <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                                 Email
                             </label>
@@ -98,7 +87,7 @@ export default function Login({ onLogin, notice = '' }) {
                                 name="email"
                                 value={form.email}
                                 onChange={handleChange}
-                                placeholder="admin@akademik.test"
+                                placeholder="Masukkan email Anda"
                                 required
                                 autoComplete="email"
                                 className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -133,13 +122,6 @@ export default function Login({ onLogin, notice = '' }) {
                         </button>
                     </form>
 
-                    {import.meta.env.DEV && <div className="mt-6 rounded-lg bg-slate-50 p-4 text-sm text-gray-600">
-                        <p className="font-medium text-gray-700">
-                            Akun demo admin
-                        </p>
-                        <p>Email: admin@akademik.test</p>
-                        <p>Kata sandi: admin123</p>
-                    </div>}
                 </div>
             </div>
         </div>

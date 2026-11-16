@@ -2,6 +2,7 @@ import {
   useState
 } from 'react'
 import { useSchool } from '../school-context'
+import { serviceForPath } from '../services'
 
 import {
   NavLink,
@@ -42,7 +43,7 @@ const groups = [
 
     items: [
       {
-        path: '/',
+        path: '/administration',
         label: 'Dashboard',
         icon: LayoutDashboard
       }
@@ -57,11 +58,6 @@ const groups = [
         path: '/users',
         label: 'Data Pengguna',
         icon: Users
-      },
-      {
-        path: '/roles',
-        label: 'Hak Akses & Peran',
-        icon: Settings2
       },
       {
         path: '/students',
@@ -194,7 +190,11 @@ export default function Layout({
   ] }
   const assessmentGroup = { label: 'Pembelajaran', items: [{ path: '/assessment', label: 'Assessment', icon: BookOpen }] }
   const lmsGroup = { label: 'LMS', items: [{ path: '/lms', label: 'Course & Pembelajaran', icon: GraduationCap }] }
-  const navigationGroups = [...(admin ? [...groups, financeGroup] : parent ? [parentGroup, { label: 'Pembayaran', items: [{ path: '/finance', label: 'Keuangan Pendidikan', icon: Wallet }] }] : user.role === 'guru' ? [] : [financeGroup]), ...(['admin', 'guru', 'murid'].includes(user.role) ? [assessmentGroup] : []), ...(['guru', 'murid', 'wali_murid'].includes(user.role) ? [lmsGroup] : []), communicationGroup]
+  const activeService = serviceForPath(location.pathname)
+  const navigationGroups = activeService?.id === 'administration' && admin ? groups
+    : activeService?.id === 'finance' ? [...(parent ? [parentGroup, financeGroup] : user.role === 'guru' ? [] : [financeGroup]), communicationGroup]
+    : activeService?.id === 'lms' ? [lmsGroup]
+    : activeService?.id === 'assessment' ? [assessmentGroup] : []
   const [
     collapsed,
     setCollapsed
@@ -343,6 +343,7 @@ export default function Layout({
           p-3
         ">
 
+          <NavLink to="/" end onClick={() => setMobileOpen(false)} title="Pilih layanan" className="mb-5 flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-3 text-sm font-semibold text-teal-800"><LayoutDashboard size={18} />{!collapsed && 'Pilih layanan'}</NavLink>
           {navigationGroups.map(
             (group) => (
               <div
@@ -545,7 +546,7 @@ export default function Layout({
                 font-semibold
                 text-slate-900
               ">
-                {location.pathname.startsWith('/assessment') ? 'Assessment Pembelajaran' : admin ? 'Panel Administrasi' : parent ? 'Portal Wali Murid' : user.role === 'guru' ? 'Komunikasi Sekolah' : 'Keuangan Pendidikan'}
+                {activeService?.title || 'Pilih layanan'}
               </p>
 
               <p className="

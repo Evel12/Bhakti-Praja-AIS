@@ -3,6 +3,7 @@ import {
   useState
 } from 'react'
 import { useSchool } from '../school-context'
+import { Link } from 'react-router-dom'
 
 import {
   CalendarDays,
@@ -141,6 +142,13 @@ export default function Dashboard() {
           {error}
         </div>
       )}
+
+      <section aria-label="Mulai administrasi" className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[
+        ['/users', '1. Siapkan akun', 'Tambah guru dan siswa; profil akademik terhubung otomatis.'],
+        ['/classrooms', '2. Susun kelas', 'Buat kelas dan pilih guru sebagai wali kelas.'],
+        ['/class-students', '3. Tempatkan siswa', 'Pilih anggota kelas sekaligus pada semester yang sesuai.'],
+        ['/schedules', '4. Atur pembelajaran', 'Susun agenda mingguan guru, mata pelajaran, dan ruang.'],
+      ].map(([path, title, text]) => <Link key={path} to={path} className="rounded-2xl border border-teal-200 bg-teal-50 p-4 hover:bg-teal-100"><h2 className="font-bold text-teal-900">{title}</h2><p className="mt-2 text-xs leading-5 text-teal-800">{text}</p></Link>)}</section>
 
       <section aria-label="Identitas sekolah" className="mb-6 rounded-2xl border border-slate-200 bg-white p-5">
         <p className="text-xs font-semibold uppercase tracking-wider text-teal-700">NPSN {school.npsn}</p>

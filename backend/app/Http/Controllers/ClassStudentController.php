@@ -7,9 +7,38 @@ use App\Models\Semester;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ClassStudentController extends Controller
 {
+    public function promote(Request $request, int $student)
+    {
+        $data = $request->validate([
+            'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
+            'classroom_id' => ['required', 'integer', 'exists:classrooms,id'],
+            'semester_id' => ['nullable', 'integer', 'exists:semesters,id'],
+        ]);
+        return DB::transaction(function () use ($student, $data) {
+            $profile = \App\Models\Student::lockForUpdate()->findOrFail($student);
+            $target = \App\Models\Classroom::with(['academicYear', 'studyProgram'])->findOrFail($data['classroom_id']);
+            if ((int) $target->academic_year_id !== (int) $data['academic_year_id']) throw ValidationException::withMessages(['classroom_id' => 'Kelas tujuan harus berada pada tahun ajaran yang dipilih.']);
+            $current = ClassStudent::with(['classroom.studyProgram', 'academicYear'])->where('student_id', $student)->where('status', 'active')->orderByDesc('academic_year_id')->orderByDesc('semester_id')->orderByDesc('id')->first();
+            if (! $current) throw ValidationException::withMessages(['student_id' => 'Siswa belum memiliki kelas aktif untuk dinaikkan.']);
+            $grade = static fn ($level) => ['X' => 10, 'XI' => 11, 'XII' => 12][strtoupper(trim((string) $level))] ?? (int) $level;
+            if ($grade($target->level) !== $grade($current->classroom->level) + 1) throw ValidationException::withMessages(['classroom_id' => 'Pilih kelas pada tingkat berikutnya.']);
+            if ($target->study_program_id !== $current->classroom->study_program_id) throw ValidationException::withMessages(['classroom_id' => 'Konsentrasi kelas tujuan harus sama.']);
+            if ($target->academicYear->start_date->lte($current->academicYear->start_date)) throw ValidationException::withMessages(['academic_year_id' => 'Kenaikan kelas memerlukan tahun ajaran berikutnya.']);
+            if ($data['semester_id'] ?? null) {
+                if ((int) \App\Models\Semester::findOrFail($data['semester_id'])->academic_year_id !== (int) $target->academic_year_id) throw ValidationException::withMessages(['semester_id' => 'Semester harus berada pada tahun ajaran tujuan.']);
+            }
+            if ($this->hasActiveConflict($student, (int) $target->academic_year_id, $data['semester_id'] ?? null)) throw ValidationException::withMessages(['student_id' => 'Siswa sudah memiliki penempatan aktif pada tahun ajaran tujuan.']);
+            ClassStudent::where('student_id', $student)->where('status', 'active')->update(['status' => 'inactive', 'updated_at' => now()]);
+            $placement = ClassStudent::create(['student_id' => $student, 'classroom_id' => $target->id, 'academic_year_id' => $target->academic_year_id, 'semester_id' => $data['semester_id'] ?? null, 'status' => 'active', 'assigned_at' => now()->toDateString()]);
+            return response()->json(['success' => true, 'message' => 'Siswa berhasil dinaikkan.', 'data' => $placement->load(['classroom.studyProgram', 'academicYear', 'student'])]);
+        });
+    }
+
     private function resolveClassroomId(Request $request, ?int $default = null): ?int
     {
         if ($request->filled('classroom_id')) {
@@ -170,7 +199,9 @@ class ClassStudentController extends Controller
             'assigned_at' => $request->input('assigned_at', now()->format('Y-m-d')),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Penempatan berhasil dibuat.', 'data' => $item->load(['classroom', 'student'])], 201);
+        $item->load(['classroom', 'student']);
+
+        return response()->json(['success' => true, 'message' => 'Penempatan berhasil dibuat.', 'data' => $item], 201);
     }
 
     public function update(Request $request, string $id)
