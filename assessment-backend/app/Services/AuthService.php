@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\Role;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService
 {
@@ -25,6 +27,13 @@ class AuthService
 
             /** @var User $user */
             $user = Auth::guard('web')->user();
+            if (! $user->isActive()) {
+                logSystemActivity('auth.login_inactive', $user->id);
+                throw new AuthorizationException('Account is inactive.');
+            }
+            if ($user->role === Role::Parent) {
+                throw new AuthorizationException('Parent accounts cannot access the assessment workspace.');
+            }
             $expiresAt = now()->addMinutes(config('auth.api_token_expiration', 120));
             $token = $user->createToken($deviceName, ['*'], $expiresAt);
 
@@ -33,6 +42,45 @@ class AuthService
             ]));
 
             return ['user' => $user, 'token' => $token->plainTextToken, 'expires_at' => $expiresAt->toIso8601String()];
+        });
+    }
+
+    public function aisExchange(string $aisToken, string $deviceName): array
+    {
+        $accessToken = PersonalAccessToken::findToken($aisToken);
+        if (! $accessToken || ! ($accessToken->tokenable instanceof User)) {
+            logSystemActivity('auth.ais_exchange_failed');
+            throw new AuthenticationException('Invalid or expired AIS token.');
+        }
+
+        if ($accessToken->expires_at !== null && $accessToken->expires_at->isPast()) {
+            throw new AuthenticationException('AIS session token has expired.');
+        }
+
+        /** @var User $user */
+        $user = $accessToken->tokenable->fresh();
+        if (! $user || ! $user->isActive()) {
+            throw new AuthorizationException('Account is inactive.');
+        }
+
+        if (! in_array($user->role, [Role::Admin, Role::Teacher, Role::Student], true)) {
+            throw new AuthorizationException('Account role does not have access to Assessment.');
+        }
+
+        return DB::transaction(function () use ($user, $deviceName): array {
+            $expiresAt = now()->addMinutes(config('auth.api_token_expiration', 120));
+            $token = $user->createToken($deviceName, ['*'], $expiresAt);
+
+            DB::afterCommit(fn () => logSystemActivity('auth.ais_exchange', $user->id, [
+                'entity_type' => 'api_token', 'entity_id' => $token->accessToken->id,
+            ]));
+
+            return [
+                'user' => $user,
+                'token' => $token->plainTextToken,
+                'expires_at' => $expiresAt->toIso8601String(),
+                'provider' => 'ais',
+            ];
         });
     }
 
@@ -48,7 +96,7 @@ class AuthService
                 $user = User::where('email', $email)->first();
             }
 
-            if (! $user) {
+            if (! $user && app()->environment('local', 'testing')) {
                 $resolvedRole = match (true) {
                     $roleHint === Role::Teacher->value || str_ends_with($email, '@lecturer.undip.ac.id') => Role::Teacher,
                     $roleHint === Role::Student->value || str_ends_with($email, '@students.undip.ac.id') => Role::Student,
@@ -63,6 +111,10 @@ class AuthService
             if (! $user) {
                 logSystemActivity('auth.sso_login_failed');
                 throw new AuthenticationException;
+            }
+
+            if (! $user->isActive() || $user->role === Role::Parent) {
+                throw new AuthorizationException('Account cannot access Assessment.');
             }
 
             $expiresAt = now()->addMinutes(config('auth.api_token_expiration', 120));

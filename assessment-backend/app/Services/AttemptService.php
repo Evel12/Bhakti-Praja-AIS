@@ -20,7 +20,10 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class AttemptService
 {
-    public function __construct(private readonly ScoringServiceFactory $scoring) {}
+    public function __construct(
+        private readonly ScoringServiceFactory $scoring,
+        private readonly ?AisGradebookExporter $exporter = null,
+    ) {}
 
     public function start(User $student, int $quizId, array $data): array
     {
@@ -180,6 +183,7 @@ class AttemptService
             $locked->finished_at = now()->utc();
             $locked->final_grade = $result->finalGrade;
             $this->saveProgress($locked, $result);
+            ($this->exporter ?? app(AisGradebookExporter::class))->exportAttempt($locked);
             $this->logAfterCommit('attempt.finished', $student, $locked);
 
             return $this->state($locked, $result, $total);

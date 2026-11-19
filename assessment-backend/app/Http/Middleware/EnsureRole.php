@@ -18,6 +18,10 @@ class EnsureRole
             throw new AuthenticationException;
         }
 
+        if (! $user->isActive()) {
+            throw new AuthorizationException('Account is inactive.');
+        }
+
         // Roles come from the database, never a request field or token ability.
         if (! in_array($user->role->value, $roles, true)) {
             throw new AuthorizationException;

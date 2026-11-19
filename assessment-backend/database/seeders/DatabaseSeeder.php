@@ -18,6 +18,12 @@ class DatabaseSeeder extends Seeder
             throw new \RuntimeException('DemoAssessmentSeeder cannot run in production. Run ProductionAdminSeeder instead.');
         }
 
+        if (\Illuminate\Support\Facades\Schema::hasTable('teaching_loads')) {
+            $this->call(IntegratedAssessmentSeeder::class);
+
+            return;
+        }
+
         $this->call(DemoAssessmentSeeder::class);
     }
 }

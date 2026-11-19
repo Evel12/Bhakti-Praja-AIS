@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Gate;
 
 class ReportingService
 {
-    public function __construct(private readonly GradeStatistics $statistics) {}
+    public function __construct(
+        private readonly GradeStatistics $statistics,
+        private readonly ?AisGradebookExporter $exporter = null,
+    ) {}
 
     public function personal(User $student, array $filters): array
     {
@@ -135,6 +138,7 @@ class ReportingService
             }
             $attempt->graded_at = now()->utc();
             $attempt->save();
+            ($this->exporter ?? app(AisGradebookExporter::class))->exportAttempt($attempt);
 
             $attempt->load(['student', 'quiz'])->loadCount('answers');
             $this->logAfterCommit('report.attempt_graded', $teacher, 'attempt', $attempt->id);

@@ -14,7 +14,7 @@ class DomainMigrationTest extends TestCase
     {
         $tables = ['classes', 'class_members', 'modules', 'quizzes', 'questions', 'options', 'attempts', 'attempt_answers', 'quiz_generations', 'assignments', 'announcements', 'notifications', 'module_reads'];
         $this->seed();
-        $this->artisan('migrate:rollback', ['--step' => 17, '--force' => true])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 18, '--force' => true])->assertSuccessful();
 
         foreach ($tables as $table) {
             $this->assertFalse(Schema::hasTable($table));

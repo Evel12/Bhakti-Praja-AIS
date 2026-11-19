@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\AttemptController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClassModuleController;
+use App\Http\Controllers\Api\IntegrationSyncController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OptionController;
 use App\Http\Controllers\Api\QuestionController;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->name('auth.')->group(function (): void {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
     Route::post('sso', [AuthController::class, 'sso'])->middleware('throttle:login')->name('sso');
+    Route::post('ais-exchange', [AuthController::class, 'aisExchange'])->middleware('throttle:ais-exchange')->name('ais-exchange');
     Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset')->name('forgot-password');
     Route::post('reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('reset-password');
 
@@ -53,6 +55,11 @@ Route::middleware(['auth:sanctum', 'role:student', 'throttle:assessment-api'])->
     Route::get('attempts/{attempt}/questions', [AttemptController::class, 'questions'])->name('attempts.questions');
     Route::post('attempts/{attempt}/answers', [AttemptController::class, 'answer'])->name('attempts.answer');
     Route::post('attempts/{attempt}/finish', [AttemptController::class, 'finish'])->name('attempts.finish');
+});
+
+Route::middleware(['auth:sanctum', 'role:admin,teacher', 'throttle:assessment-api'])->group(function (): void {
+    Route::post('integration/sync-roster', [IntegrationSyncController::class, 'syncRoster'])->middleware('throttle:quiz-writes')->name('integration.sync-roster');
+    Route::post('integration/export-grades', [IntegrationSyncController::class, 'exportGrades'])->middleware('throttle:quiz-writes')->name('integration.export-grades');
 });
 
 Route::middleware(['auth:sanctum', 'role:teacher', 'throttle:assessment-api'])->scopeBindings()->group(function (): void {

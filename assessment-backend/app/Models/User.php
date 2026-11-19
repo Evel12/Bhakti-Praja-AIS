@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password'])]
@@ -19,6 +21,41 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    private const ASSESSMENT_TO_AIS_ROLE = [
+        'admin' => 'admin',
+        'teacher' => 'guru',
+        'student' => 'murid',
+        'parent' => 'wali_murid',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (User $user): void {
+            if (Schema::hasColumn('users', 'status') && empty($user->status)) {
+                $user->attributes['status'] = 'active';
+            }
+
+            if (! Schema::hasTable('roles') || ! Schema::hasColumn('users', 'role_id')) {
+                return;
+            }
+
+            $roleValue = $user->role instanceof Role ? $user->role->value : (string) $user->role;
+            $aisName = self::ASSESSMENT_TO_AIS_ROLE[$roleValue] ?? null;
+
+            if ($aisName !== null && ($user->isDirty('role') || empty($user->role_id))) {
+                $aisRoleId = DB::table('roles')->where('name', $aisName)->value('id');
+                if ($aisRoleId !== null) {
+                    $user->attributes['role_id'] = $aisRoleId;
+                }
+            }
+        });
+    }
+
+    public function isActive(): bool
+    {
+        return ($this->status ?? 'active') === 'active';
+    }
 
     public function ownedClasses(): HasMany
     {

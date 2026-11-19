@@ -15,6 +15,7 @@ class NotificationController extends Controller
     {
         $notifications = $request->user()
             ->lmsNotifications()
+            ->where('type', '!=', 'member4')
             ->orderByDesc('id')
             ->limit(100)
             ->get();

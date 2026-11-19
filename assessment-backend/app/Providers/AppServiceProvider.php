@@ -63,6 +63,16 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(20)->by('login-ip:'.$request->ip()),
         ]);
 
+        RateLimiter::for('ais-exchange', function (Request $request) {
+            $token = $request->input('ais_token');
+            $tokenKey = hash('sha256', (is_string($token) ? $token : '').'|'.$request->ip());
+
+            return [
+                Limit::perMinute(30)->by('ais-exchange:'.$tokenKey),
+                Limit::perMinute(120)->by('ais-exchange-ip:'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('password-reset', fn (Request $request) => [
             Limit::perMinute(3)->by('reset:'.$this->emailRateKey($request)),
             Limit::perMinute(10)->by('reset-ip:'.$request->ip()),

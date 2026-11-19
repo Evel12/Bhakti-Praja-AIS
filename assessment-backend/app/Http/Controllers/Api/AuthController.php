@@ -12,6 +12,7 @@ use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class AuthController extends Controller
@@ -47,6 +48,29 @@ class AuthController extends Controller
             'auth_method' => 'sso',
             'provider' => $result['provider'],
         ], 'Logged in via Institutional SSO.');
+    }
+
+    public function aisExchange(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'ais_token' => ['sometimes', 'nullable', 'string', 'max:512'],
+            'device_name' => ['sometimes', 'nullable', 'string', 'max:100'],
+        ]);
+
+        $token = trim((string) ($data['ais_token'] ?? $request->bearerToken() ?? ''));
+        $result = $this->auth->aisExchange(
+            $token,
+            $data['device_name'] ?? 'ais-embedded-bridge',
+        );
+
+        return ApiResponse::success([
+            'user' => new UserResource($result['user']),
+            'token' => $result['token'],
+            'token_type' => 'Bearer',
+            'expires_at' => $result['expires_at'],
+            'auth_method' => 'ais-sso',
+            'provider' => $result['provider'],
+        ], 'Logged in via AIS session.');
     }
 
     public function me(AuthenticatedRequest $request): JsonResponse

@@ -26,7 +26,10 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class QuizManagementService
 {
-    public function __construct(private readonly LmsNotificationService $notifications) {}
+    public function __construct(
+        private readonly LmsNotificationService $notifications,
+        private readonly ?AisGradebookExporter $exporter = null,
+    ) {}
 
     public function list(User $actor, SchoolClass $schoolClass, array $filters): LengthAwarePaginator
     {
@@ -193,6 +196,7 @@ class QuizManagementService
         return $this->mutate($actor, $quizId, 'releaseResults', function (Quiz $quiz) use ($actor): Quiz {
             $quiz->results_released = true;
             $quiz->save();
+            ($this->exporter ?? app(AisGradebookExporter::class))->exportQuiz($quiz);
             $this->notifications->notifyClassStudents(
                 $quiz->schoolClass,
                 NotificationType::GradeReleased,
