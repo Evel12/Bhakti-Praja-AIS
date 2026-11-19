@@ -11,8 +11,12 @@ return new class extends Migration {
             $table->unsignedTinyInteger('credit_hours')->nullable()->default(null)->change();
         });
         Schema::table('curricula', function (Blueprint $table) {
-            $table->string('source_url', 2048)->nullable();
-            $table->text('notes')->nullable();
+            if (! Schema::hasColumn('curricula', 'source_url')) {
+                $table->string('source_url', 2048)->nullable();
+            }
+            if (! Schema::hasColumn('curricula', 'notes')) {
+                $table->text('notes')->nullable();
+            }
         });
     }
 

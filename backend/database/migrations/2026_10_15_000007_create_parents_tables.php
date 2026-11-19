@@ -8,27 +8,31 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('parents', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->nullOnDelete();
-            $table->string('name', 150);
-            $table->string('email', 150)->nullable()->unique();
-            $table->string('phone', 30)->nullable();
-            $table->text('address')->nullable();
-            $table->string('occupation', 100)->nullable();
-            $table->string('status', 20)->default('active')->index();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('parents')) {
+            Schema::create('parents', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->nullable()->unique()->constrained('users')->nullOnDelete();
+                $table->string('name', 150);
+                $table->string('email', 150)->nullable()->unique();
+                $table->string('phone', 30)->nullable();
+                $table->text('address')->nullable();
+                $table->string('occupation', 100)->nullable();
+                $table->string('status', 20)->default('active')->index();
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('parent_student', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('parent_id')->constrained('parents')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->string('relationship', 50)->default('wali');
-            $table->timestamps();
+        if (! Schema::hasTable('parent_student')) {
+            Schema::create('parent_student', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('parent_id')->constrained('parents')->cascadeOnDelete();
+                $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+                $table->string('relationship', 50)->default('wali');
+                $table->timestamps();
 
-            $table->unique(['parent_id', 'student_id']);
-        });
+                $table->unique(['parent_id', 'student_id']);
+            });
+        }
     }
 
     public function down(): void

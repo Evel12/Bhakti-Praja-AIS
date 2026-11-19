@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Classroom;
 use App\Models\Semester;
 use App\Models\TeachingLoad;
+use App\Services\AisAssessmentRosterBridge;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class TeachingLoadController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
     public function index(Request $request)
     {
         $query = TeachingLoad::with(['teacher', 'subject', 'classroom', 'semester.academicYear'])->orderBy('id');
@@ -51,6 +53,7 @@ class TeachingLoadController extends Controller
     public function store(Request $request)
     {
         $item = TeachingLoad::create($this->validated($request));
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncTeachingLoad($item->id);
         return response()->json(['success' => true, 'data' => $item->load(['teacher', 'subject', 'classroom', 'semester'])], 201);
     }
 
@@ -64,12 +67,16 @@ class TeachingLoadController extends Controller
         $item = TeachingLoad::findOrFail($id);
         $request->merge(array_merge($item->only($item->getFillable()), $request->all()));
         $item->update($this->validated($request, $item));
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncTeachingLoad($item->id);
         return response()->json(['success' => true, 'data' => $item->load(['teacher', 'subject', 'classroom', 'semester'])]);
     }
 
     public function destroy(string $id)
     {
-        TeachingLoad::findOrFail($id)->delete();
+        $item = TeachingLoad::findOrFail($id);
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->removeTeachingLoad($item->id);
+        $item->delete();
+
         return response()->json(['success' => true, 'message' => 'Beban mengajar berhasil dihapus.']);
     }
 }

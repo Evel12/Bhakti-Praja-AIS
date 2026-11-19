@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -105,6 +106,10 @@ class RoomController extends Controller
 
         if (! $item) {
             return response()->json(['success' => false, 'message' => 'Ruang tidak ditemukan.'], 404);
+        }
+
+        if (Schedule::where('room_id', $item->id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Ruang tidak dapat dihapus karena masih digunakan pada jadwal pembelajaran.'], 422);
         }
 
         $item->delete();

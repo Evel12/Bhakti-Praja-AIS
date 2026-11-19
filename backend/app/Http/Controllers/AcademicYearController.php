@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicRegistration;
 use App\Models\AcademicYear;
+use App\Models\ClassStudent;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -157,7 +160,13 @@ class AcademicYearController extends Controller
             return response()->json(['success' => false, 'message' => 'Tahun ajaran tidak ditemukan.'], 404);
         }
 
-        if ($item->semesters()->exists() || $item->classrooms()->exists()) {
+        if (
+            $item->semesters()->exists()
+            || $item->classrooms()->exists()
+            || ClassStudent::where('academic_year_id', $item->id)->exists()
+            || AcademicRegistration::where('academic_year_id', $item->id)->exists()
+            || Schedule::where('academic_year_id', $item->id)->exists()
+        ) {
             return response()->json(['success' => false, 'message' => 'Tahun ajaran tidak dapat dihapus karena masih digunakan.'], 422);
         }
 

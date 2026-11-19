@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -18,6 +19,13 @@ class User extends Authenticatable
 
     public const STATUS_INACTIVE = 'inactive';
 
+    private const AIS_TO_ASSESSMENT_ROLE = [
+        'admin' => 'admin',
+        'guru' => 'teacher',
+        'murid' => 'student',
+        'wali_murid' => 'parent',
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -25,6 +33,31 @@ class User extends Authenticatable
         'role_id',
         'status',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (User $user): void {
+            if (! Schema::hasColumn('users', 'role')) {
+                return;
+            }
+
+            if ($user->role_id !== null) {
+                $roleName = Role::query()->whereKey($user->role_id)->value('name');
+                if ($roleName !== null && isset(self::AIS_TO_ASSESSMENT_ROLE[$roleName])) {
+                    $user->attributes['role'] = self::AIS_TO_ASSESSMENT_ROLE[$roleName];
+                }
+            }
+        });
+    }
+
+    public function getAttribute($key)
+    {
+        if ($key === 'role') {
+            return $this->getRelationValue('role');
+        }
+
+        return parent::getAttribute($key);
+    }
 
     protected $hidden = [
         'password',

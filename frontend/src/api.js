@@ -2,8 +2,13 @@ import axios from 'axios'
 
 const TOKEN_KEY = 'ais_token'
 
+const apiBaseUrl = (
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ||
+  '/api'
+).replace(/\/+$/, '')
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: apiBaseUrl,
 
   headers: {
     Accept: 'application/json',
@@ -42,7 +47,12 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (typeof response.data === 'string' && /^\s*</.test(response.data)) {
+      return Promise.reject(new Error('API returned HTML instead of JSON. Check VITE_API_BASE_URL.'))
+    }
+    return response
+  },
   (error) => {
     const requestToken = error.config?.headers?.Authorization
     const currentToken = getToken()
@@ -64,7 +74,7 @@ function extractCredentials(emailOrObject, password) {
     return {
       email: emailOrObject.email ?? '',
       password: emailOrObject.password ?? '',
-      portal: emailOrObject.portal ?? 'ais',
+      ...(emailOrObject.portal ? { portal: emailOrObject.portal } : {}),
     }
   }
 
@@ -194,6 +204,11 @@ export async function updateUserStatus(
       { status },
     )
 
+  return response.data
+}
+
+export async function promoteStudent(id, payload) {
+  const response = await api.post(`/students/${id}/promote`, payload)
   return response.data
 }
 

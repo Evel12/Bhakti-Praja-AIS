@@ -1,16 +1,94 @@
-# React + Vite
+# Bhakti Praja Academic Information System (AIS) & Assessment LMS
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Unified full-stack platform for **SMK Bhakti Praja Batang** combining:
 
-Currently, two official plugins are available:
+- **`frontend/`** — Consolidated React + Vue 3 frontend (AIS Portal, Assessment & LMS Workspace, Finance/Parent/Communication Portal) running on Vite (`http://127.0.0.1:5173` dev, `http://127.0.0.1:4173` preview).
+- **`backend/`** — Laravel Core AIS + Member 4 (Finance, Parent Portal, Communication) + AIS↔Assessment Grade/Roster Bridge API (`http://127.0.0.1:8000`).
+- **`assessment-backend/`** — Laravel Assessment, Quiz Generation, & LMS API (`http://127.0.0.1:8002`).
+- **`ai-service/`** — FastAPI + Ollama AI Quiz Generation service (`http://127.0.0.1:8001`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Both Laravel backends share the MySQL database **`sistem_akademik`** (`127.0.0.1:3306`, user `root`).
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Quick Start (Local Development)
 
-## Expanding the Oxlint configuration
+### 1. Database Migration & Seeding (MySQL `sistem_akademik`)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Ensure MySQL is running on `127.0.0.1:3306` with database `sistem_akademik`:
+
+```powershell
+# Migrate & seed Core AIS + Bhakti Praja sample accounts
+cd backend
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+
+# Migrate & seed Assessment/LMS on the same database
+cd ..\assessment-backend
+composer install
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+```
+
+### 2. Run Backend, Assessment API, AI Service, and Frontend
+
+Open terminals from the repository root:
+
+```powershell
+# Terminal 1 — Core AIS Backend (:8000)
+cd backend
+php artisan serve --host=127.0.0.1 --port=8000
+
+# Terminal 2 — Assessment & LMS Backend (:8002)
+cd assessment-backend
+php artisan serve --host=127.0.0.1 --port=8002
+
+# Terminal 3 — AI Quiz Service (:8001, optional if using AI generation)
+cd ai-service
+uvicorn app.main:app --host 127.0.0.1 --port 8001
+
+# Terminal 4 — Consolidated Frontend (:5173)
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Open **`http://127.0.0.1:5173`** in your browser. Vite automatically proxies `/api` to `127.0.0.1:8000` and `/assessment-api` to `127.0.0.1:8002`.
+
+---
+
+## Seeded Login Accounts
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@bhaktiprajabatang.sch.id` | `AdminBhakti#2026` |
+| **Guru** | `rina.kusuma@bhaktiprajabatang.sch.id` | `GuruBhakti#2026` |
+| **Murid** | `siswa1@bhaktiprajabatang.sch.id` | `MuridBhakti#2026` |
+| **Wali Murid** | `slamet.walimurid@bhaktiprajabatang.sch.id` | `WaliBhakti#2026` |
+
+> Also seeded for legacy AIS admin tests: `admin@akademik.test` / `admin123`.
+
+---
+
+## Test & Verification Commands
+
+```powershell
+# Core AIS Backend
+cd backend && php artisan test
+
+# Assessment & LMS Backend
+cd assessment-backend && php artisan test
+
+# AI Quiz Service
+cd ai-service && pytest
+
+# Consolidated Frontend
+cd frontend
+npm run check:motion
+npm run test
+npm run test:components
+npm run lint
+npm run build
+```

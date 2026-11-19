@@ -14,7 +14,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'max:150'],
             'password' => ['required', 'string', 'min:6'],
-            'portal' => ['nullable', \Illuminate\Validation\Rule::in(['ais', 'member4', 'communication', 'assessment'])],
+            'portal' => ['nullable', \Illuminate\Validation\Rule::in(['ais', 'member4', 'communication', 'assessment', 'unified'])],
         ], [
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
@@ -50,7 +50,13 @@ class AuthController extends Controller
         }
 
         $portal = $request->input('portal') ?? 'ais';
-        $allowedRoles = match ($portal) { 'assessment' => ['admin', 'guru', 'murid'], 'communication' => ['admin', 'guru', 'murid', 'wali_murid'], 'member4' => ['admin', 'murid', 'wali_murid'], default => ['admin'] };
+        $allowedRoles = match ($portal) {
+            'unified' => ['admin', 'guru', 'murid', 'wali_murid'],
+            'assessment' => ['admin', 'guru', 'murid'],
+            'communication' => ['admin', 'guru', 'murid', 'wali_murid'],
+            'member4' => ['admin', 'murid', 'wali_murid'],
+            default => ['admin'],
+        };
         if (! in_array($user->role?->name, $allowedRoles, true)) {
             return response()->json([
                 'success' => false,
@@ -60,7 +66,12 @@ class AuthController extends Controller
 
         $user->tokens()->delete();
 
-        $token = $user->createToken($portal === 'ais' ? 'ais-admin' : $portal)->plainTextToken;
+        $tokenName = match ($portal) {
+            'ais' => 'ais-admin',
+            'unified' => 'ais-unified',
+            default => $portal,
+        };
+        $token = $user->createToken($tokenName)->plainTextToken;
 
         return response()->json([
             'success' => true,

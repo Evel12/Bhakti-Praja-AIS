@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Schedule;
 use App\Models\Teacher;
+use App\Models\TeachingLoad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -109,8 +111,12 @@ class TeacherController extends Controller
             return response()->json(['success' => false, 'message' => 'Guru tidak ditemukan.'], 404);
         }
 
-        if ($item->homeroomClasses()->exists()) {
-            return response()->json(['success' => false, 'message' => 'Guru tidak dapat dihapus karena masih menjadi wali kelas.'], 422);
+        if (
+            $item->homeroomClasses()->exists()
+            || Schedule::where('teacher_id', $item->id)->exists()
+            || TeachingLoad::where('teacher_id', $item->id)->exists()
+        ) {
+            return response()->json(['success' => false, 'message' => 'Guru tidak dapat dihapus karena masih menjadi wali kelas atau memiliki jadwal/beban mengajar.'], 422);
         }
 
         $item->delete();

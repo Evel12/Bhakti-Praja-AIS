@@ -5,6 +5,7 @@ import {
   useState
 } from 'react'
 import { useSchool } from '../school-context'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import {
   Plus,
@@ -25,7 +26,8 @@ import {
   deleteResource,
   listResource,
   updateResource,
-  updateUserStatus
+  updateUserStatus,
+  promoteStudent,
 } from '../api'
 
 const fieldConfig = {
@@ -228,6 +230,9 @@ const statusOptionsByResource = {
   'academic-registrations': ['pending', 'approved', 'rejected', 'cancelled'],
 }
 
+const gradeNumber = (value) => ({ X: 10, XI: 11, XII: 12 }[String(value).trim().toUpperCase()] || Number(value) || 0)
+const gradeLabel = (value) => ({ 10: 'X', 11: 'XI', 12: 'XII' }[gradeNumber(value)] || value || '')
+
 const relationResources = {
   department_id: 'departments', study_program_id: 'study-programs',
   academic_year_id: 'academic-years', semester_id: 'semesters',
@@ -268,6 +273,7 @@ export default function CrudPage({
   singular
 }) {
   const school = useSchool()
+  const [routeParams] = useSearchParams()
   const fields = useMemo(() => fieldConfig[resource] || ['name', 'status'], [resource])
 
   const hasStatusField = fields.includes('status')
@@ -285,6 +291,10 @@ export default function CrudPage({
   const [perPage, setPerPage] = useState(15)
   const [statusFilter, setStatusFilter] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
+  const [levelFilter, setLevelFilter] = useState('')
+  const [programFilter, setProgramFilter] = useState('')
+  const [yearFilter, setYearFilter] = useState('')
+  const [promotion, setPromotion] = useState(null)
   const [dayFilter, setDayFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -318,6 +328,9 @@ export default function CrudPage({
 
       if (statusFilter) params.status = statusFilter
       if (resource === 'users' && roleFilter) params.role = roleFilter
+      if (resource === 'students' && levelFilter) params.level = levelFilter
+      if (resource === 'students' && programFilter) params.study_program_id = programFilter
+      if (resource === 'students' && yearFilter) params.academic_year_id = yearFilter
       if (resource === 'schedules' && dayFilter) params.day = dayFilter
 
       const response = await listResource(resource, params)
@@ -338,20 +351,25 @@ export default function CrudPage({
   useEffect(() => {
     setPage(1)
     setStatusFilter('')
-    setRoleFilter('')
+    setRoleFilter(resource === 'users' ? routeParams.get('role') || '' : '')
+    setLevelFilter(''); setProgramFilter(''); setYearFilter('')
+    if (resource === 'users' && routeParams.get('create') === '1') openCreate()
     setDayFilter('')
     setSearch('')
+    // Initialize route-provided defaults only when entering a resource.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resource])
 
   useEffect(() => {
     const timer = setTimeout(() => load(page), 300)
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resource, search, page, perPage, statusFilter, roleFilter, dayFilter])
+  }, [resource, search, page, perPage, statusFilter, roleFilter, dayFilter, levelFilter, programFilter, yearFilter])
 
   const columns = useMemo(() => {
-    return fields.filter((f) => !['password', 'subject_ids', 'student_ids'].includes(f)).slice(0, 7)
-  }, [fields])
+    const base = fields.filter((f) => !['password', 'subject_ids', 'student_ids'].includes(f)).slice(0, 7)
+    return resource === 'students' ? [...base, 'level', 'class_name'] : base
+  }, [fields, resource])
 
   useEffect(() => {
     let cancelled = false
@@ -365,12 +383,12 @@ export default function CrudPage({
       } while (page <= last)
       return result
     }
-    const targets = [...new Set(fields.map((f) => relationResources[f]).filter(Boolean))]
+    const targets = [...new Set([...fields.map((f) => relationResources[f]).filter(Boolean), ...(resource === 'students' ? ['academic-years', 'semesters', 'classrooms', 'study-programs'] : [])])]
     Promise.all(targets.map(async (target) => [target, await fetchAll(target)]))
       .then((entries) => { if (!cancelled) setLookups(Object.fromEntries(entries)) })
       .catch(() => { if (!cancelled) setError('Gagal memuat pilihan relasi. Muat ulang halaman sebelum menyimpan.') })
     return () => { cancelled = true }
-  }, [fields])
+  }, [fields, resource])
 
   useEffect(() => {
     if (!modal) return
@@ -412,7 +430,7 @@ export default function CrudPage({
     const initial = Object.fromEntries(
       fields.map((field) => [
         field,
-        field.endsWith('_ids') ? [] : field === 'status' ? statusOptions[0] : field === 'role' ? 'murid' : '',
+        field.endsWith('_ids') ? [] : field === 'status' ? statusOptions[0] : field === 'role' ? (routeParams.get('role') || 'murid') : '',
       ])
     )
     setForm(initial)
@@ -445,7 +463,10 @@ export default function CrudPage({
     setSaving(true)
 
     try {
-      const payload = Object.fromEntries(fields.filter((f) => !(f === 'password' && !form[f] && modal.mode === 'edit')).map((f) => [f, form[f] === '' ? null : form[f]]))
+      const basePayload = Object.fromEntries(fields.filter((f) => !(f === 'password' && !form[f] && modal.mode === 'edit')).map((f) => [f, form[f] === '' ? null : form[f]]))
+      const payload = resource === 'users'
+        ? { ...basePayload, sync_profile: true }
+        : basePayload
       if (modal.mode === 'create') {
         await createResource(resource, payload)
         showToast('success', `${singular} berhasil ditambahkan.`)
@@ -494,6 +515,16 @@ export default function CrudPage({
     } catch (err) {
       setError(err.response?.data?.message || 'Gagal mengubah status pengguna.')
     }
+  }
+
+  async function advanceStudent() {
+    if (!promotion) return
+    setSaving(true); setError('')
+    try {
+      await promoteStudent(promotion.id, { academic_year_id: promotion.year, semester_id: promotion.semester || null, classroom_id: promotion.classroom })
+      setPromotion(null); showToast('success', 'Siswa berhasil dinaikkan dan ditempatkan di kelas baru.'); await load()
+    } catch (err) { setError(err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat().join(' ') || 'Gagal menaikkan kelas siswa.') }
+    finally { setSaving(false) }
   }
 
   function renderInput(field) {
@@ -628,6 +659,9 @@ export default function CrudPage({
         </button>
       </div>
 
+      {['students', 'teachers'].includes(resource) && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 p-4 text-sm text-teal-900"><p>Akun {resource === 'students' ? 'siswa' : 'guru'} dari Data Pengguna otomatis terhubung ke daftar ini. Nomor AKUN adalah nomor sementara; lengkapi dengan NIS/NIP melalui Ubah.</p><Link className="shrink-0 font-semibold underline" to={`/users?role=${resource === 'students' ? 'murid' : 'guru'}&create=1`}>Tambah akun {resource === 'students' ? 'siswa' : 'guru'}</Link></div>}
+      {resource === 'users' && <p className="mb-5 rounded-xl bg-teal-50 p-4 text-sm text-teal-900">Pilih peran Guru atau Murid untuk membuat akun sekaligus profil akademiknya. Nama dan status akun disinkronkan dengan tab Guru/Siswa; data NIP/NIS dan riwayat akademik tetap tersimpan.</p>}
+
       {toast && (
         <div className={`mb-4 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${toast.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
           {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
@@ -645,6 +679,13 @@ export default function CrudPage({
       {['departments', 'study-programs', 'curricula', 'subjects'].includes(resource) && <div className="mb-5 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm leading-6 text-slate-700">
         {['curricula', 'subjects'].includes(resource) ? school.curriculum_note : `Program dan konsentrasi mengacu pada SK Dinas Pendidikan Jawa Tengah tahun ${school.program_source_year || '2023/2024'}. Kode BP merupakan kode internal aplikasi.`}
         {school.sources?.length > 0 && <a className="ml-1 font-semibold text-teal-800 underline" href={school.sources[resource === 'departments' || resource === 'study-programs' ? 1 : 2]?.url} target="_blank" rel="noreferrer">Lihat rujukan</a>}
+      </div>}
+
+      {resource === 'students' && <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3">
+        <select aria-label="Filter tingkat kelas" value={levelFilter} onChange={e => { setLevelFilter(e.target.value); setPage(1) }} className="rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="">Semua tingkat</option>{[['10','X'],['11','XI'],['12','XII']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}</select>
+        <select aria-label="Filter konsentrasi" value={programFilter} onChange={e => { setProgramFilter(e.target.value); setPage(1) }} className="rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="">Semua konsentrasi</option>{(lookups['study-programs'] || []).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
+        <select aria-label="Filter angkatan / tahun ajaran" value={yearFilter} onChange={e => { setYearFilter(e.target.value); setPage(1) }} className="rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="">Semua angkatan</option>{(lookups['academic-years'] || []).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
+        <span className="text-xs text-slate-500">Kelas mengikuti penempatan aktif.</span>
       </div>}
 
       <div className="rounded-2xl border border-slate-200 bg-white">
@@ -751,7 +792,7 @@ export default function CrudPage({
                           ) : column === 'day' ? (
                             dayOptions.find((d) => d.value === item[column])?.label || item[column] || '-'
                           ) : (
-                            displayValue(item, column)
+                            column === 'name' && ['students', 'teachers'].includes(resource) ? <><span>{displayValue(item, column)}</span><span className="mt-1 block text-xs text-slate-400">{item.user?.email || 'Belum memiliki akun login'}</span></> : column === 'level' ? (item.level ? gradeLabel(item.level) : '—') : column === 'class_name' ? (item.class_name || 'Belum ditempatkan') : displayValue(item, column)
                           )}
                         </td>
                       ))}
@@ -768,6 +809,7 @@ export default function CrudPage({
                               {item.status === 'active' ? 'Nonaktif' : 'Aktif'}
                             </button>
                           )}
+                          {resource === 'students' && item.level && gradeNumber(item.level) < 12 && <button onClick={() => { const years = lookups['academic-years'] || []; const currentYear = years.find(current => String(current.id) === String(item.academic_year_id)); const next = years.filter(y => new Date(y.start_date) > new Date(currentYear?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date))[0]; const targetLevel = gradeNumber(item.level) + 1; const targets = (lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(next?.id) && gradeNumber(c.level) === targetLevel && String(c.study_program_id) === String(item.study_program_id)); const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === String(next?.id)); setPromotion({ ...item, targetLevel, year: next?.id || '', semester: sem?.id || '', classroom: targets.length === 1 ? targets[0].id : '' }) }} className="rounded-lg border border-teal-200 px-2 py-1 text-xs font-semibold text-teal-800">Naik kelas</button>}
                           <button onClick={() => remove(item.id)} title="Hapus" className="rounded-lg p-2 text-red-500 hover:bg-red-50">
                             <Trash2 size={16} />
                           </button>
@@ -856,6 +898,7 @@ export default function CrudPage({
           </div>
         </div>
       )}
+      {promotion && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4"><div role="dialog" aria-modal="true" aria-label="Naikkan kelas siswa" className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6"><h2 className="text-xl font-bold">Naikkan {promotion.name}</h2><p className="text-sm text-slate-600">Kelas sekarang: {gradeLabel(promotion.level)} · {promotion.class_name}. Pilih rombel tingkat {gradeLabel(promotion.targetLevel)} yang sudah dibuat.</p>{!promotion.year && <p role="alert" className="text-sm text-amber-800">Belum ada tahun ajaran setelah {promotion.academic_year_name}. Buat tahun ajaran baru terlebih dahulu.</p>}<select aria-label="Tahun ajaran berikutnya" className="w-full rounded-xl border p-3" value={promotion.year} onChange={e => { const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === e.target.value); setPromotion({ ...promotion, year: e.target.value, semester: sem?.id || '', classroom: '' }) }}><option value="">Pilih tahun ajaran</option>{(lookups['academic-years'] || []).filter(y => new Date(y.start_date) > new Date(lookups['academic-years']?.find(current => String(current.id) === String(promotion.academic_year_id))?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date)).map(y => <option key={y.id} value={y.id}>{y.name}</option>)}</select><select aria-label="Semester tujuan" className="w-full rounded-xl border p-3" value={promotion.semester} onChange={e => setPromotion({ ...promotion, semester: e.target.value })}><option value="">Tanpa semester</option>{(lookups.semesters || []).filter(x => String(x.academic_year_id) === String(promotion.year)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select><select aria-label="Kelas tujuan" className="w-full rounded-xl border p-3" value={promotion.classroom} onChange={e => setPromotion({ ...promotion, classroom: e.target.value })}><option value="">Pilih kelas tujuan</option>{(lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>{promotion.year && !(lookups.classrooms || []).some(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)) && <p role="alert" className="text-sm text-amber-800">Belum ada kelas tingkat {gradeLabel(promotion.targetLevel)} untuk konsentrasi ini pada tahun ajaran tersebut. Buat di Administrasi → Kelas.</p>}<div className="flex justify-end gap-3"><button disabled={saving} onClick={() => setPromotion(null)} className="rounded-xl border px-4 py-2">Batal</button><button disabled={saving || !promotion.year || !promotion.classroom} onClick={advanceStudent} className="rounded-xl bg-slate-900 px-4 py-2 text-white disabled:opacity-40">{saving ? 'Memproses...' : 'Naikkan kelas'}</button></div></div></div>}
     </div>
   )
 }

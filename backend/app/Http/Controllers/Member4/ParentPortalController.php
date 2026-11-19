@@ -47,14 +47,15 @@ class ParentPortalController extends Member4Controller
             'student' => $child, 'placements' => $this->placements($child->id),
             'schedule_count' => $this->scheduleReader->forStudent($child->id)->count(),
             'finance' => $finance->forUser($request->user(), $child->id),
-            'academic' => $this->academic->overview(), 'as_of' => now(config('member4_finance.timezone'))->toIso8601String(),
+            'academic' => $this->academic->overview($child), 'as_of' => now(config('member4_finance.timezone'))->toIso8601String(),
         ]]);
     }
 
     public function academic(Request $request, string $student, string $section)
     {
-        if (! $this->children($request)->whereKey($student)->exists()) return $this->missing();
-        return response()->json(['success' => true] + $this->academic->read($section));
+        $child = $this->children($request)->find($student);
+        if (! $child) return $this->missing();
+        return response()->json(['success' => true] + $this->academic->read($section, $child));
     }
 
     public function schedules(Request $request, string $student)

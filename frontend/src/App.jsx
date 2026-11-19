@@ -6,10 +6,12 @@ import {
 import {
   Navigate,
   Route,
-  Routes
+  Routes,
+  useLocation
 } from 'react-router-dom'
 
 import {
+  getToken,
   me
 } from './api'
 
@@ -24,11 +26,17 @@ import CrudPage
 
 import Layout
   from './layouts/Layout'
-import Roles from './pages/Roles'
+import Services from './pages/Services'
+import { serviceForPath, canOpenService } from './services'
+import AcademicCalendar from './pages/AcademicCalendar'
+import Classrooms from './pages/Classrooms'
+import AcademicWorkspace from './pages/AcademicWorkspace'
 import FinanceRoutes from './finance/FinancePages'
 import ParentPortal from './parent/ParentPortal'
 import CommunicationPages from './communication/CommunicationPages'
 import AssessmentPage from './assessment/AssessmentPage'
+import { AssessmentShellProvider } from './assessment/AssessmentContext'
+import { clearAssessmentStorage } from './assessment/sessionCleanup'
 
 const resources = {
   'teaching-loads': { title: 'Beban Mengajar', singular: 'Beban Mengajar' },
@@ -113,29 +121,44 @@ const resources = {
   },
 }
 
+function ServiceBoundary({ user, children }) {
+  const { pathname } = useLocation()
+  const service = serviceForPath(pathname)
+  // Communication remains available to teachers even though they have no finance access.
+  const allowed = pathname.startsWith('/communication') || !service || canOpenService(service, user.role)
+  return allowed ? children : <Navigate to="/" replace />
+}
+
+function LmsRedirect({ user }) {
+  if (user.role === 'murid') return <Navigate to="/assessment/student/classes" replace />
+  if (user.role === 'guru') return <Navigate to="/assessment/classes" replace />
+  if (user.role === 'admin') return <Navigate to="/assessment" replace />
+  if (user.role === 'wali_murid') return <Navigate to="/parent/progress" replace />
+  return <Navigate to="/" replace />
+}
+
 export default function App() {
   const [loginDestination, setLoginDestination] = useState('/')
   const [logoutNotice, setLogoutNotice] = useState('')
-  const [
-    user,
-    setUser
-  ] = useState(null)
-
-  const [
-    checking,
-    setChecking
-  ] = useState(true)
+  const [user, setUser] = useState(null)
+  const [checking, setChecking] = useState(() => Boolean(getToken()))
 
   useEffect(() => {
-    const expired = () => setUser(null)
+    const expired = () => {
+      clearAssessmentStorage()
+      setUser(null)
+    }
     window.addEventListener('ais-session-expired', expired)
     return () => window.removeEventListener('ais-session-expired', expired)
   }, [])
 
   useEffect(() => {
+    if (!getToken()) {
+      return
+    }
     me()
       .then((response) => {
-        setUser(response.data)
+        setUser(response?.data && typeof response.data === 'object' ? response.data : null)
       })
       .catch(() => {
         setUser(null)
@@ -147,12 +170,7 @@ export default function App() {
 
   if (checking) {
     return (
-      <div className="
-        min-h-screen
-        grid
-        place-items-center
-        text-slate-500
-      ">
+      <div className="min-h-screen grid place-items-center text-slate-500">
         Memuat aplikasi...
       </div>
     )
@@ -160,19 +178,21 @@ export default function App() {
 
   return (
     <Routes>
-
       <Route
         path="/login"
         element={
           user
-            ? <Navigate
-                to={loginDestination}
-                replace
-              />
-            : <Login
+            ? <Navigate to={loginDestination} replace />
+            : (
+              <Login
                 notice={logoutNotice}
-                onLogin={(profile, destination = '/') => { setLogoutNotice(''); setLoginDestination(destination); setUser(profile) }}
+                onLogin={(profile, destination = '/') => {
+                  setLogoutNotice('')
+                  setLoginDestination(destination)
+                  setUser(profile)
+                }}
               />
+            )
         }
       />
 
@@ -180,72 +200,57 @@ export default function App() {
         path="/*"
         element={
           user ? (
-            <Layout
-              user={user}
-              onLogout={(message = '') => {
-                setLogoutNotice(message)
-                setUser(null)
-              }}
-            >
-              <Routes>
-                <Route path="/assessment/*" element={<AssessmentPage user={user} />} />
-                <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
-                <Route path="/parent/*" element={<ParentPortal user={user} />} />
-                <Route path="/communication/*" element={<CommunicationPages user={user} />} />
-                {user.role === 'admin' && <Route path="/roles" element={<Roles />} />}
+            <AssessmentShellProvider>
+              <Layout
+                user={user}
+                onLogout={(message = '') => {
+                  setLogoutNotice(message)
+                  setUser(null)
+                }}
+              >
+                <ServiceBoundary user={user}>
+                  <Routes>
+                    <Route path="/assessment/*" element={<AssessmentPage user={user} />} />
+                    <Route path="/lms/*" element={<LmsRedirect user={user} />} />
+                    <Route path="/finance/*" element={<FinanceRoutes user={user} />} />
+                    <Route path="/parent/*" element={<ParentPortal user={user} />} />
+                    <Route path="/communication/*" element={<CommunicationPages user={user} />} />
 
-                <Route
-                  path="/"
-                  element={user.role === 'admin' ? <Dashboard /> : <Navigate to={user.role === 'wali_murid' ? '/parent' : user.role === 'guru' ? '/communication' : '/finance'} replace />}
-                />
+                    <Route path="/" element={<Services user={user} />} />
 
-                {user.role === 'admin' && Object.entries(
-                  resources
-                ).map(
-                  ([
-                    key,
-                    config
-                  ]) => (
-                    <Route
-                      key={key}
-                      path={`/${key}`}
-                      element={
-                        <CrudPage
+                    {user.role === 'admin' && <Route path="/administration" element={<Dashboard />} />}
+                    {user.role === 'admin' && <Route path="/academic-calendars" element={<AcademicCalendar />} />}
+                    {user.role === 'admin' && <Route path="/classrooms" element={<Classrooms />} />}
+                    {user.role === 'admin' && ['class-students', 'academic-registrations', 'teaching-loads', 'schedules'].map((resource) => (
+                      <Route key={resource} path={`/${resource}`} element={<AcademicWorkspace key={resource} resource={resource} />} />
+                    ))}
+                    {user.role === 'admin' && Object.entries(resources)
+                      .filter(([key]) => !['academic-calendars', 'classrooms', 'class-students', 'academic-registrations', 'teaching-loads', 'schedules'].includes(key))
+                      .map(([key, config]) => (
+                        <Route
                           key={key}
-                          resource={key}
-                          title={
-                            config.title
-                          }
-                          singular={
-                            config.singular
+                          path={`/${key}`}
+                          element={
+                            <CrudPage
+                              key={key}
+                              resource={key}
+                              title={config.title}
+                              singular={config.singular}
+                            />
                           }
                         />
-                      }
-                    />
-                  )
-                )}
+                      ))}
 
-                <Route
-                  path="*"
-                  element={
-                    <Navigate
-                      to="/"
-                      replace
-                    />
-                  }
-                />
-
-              </Routes>
-            </Layout>
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </ServiceBoundary>
+              </Layout>
+            </AssessmentShellProvider>
           ) : (
-            <Navigate
-              to="/login"
-              replace
-            />
+            <Navigate to="/login" replace />
           )
         }
       />
-
     </Routes>
   )
 }

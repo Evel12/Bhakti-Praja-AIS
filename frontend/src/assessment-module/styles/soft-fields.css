@@ -1,0 +1,114 @@
+.soft-field {
+  min-width: 0;
+}
+.soft-field .field-label {
+  display: block;
+  color: var(--table-heading);
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+.soft-field-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  text-align: left;
+}
+.soft-field-value {
+  min-width: 0;
+  font-family: var(--font-content);
+  overflow-wrap: anywhere;
+}
+.soft-field-trigger .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--muted);
+}
+.soft-field-trigger:hover:not(:disabled) {
+  border-color: #b9c9ce;
+}
+.soft-field-trigger:focus-visible {
+  outline: 2px solid #718c95;
+  outline-offset: 2px;
+  border-color: #718c95;
+}
+.soft-field-trigger[aria-expanded="true"] {
+  border-color: var(--green);
+}
+.soft-field-popup {
+  position: fixed;
+  z-index: 70;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 8px 24px #28351e20;
+}
+.soft-field-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  font-family: var(--font-content);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.soft-field-option .icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.soft-field-option.is-active {
+  background: #edf2f4;
+}
+.soft-field-option[aria-selected="true"] {
+  background: #e2ebee;
+  color: #28505d;
+  font-weight: 500;
+}
+.soft-field-option[aria-disabled="true"] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 69;
+  background: rgba(20, 26, 22, 0.34);
+  backdrop-filter: blur(4px);
+}
+.soft-field-popup.is-sheet {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-height: 70dvh;
+  padding: 18px 12px calc(16px + var(--safe-bottom, 0px));
+  border-radius: 22px 22px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  box-shadow: 0 -14px 36px rgba(24, 32, 22, 0.16);
+}
+.soft-field-popup.is-sheet::before {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: -6px auto 12px;
+  border-radius: 999px;
+  background: #cbd5d8;
+}

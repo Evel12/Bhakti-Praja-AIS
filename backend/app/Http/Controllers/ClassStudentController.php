@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassStudent;
 use App\Models\Semester;
+use App\Services\AisAssessmentRosterBridge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ClassStudentController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
     private function resolveClassroomId(Request $request, ?int $default = null): ?int
     {
         if ($request->filled('classroom_id')) {
@@ -170,6 +172,8 @@ class ClassStudentController extends Controller
             'assigned_at' => $request->input('assigned_at', now()->format('Y-m-d')),
         ]);
 
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom((int) $item->classroom_id);
+
         return response()->json(['success' => true, 'message' => 'Penempatan berhasil dibuat.', 'data' => $item->load(['classroom', 'student'])], 201);
     }
 
@@ -232,6 +236,8 @@ class ClassStudentController extends Controller
 
         $item->save();
 
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom((int) $item->classroom_id);
+
         return response()->json(['success' => true, 'message' => 'Penempatan berhasil diperbarui.', 'data' => $item->load(['classroom', 'student'])]);
     }
 
@@ -243,7 +249,9 @@ class ClassStudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Penempatan tidak ditemukan.'], 404);
         }
 
+        $classroomId = (int) $item->classroom_id;
         $item->delete();
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom($classroomId);
 
         return response()->json(['success' => true, 'message' => 'Penempatan berhasil dihapus.']);
     }

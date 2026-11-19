@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicRegistration;
+use App\Models\ClassStudent;
+use App\Models\Schedule;
 use App\Models\Semester;
+use App\Models\TeachingLoad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -163,6 +167,15 @@ class SemesterController extends Controller
 
         if (! $item) {
             return response()->json(['success' => false, 'message' => 'Semester tidak ditemukan.'], 404);
+        }
+
+        if (
+            ClassStudent::where('semester_id', $item->id)->exists()
+            || AcademicRegistration::where('semester_id', $item->id)->exists()
+            || Schedule::where('semester_id', $item->id)->exists()
+            || TeachingLoad::where('semester_id', $item->id)->exists()
+        ) {
+            return response()->json(['success' => false, 'message' => 'Semester tidak dapat dihapus karena masih digunakan pada data akademik.'], 422);
         }
 
         $item->delete();

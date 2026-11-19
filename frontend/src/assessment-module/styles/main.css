@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "./design-system.css";
+@import "../motion/tokens.css";
+@import "../motion/primitives.css";
+@import "./lecturer-results.css";
+@import "./soft-fields.css";
+@import "./assessment-toolbar.css";
+@import "./lms.css";
+@import "./main-base.css";
+@theme {
+  --font-sans:
+    "Inter",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  --color-star-white: #f6f8fc;
+  --color-ink: #172033;
+  --color-sage: #cfe1eb;
+  --radius-panel: 26px;
+}

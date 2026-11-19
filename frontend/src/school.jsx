@@ -7,7 +7,10 @@ export function SchoolProvider({ children }) {
   useEffect(() => {
     let active = true
     api.get('/school-profile').then((response) => {
-      if (active) setSchool(response.data.data)
+      const next = response?.data?.data
+      if (active && next && typeof next === 'object') {
+        setSchool({ ...schoolFallback, ...next })
+      }
     }).catch(() => { /* Keep school identity available while offline. */ })
     return () => { active = false }
   }, [])

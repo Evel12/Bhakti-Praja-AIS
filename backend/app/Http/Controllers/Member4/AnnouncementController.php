@@ -15,7 +15,7 @@ class AnnouncementController extends Member4Controller
     public function __construct(private CommunicationService $communication) {}
     private function scope(Request $request)
     {
-        $query = Announcement::query();
+        $query = Announcement::query()->whereNotNull('target_role');
         if (! $request->user()->isAdmin()) {
             $query->whereIn('target_role', ['all', $request->user()->role->name]);
         }
@@ -69,12 +69,12 @@ class AnnouncementController extends Member4Controller
 
     public function update(Request $request, string $id)
     {
-        $item = Announcement::find($id);
+        $item = Announcement::whereNotNull('target_role')->find($id);
         if (! $item) return $this->missing();
         $validator = $this->validation($request, true);
         if ($validator->fails()) return $this->invalid($validator->errors()->toArray());
         $item = DB::transaction(function () use ($id, $validator) {
-            $item = Announcement::whereKey($id)->lockForUpdate()->firstOrFail();
+            $item = Announcement::whereNotNull('target_role')->whereKey($id)->lockForUpdate()->firstOrFail();
             $item->update($validator->validated());
             $this->communication->syncAnnouncement($item);
             return $item;
@@ -84,10 +84,10 @@ class AnnouncementController extends Member4Controller
 
     public function destroy(string $id)
     {
-        $item = Announcement::find($id);
+        $item = Announcement::whereNotNull('target_role')->find($id);
         if (! $item) return $this->missing();
         DB::transaction(function () use ($item) {
-            Announcement::whereKey($item->id)->lockForUpdate()->firstOrFail();
+            Announcement::whereNotNull('target_role')->whereKey($item->id)->lockForUpdate()->firstOrFail();
             PortalNotification::where('category', 'announcement')->where('source_id', $item->id)->delete();
             $item->delete();
         });

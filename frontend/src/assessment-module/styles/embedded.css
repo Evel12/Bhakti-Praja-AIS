@@ -1,0 +1,23 @@
+@import "./design-system.css";
+@import "../motion/primitives.css";
+@import "./lecturer-results.css";
+@import "./soft-fields.css";
+@import "./assessment-toolbar.css";
+@import "./lms.css";
+@import "./main-base.css";
+.assessment-root {
+  min-width: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+.assessment-embedded-stage {
+  min-width: 0;
+}
+.assessment-embedded-stage .page-title:first-child {
+  margin-top: 0;
+}
+.assessment-root .exam-shell {
+  min-height: 100dvh;
+  background: var(--canvas);
+}

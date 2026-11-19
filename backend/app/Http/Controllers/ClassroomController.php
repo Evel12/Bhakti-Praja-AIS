@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classroom;
+use App\Models\ClassStudent;
+use App\Models\Schedule;
+use App\Models\TeachingLoad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -124,6 +127,14 @@ class ClassroomController extends Controller
 
         if (! $item) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);
+        }
+
+        if (
+            ClassStudent::where('classroom_id', $item->id)->exists()
+            || Schedule::where('classroom_id', $item->id)->exists()
+            || TeachingLoad::where('classroom_id', $item->id)->exists()
+        ) {
+            return response()->json(['success' => false, 'message' => 'Kelas tidak dapat dihapus karena masih memiliki siswa, jadwal, atau beban mengajar.'], 422);
         }
 
         $item->delete();

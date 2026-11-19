@@ -29,4 +29,14 @@ class Student extends Model
             ->withPivot('relationship')
             ->withTimestamps();
     }
+
+    public function classStudents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ClassStudent::class);
+    }
+
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

@@ -30,4 +30,20 @@ class AssessmentSessionTest extends TestCase
             }
         }
     }
+
+    public function test_unified_login_allows_all_active_roles_without_escalating_privileges(): void
+    {
+        $this->seed(RoleSeeder::class);
+        foreach (['admin', 'guru', 'murid', 'wali_murid'] as $role) {
+            $this->app['auth']->forgetGuards();
+            $user = User::factory()->create(['role_id' => Role::where('name', $role)->value('id'), 'status' => 'active', 'password' => 'password123']);
+            $response = $this->postJson('/api/auth/login', ['email' => $user->email, 'password' => 'password123', 'portal' => 'unified']);
+            $response->assertOk()->assertJsonPath('data.role', $role);
+            $token = $response->json('token');
+            $this->withToken($token)->getJson('/api/auth/me')->assertOk()->assertJsonPath('data.id', $user->id);
+            if ($role !== 'admin') {
+                $this->withToken($token)->getJson('/api/users')->assertForbidden();
+            }
+        }
+    }
 }

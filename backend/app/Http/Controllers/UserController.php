@@ -2,9 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
+use App\Models\Guardian;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Role;
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -101,6 +108,7 @@ class UserController extends Controller
             'role' => ['nullable', 'string', Rule::in(['admin', 'guru', 'murid', 'wali_murid'])],
             'role_id' => ['nullable', 'integer', 'exists:roles,id'],
             'status' => ['nullable', Rule::in([User::STATUS_ACTIVE, User::STATUS_INACTIVE])],
+            'sync_profile' => ['nullable', 'boolean'],
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -126,13 +134,21 @@ class UserController extends Controller
             $roleId = Role::where('name', 'murid')->value('id');
         }
 
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password'),
-            'role_id' => $roleId,
-            'status' => $request->input('status', User::STATUS_ACTIVE),
-        ]);
+        $user = DB::transaction(function () use ($request, $roleId) {
+            $user = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => $request->input('password'),
+                'role_id' => $roleId,
+                'status' => $request->input('status', User::STATUS_ACTIVE),
+            ]);
+
+            if ($request->boolean('sync_profile')) {
+                $this->ensureLinkedProfile($user);
+            }
+
+            return $user;
+        });
 
         return response()->json([
             'success' => true,
@@ -159,6 +175,7 @@ class UserController extends Controller
             'role' => ['nullable', 'string', Rule::in(['admin', 'guru', 'murid', 'wali_murid'])],
             'role_id' => ['nullable', 'integer', 'exists:roles,id'],
             'status' => ['nullable', Rule::in([User::STATUS_ACTIVE, User::STATUS_INACTIVE])],
+            'sync_profile' => ['nullable', 'boolean'],
         ], [
             'email.unique' => 'Email sudah digunakan.',
             'email.email' => 'Format email tidak valid.',
@@ -209,6 +226,10 @@ class UserController extends Controller
         }
 
         $user->save();
+        if ($user->wasChanged('role_id') && $request->boolean('sync_profile')) {
+            $this->ensureLinkedProfile($user);
+        }
+        $this->syncLinkedProfiles($user);
 
         if ($user->status === User::STATUS_INACTIVE || $user->wasChanged('role_id')) {
             $user->tokens()->delete();
@@ -255,6 +276,7 @@ class UserController extends Controller
 
         $user->status = $request->input('status');
         $user->save();
+        $this->syncLinkedProfiles($user);
 
         if ($user->status === User::STATUS_INACTIVE) {
             $user->tokens()->delete();
@@ -300,6 +322,17 @@ class UserController extends Controller
             }
         }
 
+        if (
+            Invoice::where('created_by', $user->id)->exists()
+            || Payment::where('submitted_by', $user->id)->orWhere('verified_by', $user->id)->exists()
+            || Announcement::where('created_by', $user->id)->exists()
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengguna tidak dapat dihapus karena memiliki riwayat tagihan, pembayaran, atau pengumuman. Nonaktifkan akun sebagai gantinya.',
+            ], 422);
+        }
+
         $user->tokens()->delete();
         $user->delete();
 
@@ -307,5 +340,72 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Pengguna berhasil dihapus.',
         ]);
+    }
+
+    private function ensureLinkedProfile(User $user): void
+    {
+        $user->loadMissing('role');
+        $roleName = $user->role?->name;
+
+        if ($roleName === 'guru') {
+            Teacher::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'teacher_number' => 'AKUN-'.$user->id,
+                    'name' => $user->name,
+                    'email' => Teacher::where('email', $user->email)->exists() ? null : $user->email,
+                    'status' => $user->status === User::STATUS_INACTIVE ? 'inactive' : 'active',
+                ]
+            );
+        } elseif ($roleName === 'murid') {
+            Student::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'student_number' => 'AKUN-'.$user->id,
+                    'name' => $user->name,
+                    'status' => $user->status === User::STATUS_INACTIVE ? 'inactive' : 'active',
+                ]
+            );
+        } elseif ($roleName === 'wali_murid') {
+            Guardian::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'name' => $user->name,
+                    'email' => Guardian::where('email', $user->email)->exists() ? null : $user->email,
+                    'status' => $user->status === User::STATUS_INACTIVE ? 'inactive' : 'active',
+                ]
+            );
+        }
+    }
+
+    private function syncLinkedProfiles(User $user): void
+    {
+        $profileStatus = $user->status === User::STATUS_INACTIVE ? 'inactive' : 'active';
+
+        if ($teacher = Teacher::where('user_id', $user->id)->first()) {
+            $teacher->name = $user->name;
+            $teacher->status = $profileStatus;
+            if (! Teacher::where('email', $user->email)->where('id', '!=', $teacher->id)->exists()) {
+                $teacher->email = $user->email;
+            }
+            $teacher->save();
+        }
+
+        if ($student = Student::where('user_id', $user->id)->first()) {
+            $student->name = $user->name;
+            if (in_array($student->status, ['active', 'inactive'], true)) {
+                $student->status = $profileStatus;
+            }
+            $student->save();
+        }
+
+        if ($guardian = Guardian::where('user_id', $user->id)->first()) {
+            $guardian->name = $user->name;
+            $guardian->status = $profileStatus;
+            if (! Guardian::where('email', $user->email)->where('id', '!=', $guardian->id)->exists()) {
+                $guardian->email = $user->email;
+            }
+            $guardian->save();
+        }
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AcademicCalendarController;
 use App\Http\Controllers\AcademicRegistrationController;
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\AssessmentGradeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ClassStudentController;
@@ -40,6 +41,11 @@ Route::middleware(['auth:sanctum', \App\Http\Middleware\Member4Role::class.':adm
     ->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
+    });
+
+Route::middleware(['auth:sanctum', \App\Http\Middleware\Member4Role::class.':admin,guru'])
+    ->group(function () {
+        Route::get('/assessment-grades', [AssessmentGradeController::class, 'index']);
     });
 
 require __DIR__.'/member4.php';
@@ -82,6 +88,7 @@ Route::middleware(['auth:sanctum', AdminOnly::class])
         Route::apiResource('study-programs', StudyProgramController::class);
         Route::apiResource('teachers', TeacherController::class);
         Route::apiResource('students', StudentController::class);
+        Route::post('/students/{student}/promote', [StudentController::class, 'promote']);
         Route::apiResource('parents', ParentController::class);
         Route::apiResource('academic-years', AcademicYearController::class);
         Route::apiResource('semesters', SemesterController::class);

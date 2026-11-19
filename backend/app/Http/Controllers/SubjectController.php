@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Schedule;
 use App\Models\Subject;
+use App\Models\TeachingLoad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -109,8 +111,12 @@ class SubjectController extends Controller
             return response()->json(['success' => false, 'message' => 'Mata pelajaran tidak ditemukan.'], 404);
         }
 
-        if ($item->curricula()->exists()) {
-            return response()->json(['success' => false, 'message' => 'Mata pelajaran tidak dapat dihapus karena masih dipakai kurikulum.'], 422);
+        if (
+            $item->curricula()->exists()
+            || Schedule::where('subject_id', $item->id)->exists()
+            || TeachingLoad::where('subject_id', $item->id)->exists()
+        ) {
+            return response()->json(['success' => false, 'message' => 'Mata pelajaran tidak dapat dihapus karena masih dipakai kurikulum, jadwal, atau beban mengajar.'], 422);
         }
 
         $item->delete();
