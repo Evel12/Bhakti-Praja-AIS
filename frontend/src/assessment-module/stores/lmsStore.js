@@ -57,7 +57,7 @@ export const useLmsStore = defineStore("lms", () => {
   }
 
   function extractErrorMessage(err, fallback) {
-    const fieldErrors = err?.details?.fields;
+    const fieldErrors = err?.details?.fields || err?.details;
     if (fieldErrors && typeof fieldErrors === "object") {
       const firstGroup = Object.values(fieldErrors)[0];
       if (Array.isArray(firstGroup) && firstGroup.length > 0) {

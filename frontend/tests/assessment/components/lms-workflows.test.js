@@ -57,6 +57,17 @@ describe("LMS teacher, student, notifications, and AI quiz review workflows", ()
     document.body.innerHTML = "";
   });
 
+  it("shows the backend field error when a class code is invalid", async () => {
+    setStoredToken("live-student-token");
+    vi.spyOn(apiClient, "joinClass").mockRejectedValue({
+      message: "The given data was invalid.",
+      details: { class_code: ["Kode kelas tidak ditemukan."] },
+    });
+    const lms = useLmsStore();
+    await expect(lms.joinClass("INVALID")).rejects.toBeDefined();
+    expect(lms.error).toBe("Kode kelas tidak ditemukan.");
+  });
+
   it("teacher manages classes via Approach C workspace (without duplicated Tugas or inline quiz editor), PDF visibility, AI launcher, Assessment handoff, announcements, and progress", async () => {
     setStoredToken("live-teacher-token");
     setStoredSession({

@@ -39,7 +39,6 @@ class StudentController extends Controller
 
         $placements = $student->classStudents
             ->sortByDesc(fn ($p) => [
-                $p->academicYear?->is_active ? 1 : 0,
                 $p->academicYear?->start_date?->format('Y-m-d') ?? '',
                 $p->id,
             ]);
@@ -59,10 +58,30 @@ class StudentController extends Controller
 
     public function index(Request $request)
     {
+        $levels = $request->filled('level') ? $this->normalizeLevelValues((string) $request->query('level')) : null;
+        $studyProgramId = $request->query('study_program_id');
+        $academicYearId = $request->query('academic_year_id');
+        $placementFilter = function ($placements) use ($levels, $studyProgramId, $academicYearId) {
+            $placements->where('status', 'active');
+            if ($academicYearId) {
+                $placements->where('academic_year_id', $academicYearId);
+            }
+            if ($levels !== null || $studyProgramId) {
+                $placements->whereHas('classroom', function ($classroom) use ($levels, $studyProgramId) {
+                    if ($levels !== null) {
+                        $classroom->whereIn('level', $levels);
+                    }
+                    if ($studyProgramId) {
+                        $classroom->where('study_program_id', $studyProgramId);
+                    }
+                });
+            }
+
+            return $placements;
+        };
         $query = Student::with([
             'user',
-            'classStudents' => fn ($q) => $q
-                ->where('status', 'active')
+            'classStudents' => fn ($q) => $placementFilter($q)
                 ->with(['classroom.studyProgram', 'academicYear']),
         ])->orderBy('id');
 
@@ -78,26 +97,7 @@ class StudentController extends Controller
         }
 
         if ($request->filled('level') || $request->filled('study_program_id') || $request->filled('academic_year_id')) {
-            $levels = $request->filled('level') ? $this->normalizeLevelValues((string) $request->query('level')) : null;
-            $studyProgramId = $request->query('study_program_id');
-            $academicYearId = $request->query('academic_year_id');
-
-            $query->whereHas('classStudents', function ($cs) use ($levels, $studyProgramId, $academicYearId) {
-                $cs->where('status', 'active');
-                if ($academicYearId) {
-                    $cs->where('academic_year_id', $academicYearId);
-                }
-                if ($levels !== null || $studyProgramId) {
-                    $cs->whereHas('classroom', function ($cls) use ($levels, $studyProgramId) {
-                        if ($levels !== null) {
-                            $cls->whereIn('level', $levels);
-                        }
-                        if ($studyProgramId) {
-                            $cls->where('study_program_id', $studyProgramId);
-                        }
-                    });
-                }
-            });
+            $query->whereHas('classStudents', $placementFilter);
         }
 
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));

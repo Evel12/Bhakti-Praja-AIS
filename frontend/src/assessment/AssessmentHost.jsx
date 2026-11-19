@@ -12,6 +12,7 @@ function toAssessmentSubpath(location) {
 export default function AssessmentHost({ user }) {
   const containerRef = useRef(null)
   const bridgeRef = useRef(null)
+  const mountQueueRef = useRef(Promise.resolve())
   const location = useLocation()
   const navigate = useNavigate()
   const navigateRef = useRef(navigate)
@@ -34,33 +35,43 @@ export default function AssessmentHost({ user }) {
     const el = containerRef.current
     if (!el) return undefined
 
-    mountAssessmentApp(el, {
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
-      aisToken: getToken(),
-      initialSubpath: initialSubpathRef.current,
-      onRouteChange(fullPath) {
-        if (!active) return
-        const hadPriorRoute = Boolean(lastVuePathRef.current)
-        lastVuePathRef.current = fullPath
-        const targetUrl = fullPath === '/' ? '/assessment' : `/assessment${fullPath}`
-        const isBaseEntry = locationPathnameRef.current.replace(/\/+$/, '') === '/assessment'
-        navigateRef.current(targetUrl, { replace: !hadPriorRoute && isBaseEntry })
-      },
-      onUnreadChange(count) {
-        if (active) setUnreadCount(count)
-      },
-      onExamModeChange(isExam) {
-        if (active) setExamMode(Boolean(isExam))
-      },
-      onUnauthorized() {
-        window.dispatchEvent(new Event('ais-session-expired'))
-      },
-    })
-      .then((bridge) => {
+    // Serialize mounts: an obsolete asynchronous mount must finish teardown
+    // before another app can own the same DOM container and shared session.
+    const mountingTask = mountQueueRef.current.catch(() => {}).then(() => {
+      if (!active) return null
+      return mountAssessmentApp(el, {
+        user: { id: user.id, name: user.name, email: user.email, role: user.role },
+        aisToken: getToken(),
+        initialSubpath: initialSubpathRef.current,
+        onRouteChange(fullPath) {
+          if (!active) return
+          const hadPriorRoute = Boolean(lastVuePathRef.current)
+          lastVuePathRef.current = fullPath
+          const targetUrl = fullPath === '/' ? '/assessment' : `/assessment${fullPath}`
+          const isBaseEntry = locationPathnameRef.current.replace(/\/+$/, '') === '/assessment'
+          navigateRef.current(targetUrl, { replace: !hadPriorRoute && isBaseEntry })
+        },
+        onUnreadChange(count) {
+          if (active) setUnreadCount(count)
+        },
+        onExamModeChange(isExam) {
+          if (active) setExamMode(Boolean(isExam))
+        },
+        onUnauthorized() {
+          window.dispatchEvent(new Event('ais-session-expired'))
+        },
+      }).then((bridge) => {
         if (!active) {
           bridge.destroy()
-          return
+          return null
         }
+        return bridge
+      })
+    })
+    mountQueueRef.current = mountingTask
+    mountingTask
+      .then((bridge) => {
+        if (!active || !bridge) return
         bridgeRef.current = bridge
         setMounting(false)
       })

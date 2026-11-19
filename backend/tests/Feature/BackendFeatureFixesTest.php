@@ -83,13 +83,31 @@ class BackendFeatureFixesTest extends TestCase
             'academic_year_id' => $year2->id,
             'semester_id' => $sem2->id,
             'classroom_id' => $cls2->id,
-        ], $h)->assertCreated();
+        ], $h)->assertCreated()
+            ->assertJsonPath('data.class_name', 'XI RPL 1')
+            ->assertJsonPath('data.academic_year_id', $year2->id);
 
         $this->assertDatabaseHas('class_student', [
             'student_id' => $student->id,
             'classroom_id' => $cls2->id,
             'academic_year_id' => $year2->id,
         ]);
+
+        // Promotion must be visible even while the previous school year is active.
+        $this->getJson('/api/students/'.$student->id, $h)
+            ->assertOk()
+            ->assertJsonPath('data.class_name', 'XI RPL 1');
+        $this->getJson('/api/students', $h)
+            ->assertOk()
+            ->assertJsonPath('data.0.class_name', 'XI RPL 1');
+
+        // Explicit historical filters must display the matching placement.
+        $this->getJson('/api/students?academic_year_id='.$year1->id, $h)
+            ->assertOk()
+            ->assertJsonPath('data.0.class_name', 'X RPL 1');
+        $this->getJson('/api/students?level=10', $h)
+            ->assertOk()
+            ->assertJsonPath('data.0.class_name', 'X RPL 1');
 
         // Duplicate promotion to the same active period returns 422 instead of creating duplicate
         $this->postJson('/api/students/'.$student->id.'/promote', [
