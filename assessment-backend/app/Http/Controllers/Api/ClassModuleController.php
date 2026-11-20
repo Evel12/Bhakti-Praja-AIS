@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ModuleVisibility;
+use App\Enums\QuizStatus;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\ModuleRead;
 use App\Models\SchoolClass;
+use App\Models\User;
 use App\Support\ApiResponse;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +19,10 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Throwable;
 
 class ClassModuleController extends Controller
 {
@@ -31,14 +36,7 @@ class ClassModuleController extends Controller
 
         $classes = $query
             ->with('teacher:id,name')
-            ->withCount([
-                'students',
-                'quizzes',
-                'modules',
-                'modules as public_modules_count' => fn ($q) => $q->where('visibility', ModuleVisibility::Public),
-                'assignments',
-                'announcements',
-            ])
+            ->withCount($this->classCountRelations($user))
             ->orderBy('classes.id')
             ->get();
 
@@ -56,21 +54,7 @@ class ClassModuleController extends Controller
         }
 
         $items = $classes->map(function (SchoolClass $schoolClass) use ($user, $readCountsByClass): array {
-            $payload = [
-                'id' => $schoolClass->id,
-                'name' => $schoolClass->name,
-                'description' => $schoolClass->description,
-                'class_code' => $schoolClass->class_code,
-                'teacher_id' => $schoolClass->teacher_id,
-                'teacher_name' => $schoolClass->teacher?->name,
-                'students_count' => $schoolClass->students_count,
-                'quizzes_count' => $schoolClass->quizzes_count,
-                'modules_count' => $schoolClass->modules_count,
-                'public_modules_count' => $schoolClass->public_modules_count,
-                'assignments_count' => $schoolClass->assignments_count,
-                'announcements_count' => $schoolClass->announcements_count,
-                'created_at' => $schoolClass->created_at?->toIso8601String(),
-            ];
+            $payload = $this->serializeClass($schoolClass);
 
             if ($user->role === Role::Student) {
                 $totalPublic = (int) $schoolClass->public_modules_count;
@@ -107,21 +91,16 @@ class ClassModuleController extends Controller
             'entity_id' => $schoolClass->id,
         ]);
 
-        return ApiResponse::success($this->serializeClass($schoolClass->load('teacher:id,name')), 'Class created.', 201);
+        $schoolClass->load('teacher:id,name')->loadCount($this->classCountRelations($request->user()));
+
+        return ApiResponse::success($this->serializeClass($schoolClass), 'Class created.', 201);
     }
 
     public function showClass(Request $request, SchoolClass $schoolClass): JsonResponse
     {
         Gate::authorize('view', $schoolClass);
 
-        $schoolClass->load('teacher:id,name')->loadCount([
-            'students',
-            'quizzes',
-            'modules',
-            'modules as public_modules_count' => fn ($q) => $q->where('visibility', ModuleVisibility::Public),
-            'assignments',
-            'announcements',
-        ]);
+        $schoolClass->load('teacher:id,name')->loadCount($this->classCountRelations($request->user()));
 
         $data = $this->serializeClass($schoolClass);
         if ($request->user()->role === Role::Teacher) {
@@ -166,7 +145,9 @@ class ClassModuleController extends Controller
             'entity_id' => $schoolClass->id,
         ]);
 
-        return ApiResponse::success($this->serializeClass($schoolClass->load('teacher:id,name')), 'Class updated.');
+        $schoolClass->load('teacher:id,name')->loadCount($this->classCountRelations($request->user()));
+
+        return ApiResponse::success($this->serializeClass($schoolClass), 'Class updated.');
     }
 
     public function joinClass(Request $request): JsonResponse
@@ -198,7 +179,9 @@ class ClassModuleController extends Controller
             'entity_id' => $schoolClass->id,
         ]);
 
-        return ApiResponse::success($this->serializeClass($schoolClass->load('teacher:id,name')), 'Joined class successfully.', 201);
+        $schoolClass->load('teacher:id,name')->loadCount($this->classCountRelations($user));
+
+        return ApiResponse::success($this->serializeClass($schoolClass), 'Joined class successfully.', 201);
     }
 
     public function leaveClass(Request $request, SchoolClass $schoolClass): JsonResponse
@@ -289,30 +272,68 @@ class ClassModuleController extends Controller
         ]);
 
         $disk = config('quiz_generation.disk', 'local');
-        $storagePath = 'modules/module-'.Str::uuid().'.pdf';
+        $storedFileName = 'module-'.Str::uuid().'.pdf';
+        $storagePath = 'modules/'.$storedFileName;
 
         if ($request->hasFile('file')) {
             $uploaded = $request->file('file');
-            $bytes = (string) file_get_contents($uploaded->getRealPath());
-            if (! str_starts_with($bytes, '%PDF-')) {
+            $realPath = $uploaded->getRealPath();
+            if ($realPath === false || ! is_string($realPath) || $realPath === '' || ! is_file($realPath)) {
                 throw ValidationException::withMessages([
                     'file' => ['File yang diunggah harus berupa dokumen PDF yang valid.'],
                 ]);
             }
+
+            $stream = fopen($realPath, 'rb');
+            if ($stream === false) {
+                throw new RuntimeException('Failed to open uploaded PDF file stream.');
+            }
+
+            try {
+                $header = fread($stream, 1024);
+            } finally {
+                fclose($stream);
+            }
+
+            if (! is_string($header) || ! $this->hasValidPdfHeader($header)) {
+                throw ValidationException::withMessages([
+                    'file' => ['File yang diunggah harus berupa dokumen PDF yang valid.'],
+                ]);
+            }
+
             $fileName = $this->sanitizePdfFileName($uploaded->getClientOriginalName() ?: 'module.pdf');
-            Storage::disk($disk)->put($storagePath, $bytes);
+            $written = Storage::disk($disk)->putFileAs('modules', $uploaded, $storedFileName);
+            if ($written === false) {
+                throw new RuntimeException('Failed to store uploaded PDF module.');
+            }
+            if (is_string($written) && $written !== '') {
+                $storagePath = $written;
+            }
         } else {
             $fileName = $this->sanitizePdfFileName((string) $validated['file_name']);
-            Storage::disk($disk)->put($storagePath, "%PDF-1.4\nEXAMNIA Module: ".$fileName."\n%%EOF");
+            $written = Storage::disk($disk)->put($storagePath, "%PDF-1.4\nEXAMNIA Module: ".$fileName."\n%%EOF");
+            if ($written === false) {
+                throw new RuntimeException('Failed to store PDF module.');
+            }
         }
 
-        $module = new Module([
-            'file_name' => $fileName,
-            'path' => $storagePath,
-            'visibility' => $validated['visibility'] ?? ModuleVisibility::Public->value,
-        ]);
-        $module->class_id = $schoolClass->id;
-        $module->save();
+        try {
+            $module = new Module([
+                'file_name' => $fileName,
+                'path' => $storagePath,
+                'visibility' => $validated['visibility'] ?? ModuleVisibility::Public->value,
+            ]);
+            $module->class_id = $schoolClass->id;
+            $module->save();
+        } catch (Throwable $exception) {
+            try {
+                Storage::disk($disk)->delete($storagePath);
+            } catch (Throwable) {
+                // Preserve the original persistence exception if cleanup fails.
+            }
+
+            throw $exception;
+        }
 
         logSystemActivity('module.uploaded', $request->user()->id, [
             'entity_type' => 'module',
@@ -393,12 +414,23 @@ class ClassModuleController extends Controller
 
         $disk = config('quiz_generation.disk', 'local');
         $path = (string) $module->path;
-        if ($path !== '' && Storage::disk($disk)->exists($path)) {
-            Storage::disk($disk)->delete($path);
-        }
-
         $moduleId = $module->id;
-        $module->delete();
+
+        DB::transaction(function () use ($module, $disk, $path): void {
+            if ($module->quizGenerations()->exists()) {
+                throw new ConflictHttpException('Module has quiz generation history and cannot be deleted.');
+            }
+
+            $module->delete();
+
+            if ($path !== '') {
+                DB::afterCommit(static function () use ($disk, $path): void {
+                    if (Storage::disk($disk)->exists($path)) {
+                        Storage::disk($disk)->delete($path);
+                    }
+                });
+            }
+        });
 
         logSystemActivity('module.deleted', $request->user()->id, [
             'entity_type' => 'module',
@@ -413,25 +445,31 @@ class ClassModuleController extends Controller
         Gate::authorize('markRead', $module);
 
         $user = $request->user();
-        $read = DB::transaction(function () use ($module, $user): ModuleRead {
-            $existing = ModuleRead::query()
-                ->where('module_id', $module->id)
-                ->where('student_id', $user->id)
-                ->first();
+        $read = ModuleRead::query()
+            ->where('module_id', $module->id)
+            ->where('student_id', $user->id)
+            ->first();
 
-            if ($existing) {
-                return $existing;
+        if (! $read) {
+            try {
+                $record = new ModuleRead;
+                $record->forceFill([
+                    'module_id' => $module->id,
+                    'student_id' => $user->id,
+                    'read_at' => now(),
+                ])->save();
+                $read = $record;
+            } catch (QueryException $exception) {
+                $read = ModuleRead::query()
+                    ->where('module_id', $module->id)
+                    ->where('student_id', $user->id)
+                    ->first();
+
+                if (! $read) {
+                    throw $exception;
+                }
             }
-
-            $record = new ModuleRead;
-            $record->forceFill([
-                'module_id' => $module->id,
-                'student_id' => $user->id,
-                'read_at' => now(),
-            ])->save();
-
-            return $record;
-        });
+        }
 
         $publicModuleIds = $module->schoolClass
             ->modules()
@@ -536,6 +574,36 @@ class ClassModuleController extends Controller
         ], 'Class learning progress retrieved.');
     }
 
+    private function classCountRelations(User $user): array
+    {
+        $isStudent = $user->role === Role::Student;
+
+        return [
+            'students',
+            'quizzes' => static function ($query) use ($isStudent): void {
+                $query->where(static function ($q): void {
+                    $q->whereNull('assessment_type')
+                        ->orWhere('assessment_type', '!=', 'bank');
+                });
+                if ($isStudent) {
+                    $query->where('status', QuizStatus::Published);
+                }
+            },
+            'modules' => static function ($query) use ($isStudent): void {
+                if ($isStudent) {
+                    $query->where('visibility', ModuleVisibility::Public);
+                }
+            },
+            'modules as public_modules_count' => static fn ($q) => $q->where('visibility', ModuleVisibility::Public),
+            'assignments' => static function ($query) use ($isStudent): void {
+                if ($isStudent) {
+                    $query->where('status', 'published');
+                }
+            },
+            'announcements',
+        ];
+    }
+
     private function serializeClass(SchoolClass $schoolClass): array
     {
         return [
@@ -545,37 +613,49 @@ class ClassModuleController extends Controller
             'class_code' => $schoolClass->class_code,
             'teacher_id' => $schoolClass->teacher_id,
             'teacher_name' => $schoolClass->teacher?->name,
-            'students_count' => $schoolClass->students_count ?? $schoolClass->students()->count(),
-            'quizzes_count' => $schoolClass->quizzes_count ?? $schoolClass->quizzes()->count(),
-            'modules_count' => $schoolClass->modules_count ?? $schoolClass->modules()->count(),
-            'public_modules_count' => $schoolClass->public_modules_count ?? $schoolClass->modules()->where('visibility', ModuleVisibility::Public)->count(),
-            'assignments_count' => $schoolClass->assignments_count ?? $schoolClass->assignments()->count(),
-            'announcements_count' => $schoolClass->announcements_count ?? $schoolClass->announcements()->count(),
+            'students_count' => (int) ($schoolClass->students_count ?? 0),
+            'quizzes_count' => (int) ($schoolClass->quizzes_count ?? 0),
+            'modules_count' => (int) ($schoolClass->modules_count ?? 0),
+            'public_modules_count' => (int) ($schoolClass->public_modules_count ?? 0),
+            'assignments_count' => (int) ($schoolClass->assignments_count ?? 0),
+            'announcements_count' => (int) ($schoolClass->announcements_count ?? 0),
             'created_at' => $schoolClass->created_at?->toIso8601String(),
         ];
+    }
+
+    private function hasValidPdfHeader(string $header): bool
+    {
+        $trimmed = str_starts_with($header, "\xEF\xBB\xBF") ? substr($header, 3) : $header;
+        $trimmed = ltrim($trimmed, " \t\n\r\0\x0B\x0C");
+
+        return str_starts_with($trimmed, '%PDF-');
     }
 
     private function sanitizePdfFileName(string $rawName): string
     {
         $normalized = str_replace('\\', '/', $rawName);
         $base = basename($normalized);
-        $base = preg_replace('/[\x00-\x1F\x7F"\';<>|*?`]/u', '', $base) ?? '';
-        $base = str_replace('..', '', $base);
-        $base = trim($base, ". \t\n\r\0\x0B");
+        $base = preg_replace('/[\x00-\x1F\x7F"\';<>|*?`\/\\\\:]/u', '', $base) ?? '';
+        $base = trim($base, " \t\n\r\0\x0B");
 
         if ($base === '') {
             return 'modul.pdf';
         }
 
+        // Strip .pdf before trimming leading dots so inputs like "   .pdf" do not become "pdf.pdf".
         $stem = preg_replace('/\.pdf$/i', '', $base) ?? $base;
-        $stem = preg_replace('/[^A-Za-z0-9._-]+/u', '-', $stem) ?? '';
-        $stem = trim($stem, '.-_');
-        if ($stem === '') {
-            $stem = 'modul';
-        }
+        $stem = Str::ascii($stem);
+        $stem = preg_replace('/\.{2,}/', '.', $stem) ?? $stem;
+        $stem = preg_replace('/[^A-Za-z0-9 ._()-]+/', '-', $stem) ?? '';
+        $stem = preg_replace('/\s+/', ' ', $stem) ?? '';
+        $stem = trim($stem, ". \t\n\r\0\x0B-_");
 
         if (mb_strlen($stem) > 180) {
-            $stem = mb_substr($stem, 0, 180);
+            $stem = trim(mb_substr($stem, 0, 180), ". \t\n\r\0\x0B-_");
+        }
+
+        if ($stem === '' || ! preg_match('/[A-Za-z0-9]/', $stem)) {
+            $stem = 'modul';
         }
 
         return $stem.'.pdf';

@@ -41,9 +41,10 @@ Open terminals from the repository root:
 cd backend
 php artisan serve --host=127.0.0.1 --port=8000
 
-# Terminal 2 — Assessment & LMS Backend (:8002)
+# Terminal 2 — Assessment & LMS Backend (:8002, 25 MB upload + AI queue worker)
 cd assessment-backend
-php artisan serve --host=127.0.0.1 --port=8002
+composer run serve
+# (Opsional bila ingin menjalankan queue worker terpisah: composer run worker)
 
 # Terminal 3 — AI Quiz Service (:8001, optional if using AI generation)
 cd ai-service

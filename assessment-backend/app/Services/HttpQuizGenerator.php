@@ -124,7 +124,8 @@ class HttpQuizGenerator implements QuizGenerator
                 throw new QuizGenerationException('source_unavailable');
             }
             rewind($copy);
-            if (fread($copy, 5) !== '%PDF-') {
+            $header = fread($copy, 1024);
+            if (! is_string($header) || ! $this->hasValidPdfHeader($header)) {
                 throw new QuizGenerationException('source_unavailable');
             }
             rewind($copy);
@@ -140,5 +141,13 @@ class HttpQuizGenerator implements QuizGenerator
                 fclose($source);
             }
         }
+    }
+
+    private function hasValidPdfHeader(string $header): bool
+    {
+        $trimmed = str_starts_with($header, "\xEF\xBB\xBF") ? substr($header, 3) : $header;
+        $trimmed = ltrim($trimmed, " \t\n\r\0\x0B\x0C");
+
+        return str_starts_with($trimmed, '%PDF-');
     }
 }

@@ -37,6 +37,7 @@ export default function AssessmentHost({ user }) {
     mountAssessmentApp(el, {
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
       aisToken: getToken(),
+      apiBaseUrl: (import.meta.env?.VITE_ASSESSMENT_API_BASE_URL || '/assessment-api').trim() || '/assessment-api',
       initialSubpath: initialSubpathRef.current,
       onRouteChange(fullPath) {
         if (!active) return

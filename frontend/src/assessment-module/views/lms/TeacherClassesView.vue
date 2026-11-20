@@ -27,21 +27,29 @@ const activeTab = ref("modules");
 const tabBody = ref(null);
 
 const errorBanner = ref("");
+const dialogError = ref("");
 const createClassOpen = ref(false);
 const editClassOpen = ref(false);
 const uploadDialogOpen = ref(false);
 const announcementDialogOpen = ref(false);
 
 const createClassForm = reactive({ name: "", description: "" });
+const creatingClass = ref(false);
 const editClassForm = reactive({ name: "", description: "" });
+const updatingClass = ref(false);
 
 const uploadInput = ref(null);
 const selectedPdfFile = ref(null);
 const moduleVisibilityInput = ref("public");
+const isDraggingPdf = ref(false);
 const uploadingModule = ref(false);
+const togglingModuleId = ref(null);
+const deletingModuleId = ref(null);
+const downloadingModuleId = ref(null);
 
 const announcementForm = reactive({ title: "", content: "" });
 const sendingAnnouncement = ref(false);
+const deletingAnnouncementId = ref(null);
 
 const aiForm = reactive({
   moduleId: "",
@@ -70,6 +78,12 @@ const visibilityOptions = [
   { value: "private", label: "Private — Hanya guru" },
 ];
 
+const selectedPdfSizeLabel = computed(() => {
+  if (!selectedPdfFile.value) return "";
+  const sizeMb = selectedPdfFile.value.size / (1024 * 1024);
+  return `${sizeMb < 0.01 ? "0.01" : sizeMb.toFixed(2)} MB`;
+});
+
 const selectedClassValue = computed({
   get: () => (lms.activeClassId ? String(lms.activeClassId) : ""),
   set: (val) => {
@@ -79,27 +93,106 @@ const selectedClassValue = computed({
 
 const { stop: stopTabMotion } = useTabContentMotion(tabBody, activeTab);
 
+function clearErrorBanner() {
+  errorBanner.value = "";
+}
+
 function notifySuccess(msg) {
   errorBanner.value = "";
+  dialogError.value = "";
   ui.toast(msg);
 }
 
 function notifyError(msg) {
   errorBanner.value = msg;
-  ui.toast(msg, true);
+  if (ui.message) ui.dismissToast();
+}
+
+function resetUploadState() {
+  selectedPdfFile.value = null;
+  moduleVisibilityInput.value = "public";
+  isDraggingPdf.value = false;
+  if (uploadInput.value) uploadInput.value.value = "";
+}
+
+function syncEditClassForm(cls = lms.currentClass) {
+  editClassForm.name = cls?.name || "";
+  editClassForm.description = cls?.description || "";
+}
+
+function openCreateClassDialog() {
+  clearErrorBanner();
+  dialogError.value = "";
+  createClassForm.name = "";
+  createClassForm.description = "";
+  createClassOpen.value = true;
+}
+
+function closeCreateClassDialog() {
+  dialogError.value = "";
+  createClassForm.name = "";
+  createClassForm.description = "";
+  createClassOpen.value = false;
+}
+
+function openEditClassDialog() {
+  clearErrorBanner();
+  dialogError.value = "";
+  syncEditClassForm();
+  editClassOpen.value = true;
+}
+
+function closeEditClassDialog() {
+  dialogError.value = "";
+  syncEditClassForm();
+  editClassOpen.value = false;
+}
+
+function openUploadDialog() {
+  clearErrorBanner();
+  dialogError.value = "";
+  resetUploadState();
+  uploadDialogOpen.value = true;
+}
+
+function closeUploadDialog() {
+  dialogError.value = "";
+  resetUploadState();
+  uploadDialogOpen.value = false;
+}
+
+function openAnnouncementDialog() {
+  clearErrorBanner();
+  dialogError.value = "";
+  announcementForm.title = "";
+  announcementForm.content = "";
+  announcementDialogOpen.value = true;
+}
+
+function closeAnnouncementDialog() {
+  dialogError.value = "";
+  announcementForm.title = "";
+  announcementForm.content = "";
+  announcementDialogOpen.value = false;
 }
 
 async function initData() {
   try {
     const items = await lms.loadClasses({ selectFirst: false });
-    const paramId = Number(route.params.id);
+    const rawParam = route.params.id;
+    const paramId = Number(rawParam);
     if (paramId && items.some((c) => Number(c.id) === paramId)) {
       await lms.selectClass(paramId);
     } else if (items.length > 0) {
       await lms.selectClass(items[0].id);
+      if (rawParam) {
+        await router.replace(`/classes/${items[0].id}`);
+      }
+    } else if (rawParam) {
+      await router.replace("/classes");
     }
-  } catch {
-    // Store records error state
+  } catch (err) {
+    notifyError(lms.error || err?.message || "Gagal memuat daftar kelas.");
   }
 }
 
@@ -109,10 +202,45 @@ onMounted(() => {
 
 watch(
   () => route.params.id,
-  (nextId) => {
+  async (nextId) => {
+    if (!route.path.startsWith("/classes") || !nextId) return;
     const num = Number(nextId);
-    if (num && num !== Number(lms.activeClassId)) {
-      lms.selectClass(num).catch(() => {});
+    if (!Number.isInteger(num) || num <= 0) {
+      if (lms.classes.length > 0) {
+        const fallbackId = lms.classes[0].id;
+        try {
+          if (Number(lms.activeClassId) !== Number(fallbackId)) {
+            await lms.selectClass(fallbackId);
+          }
+          await router.replace(`/classes/${fallbackId}`);
+        } catch (err) {
+          notifyError(lms.error || err?.message || "Gagal memuat detail kelas.");
+        }
+      } else {
+        await router.replace("/classes");
+      }
+      return;
+    }
+    if (lms.classes.length > 0 && !lms.classes.some((c) => Number(c.id) === num)) {
+      const fallbackId = lms.classes[0].id;
+      try {
+        if (Number(lms.activeClassId) !== Number(fallbackId)) {
+          await lms.selectClass(fallbackId);
+        }
+        await router.replace(`/classes/${fallbackId}`);
+      } catch (err) {
+        notifyError(lms.error || err?.message || "Gagal memuat detail kelas.");
+      }
+      return;
+    }
+    if (num !== Number(lms.activeClassId)) {
+      clearErrorBanner();
+      resetUploadState();
+      try {
+        await lms.selectClass(num);
+      } catch (err) {
+        notifyError(lms.error || err?.message || "Gagal memuat detail kelas.");
+      }
     }
   },
 );
@@ -121,69 +249,138 @@ watch(
   () => lms.currentClass,
   (cls) => {
     if (cls) {
-      editClassForm.name = cls.name || "";
-      editClassForm.description = cls.description || "";
+      syncEditClassForm(cls);
     }
   },
   { immediate: true },
 );
 
 watch(
+  () => lms.activeClassId,
+  () => {
+    resetUploadState();
+  },
+);
+
+watch(
   () => lms.modules,
   (list) => {
-    if (list.length > 0 && !list.some((m) => Number(m.id) === Number(aiForm.moduleId))) {
+    if (!Array.isArray(list) || list.length === 0) {
+      aiForm.moduleId = "";
+      return;
+    }
+    if (aiForm.moduleId && !list.some((m) => Number(m.id) === Number(aiForm.moduleId))) {
+      aiForm.moduleId = "";
+      return;
+    }
+    if (!aiForm.moduleId) {
       aiForm.moduleId = String(list[0].id);
     }
   },
   { immediate: true },
 );
 
+watch(createClassOpen, (isOpen) => {
+  dialogError.value = "";
+  if (!isOpen) {
+    createClassForm.name = "";
+    createClassForm.description = "";
+  }
+});
+
+watch(editClassOpen, () => {
+  dialogError.value = "";
+  syncEditClassForm();
+});
+
+watch(uploadDialogOpen, () => {
+  dialogError.value = "";
+  resetUploadState();
+});
+
+watch(announcementDialogOpen, (isOpen) => {
+  dialogError.value = "";
+  if (!isOpen) {
+    announcementForm.title = "";
+    announcementForm.content = "";
+  }
+});
+
 async function handleSelectClass(classId) {
-  errorBanner.value = "";
-  await lms.selectClass(classId);
-  if (Number(route.params.id) !== Number(classId)) {
-    router.replace(`/classes/${classId}`);
+  if (!classId) return;
+  const previousClassId = lms.currentClass?.id ?? lms.activeClassId;
+  clearErrorBanner();
+  dialogError.value = "";
+  resetUploadState();
+  aiForm.moduleId = "";
+  try {
+    await lms.selectClass(classId);
+    if (Number(route.params.id) !== Number(classId)) {
+      await router.replace(`/classes/${classId}`);
+    }
+  } catch (err) {
+    if (previousClassId && Number(lms.currentClass?.id) === Number(previousClassId)) {
+      lms.activeClassId = Number(previousClassId);
+    }
+    notifyError(lms.error || err?.message || "Gagal memuat detail kelas.");
   }
 }
 
 async function handleCreateClass() {
-  if (!createClassForm.name.trim()) {
-    notifyError("Nama kelas wajib diisi.");
+  if (creatingClass.value) return;
+  const trimmedName = createClassForm.name.trim();
+  if (!trimmedName) {
+    dialogError.value = "Nama kelas wajib diisi.";
     return;
   }
+  creatingClass.value = true;
+  dialogError.value = "";
   try {
     const created = await lms.createClass({
-      name: createClassForm.name.trim(),
+      name: trimmedName,
       description: createClassForm.description.trim(),
     });
-    createClassForm.name = "";
-    createClassForm.description = "";
-    createClassOpen.value = false;
-    notifySuccess(`Kelas "${created.name}" dibuat (${created.class_code}).`);
+    closeCreateClassDialog();
+    const className = created?.name || trimmedName;
+    const codeText = created?.class_code ? ` (${created.class_code})` : "";
+    notifySuccess(`Kelas "${className}" dibuat${codeText}.`);
     if (created?.id) {
-      router.replace(`/classes/${created.id}`);
+      await router.replace(`/classes/${created.id}`);
     }
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal membuat kelas.");
+    dialogError.value = lms.error || err?.message || "Gagal membuat kelas.";
+  } finally {
+    creatingClass.value = false;
   }
 }
 
 async function handleUpdateClass({ regenerateCode = false } = {}) {
-  if (!lms.currentClass) return;
+  if (!lms.currentClass || updatingClass.value) return;
+  const trimmedName = editClassForm.name.trim();
+  if (!trimmedName) {
+    dialogError.value = "Nama kelas wajib diisi.";
+    return;
+  }
+  updatingClass.value = true;
+  dialogError.value = "";
   try {
     const updated = await lms.updateClass(lms.currentClass.id, {
-      name: editClassForm.name.trim(),
+      name: trimmedName,
       description: editClassForm.description.trim(),
       regenerate_code: regenerateCode,
     });
-    editClassOpen.value = false;
+    closeEditClassDialog();
     notifySuccess(
       regenerateCode
-        ? `Kode kelas baru: ${updated.class_code}.`
+        ? updated?.class_code
+          ? `Kode kelas baru: ${updated.class_code}.`
+          : "Kode kelas baru berhasil dibuat."
         : "Informasi kelas diperbarui.",
     );
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal memperbarui kelas.");
+    dialogError.value = lms.error || err?.message || "Gagal memperbarui kelas.";
+  } finally {
+    updatingClass.value = false;
   }
 }
 
@@ -196,72 +393,128 @@ async function copyClassCode() {
   notifySuccess(`Kode kelas ${code} disalin.`);
 }
 
+const MAX_PDF_BYTES = 20 * 1024 * 1024;
+
+function validateAndSelectPdfFile(file, inputEl = uploadInput.value) {
+  if (!file) {
+    selectedPdfFile.value = null;
+    return false;
+  }
+  const isPdfExtension = file.name.toLowerCase().endsWith(".pdf");
+  const isPdfMime = file.type === "application/pdf" || file.type === "application/x-pdf";
+  const hasConflictingMime = Boolean(file.type) && !isPdfMime;
+  if ((!isPdfExtension && !isPdfMime) || hasConflictingMime) {
+    selectedPdfFile.value = null;
+    if (inputEl) inputEl.value = "";
+    dialogError.value = "Hanya file berformat PDF yang diperbolehkan.";
+    return false;
+  }
+  if (file.size === 0) {
+    selectedPdfFile.value = null;
+    if (inputEl) inputEl.value = "";
+    dialogError.value = "File PDF tidak boleh kosong (0 byte).";
+    return false;
+  }
+  if (file.size > MAX_PDF_BYTES) {
+    selectedPdfFile.value = null;
+    if (inputEl) inputEl.value = "";
+    dialogError.value = "Ukuran file PDF maksimal 20 MiB.";
+    return false;
+  }
+  dialogError.value = "";
+  selectedPdfFile.value = file;
+  return true;
+}
+
 function onFileChange(event) {
-  const file = event?.target?.files?.[0] || null;
+  const inputEl = event?.target || uploadInput.value;
+  const file = inputEl?.files?.[0] || null;
   if (!file) {
     selectedPdfFile.value = null;
     return;
   }
-  const maxBytes = 20 * 1024 * 1024;
-  if (!file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf") {
-    notifyError("Hanya file berformat PDF yang diperbolehkan.");
-    event.target.value = "";
+  validateAndSelectPdfFile(file, inputEl);
+}
+
+function onPdfDragOver() {
+  if (uploadingModule.value) return;
+  isDraggingPdf.value = true;
+}
+
+function onPdfDragLeave(event) {
+  if (event?.currentTarget && event?.relatedTarget && event.currentTarget.contains(event.relatedTarget)) {
     return;
   }
-  if (file.size > maxBytes) {
-    notifyError("Ukuran file PDF maksimal 20 MiB.");
-    event.target.value = "";
-    return;
-  }
-  selectedPdfFile.value = file;
+  isDraggingPdf.value = false;
+}
+
+function onPdfDrop(event) {
+  isDraggingPdf.value = false;
+  if (uploadingModule.value) return;
+  const file = event?.dataTransfer?.files?.[0] || null;
+  if (!file) return;
+  if (uploadInput.value) uploadInput.value.value = "";
+  validateAndSelectPdfFile(file, uploadInput.value);
 }
 
 async function handleUploadModule() {
+  if (uploadingModule.value) return;
   if (!lms.currentClass || !selectedPdfFile.value) {
-    notifyError("Pilih file PDF terlebih dahulu.");
+    dialogError.value = "Pilih file PDF terlebih dahulu.";
     return;
   }
   uploadingModule.value = true;
+  dialogError.value = "";
   try {
     await lms.uploadModule(lms.currentClass.id, {
       file: selectedPdfFile.value,
       visibility: moduleVisibilityInput.value,
     });
-    selectedPdfFile.value = null;
-    if (uploadInput.value) uploadInput.value.value = "";
-    uploadDialogOpen.value = false;
+    closeUploadDialog();
     notifySuccess("Materi PDF berhasil diunggah.");
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal mengunggah PDF.");
+    dialogError.value = lms.error || err?.message || "Gagal mengunggah PDF.";
   } finally {
     uploadingModule.value = false;
   }
 }
 
 async function toggleModuleVisibility(mod) {
+  if (togglingModuleId.value === mod.id || deletingModuleId.value === mod.id) return;
   const next = mod.visibility === "public" ? "private" : "public";
+  togglingModuleId.value = mod.id;
   try {
     await lms.setModuleVisibility(mod.id, next);
     notifySuccess(`Visibilitas "${mod.file_name}" diubah menjadi ${next}.`);
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal mengubah visibilitas.");
+    notifyError(lms.error || err?.message || "Gagal mengubah visibilitas.");
+  } finally {
+    if (togglingModuleId.value === mod.id) togglingModuleId.value = null;
   }
 }
 
 async function handleDeleteModule(mod) {
+  if (deletingModuleId.value === mod.id) return;
+  deletingModuleId.value = mod.id;
   try {
     await lms.deleteModule(mod.id);
     notifySuccess(`Materi "${mod.file_name}" dihapus.`);
   } catch (err) {
-    notifyError(lms.error || err.message || "Materi tidak dapat dihapus.");
+    notifyError(lms.error || err?.message || "Materi tidak dapat dihapus.");
+  } finally {
+    if (deletingModuleId.value === mod.id) deletingModuleId.value = null;
   }
 }
 
 async function handleDownloadModule(mod) {
+  if (downloadingModuleId.value === mod.id || deletingModuleId.value === mod.id) return;
+  downloadingModuleId.value = mod.id;
   try {
     await lms.downloadModule(mod.id);
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal mengunduh materi.");
+    notifyError(lms.error || err?.message || "Gagal mengunduh materi.");
+  } finally {
+    if (downloadingModuleId.value === mod.id) downloadingModuleId.value = null;
   }
 }
 
@@ -271,6 +524,7 @@ function launchAiQuizFromModule(mod) {
 }
 
 async function handleGenerateQuizAi() {
+  if (generatingAi.value) return;
   if (!aiForm.moduleId) {
     notifyError("Pilih materi PDF sumber untuk generate soal AI.");
     return;
@@ -286,20 +540,24 @@ async function handleGenerateQuizAi() {
     if (job?.id) {
       const finalJob = await lms.pollQuizGeneration(job.id, { maxAttempts: 65, pollWaitMs: 2000 });
       if (finalJob?.status === "completed") {
+        aiForm.title = "";
         notifySuccess("Draf kuis AI selesai. Lanjutkan review & publish di halaman Assessment.");
         activeTab.value = "quizzes";
+      } else if (finalJob?.status === "queued") {
+        notifyError("Permintaan generate AI masih dalam antrean (queued). Pastikan queue worker assessment-backend berjalan (composer run serve atau composer run worker).");
       } else {
         notifyError("Proses generate AI masih berjalan di latar belakang. Muat ulang tab Kuis beberapa saat lagi.");
       }
     }
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal generate soal AI.");
+    notifyError(lms.error || err?.message || "Gagal generate soal AI.");
   } finally {
     generatingAi.value = false;
   }
 }
 
 async function openQuizInAssessment(quiz) {
+  if (openingQuizId.value === quiz.id) return;
   openingQuizId.value = quiz.id;
   try {
     const syncedId = await assessmentStore.ensureQuizSynced(quiz, lms.currentClass);
@@ -314,46 +572,48 @@ async function openQuizInAssessment(quiz) {
 }
 
 async function handleSendAnnouncement() {
+  if (sendingAnnouncement.value) return;
   if (!lms.currentClass || !announcementForm.title.trim() || !announcementForm.content.trim()) {
-    notifyError("Judul dan isi pengumuman wajib diisi.");
+    dialogError.value = "Judul dan isi pengumuman wajib diisi.";
     return;
   }
   sendingAnnouncement.value = true;
+  dialogError.value = "";
   try {
     await lms.createAnnouncement(lms.currentClass.id, {
       title: announcementForm.title.trim(),
       content: announcementForm.content.trim(),
     });
-    announcementForm.title = "";
-    announcementForm.content = "";
-    announcementDialogOpen.value = false;
+    closeAnnouncementDialog();
     notifySuccess("Pengumuman dikirim ke murid terdaftar.");
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal mengirim pengumuman.");
+    dialogError.value = lms.error || err?.message || "Gagal mengirim pengumuman.";
   } finally {
     sendingAnnouncement.value = false;
   }
 }
 
-function submitDialogForm(formId, handler) {
-  const formEl = typeof document !== "undefined" ? document.getElementById(formId) : null;
-  if (formEl && typeof formEl.reportValidity === "function" && !formEl.reportValidity()) return;
+function submitDialogForm(handler) {
   handler();
 }
 
 async function handleDeleteAnnouncement(item) {
+  if (deletingAnnouncementId.value === item.id) return;
+  deletingAnnouncementId.value = item.id;
   try {
     await lms.deleteAnnouncement(item.id);
     notifySuccess("Pengumuman dihapus.");
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal menghapus pengumuman.");
+    notifyError(lms.error || err?.message || "Gagal menghapus pengumuman.");
+  } finally {
+    if (deletingAnnouncementId.value === item.id) deletingAnnouncementId.value = null;
   }
 }
 </script>
 
 <template>
   <PageTitle title="Kelas">
-    <MotionButton variant="primary" @click="createClassOpen = true">
+    <MotionButton variant="primary" @click="openCreateClassDialog">
       <Icon name="plus" />
       Buat kelas
     </MotionButton>
@@ -365,9 +625,17 @@ async function handleDeleteAnnouncement(item) {
     </p>
 
     <MotionPresence>
-      <p v-if="errorBanner" class="notice warning" role="alert">
-        {{ errorBanner }}
-      </p>
+      <div v-if="errorBanner" class="notice warning lms-error-banner" role="alert">
+        <span>{{ errorBanner }}</span>
+        <button
+          type="button"
+          class="icon-btn lms-banner-dismiss"
+          aria-label="Tutup pesan kesalahan"
+          @click="clearErrorBanner"
+        >
+          <Icon name="x" />
+        </button>
+      </div>
     </MotionPresence>
 
     <section v-if="lms.currentClass" class="panel overview-panel" aria-label="Ringkasan kelas aktif">
@@ -389,7 +657,7 @@ async function handleDeleteAnnouncement(item) {
             <Icon name="copy" />
             Kode: {{ lms.currentClass.class_code }}
           </button>
-          <button type="button" class="btn" @click="editClassOpen = true">
+          <button type="button" class="btn" @click="openEditClassDialog">
             <Icon name="edit" />
             Edit kelas
           </button>
@@ -453,7 +721,7 @@ async function handleDeleteAnnouncement(item) {
             <h2>Materi Pembelajaran PDF</h2>
             <p class="section-caption">Format PDF maksimal 20 MiB · Murid hanya melihat materi berstatus Public</p>
           </div>
-          <MotionButton variant="primary" @click="uploadDialogOpen = true">
+          <MotionButton variant="primary" @click="openUploadDialog">
             <Icon name="upload" />
             Upload PDF
           </MotionButton>
@@ -476,22 +744,46 @@ async function handleDeleteAnnouncement(item) {
             </div>
             <div class="lms-item-foot">
               <div class="action-row">
-                <button type="button" class="btn small primary" @click="launchAiQuizFromModule(mod)">
+                <button
+                  type="button"
+                  class="btn small primary"
+                  :disabled="deletingModuleId === mod.id"
+                  @click="launchAiQuizFromModule(mod)"
+                >
                   <Icon name="sparkles" />
                   Buat Kuis AI
                 </button>
-                <button type="button" class="btn small soft" @click="toggleModuleVisibility(mod)">
+                <button
+                  type="button"
+                  class="btn small soft"
+                  :disabled="togglingModuleId === mod.id || deletingModuleId === mod.id"
+                  @click="toggleModuleVisibility(mod)"
+                >
                   <Icon name="eye" />
-                  Set {{ mod.visibility === "public" ? "Private" : "Public" }}
+                  {{
+                    togglingModuleId === mod.id
+                      ? "Menyimpan..."
+                      : `Set ${mod.visibility === "public" ? "Private" : "Public"}`
+                  }}
                 </button>
-                <button type="button" class="btn small" @click="handleDownloadModule(mod)">
+                <button
+                  type="button"
+                  class="btn small"
+                  :disabled="downloadingModuleId === mod.id || deletingModuleId === mod.id"
+                  @click="handleDownloadModule(mod)"
+                >
                   <Icon name="download" />
-                  Unduh
+                  {{ downloadingModuleId === mod.id ? "Mengunduh..." : "Unduh" }}
                 </button>
               </div>
-              <button type="button" class="btn small danger" @click="handleDeleteModule(mod)">
+              <button
+                type="button"
+                class="btn small danger"
+                :disabled="deletingModuleId === mod.id"
+                @click="handleDeleteModule(mod)"
+              >
                 <Icon name="trash" />
-                Hapus
+                {{ deletingModuleId === mod.id ? "Menghapus..." : "Hapus" }}
               </button>
             </div>
           </article>
@@ -540,9 +832,14 @@ async function handleDeleteAnnouncement(item) {
             <div>
               <div class="lms-item-head">
                 <h3 class="lms-item-title">{{ quiz.title }}</h3>
-                <span class="lms-pill" :class="quiz.status === 'published' ? 'is-success' : quiz.status === 'closed' ? '' : 'is-warn'">
-                  {{ quiz.status === "published" ? "Dipublish" : quiz.status === "closed" ? "Ditutup" : "Draft" }}
-                </span>
+                <div class="lms-item-pills">
+                  <span class="lms-pill" :class="quiz.assessment_type === 'assignment' ? 'is-dark' : ''">
+                    {{ quiz.assessment_type === "assignment" ? "Tugas" : "Kuis" }}
+                  </span>
+                  <span class="lms-pill" :class="quiz.status === 'published' ? 'is-success' : quiz.status === 'closed' ? '' : 'is-warn'">
+                    {{ quiz.status === "published" ? "Dipublish" : quiz.status === "closed" ? "Ditutup" : "Draft" }}
+                  </span>
+                </div>
               </div>
               <p class="lms-item-meta">
                 <span>{{ quiz.questions_count ?? 0 }} soal</span>
@@ -578,7 +875,7 @@ async function handleDeleteAnnouncement(item) {
             <h2>Pengumuman Kelas</h2>
             <p class="section-caption">Otomatis mengirim notifikasi ke seluruh murid kelas ini</p>
           </div>
-          <MotionButton variant="primary" @click="announcementDialogOpen = true">
+          <MotionButton variant="primary" @click="openAnnouncementDialog">
             <Icon name="send" />
             Kirim pengumuman
           </MotionButton>
@@ -595,8 +892,15 @@ async function handleDeleteAnnouncement(item) {
               <p class="lms-item-desc">{{ ann.content }}</p>
             </div>
             <div class="lms-item-foot">
-              <span class="lms-item-meta">{{ ann.teacher_name || "Guru" }}</span>
-              <button type="button" class="btn small danger" @click="handleDeleteAnnouncement(ann)">Hapus</button>
+              <span class="lms-item-meta">{{ ann.author_name || ann.teacher_name || "Guru" }}</span>
+              <button
+                type="button"
+                class="btn small danger"
+                :disabled="deletingAnnouncementId === ann.id"
+                @click="handleDeleteAnnouncement(ann)"
+              >
+                {{ deletingAnnouncementId === ann.id ? "Menghapus..." : "Hapus" }}
+              </button>
             </div>
           </article>
         </MotionList>
@@ -615,7 +919,7 @@ async function handleDeleteAnnouncement(item) {
           Belum ada murid terdaftar di kelas ini.
         </div>
         <div v-else class="table-wrap">
-          <table class="table">
+          <table class="table mobile-cards">
             <thead>
               <tr>
                 <th>Murid</th>
@@ -626,10 +930,10 @@ async function handleDeleteAnnouncement(item) {
             </thead>
             <tbody>
               <tr v-for="student in lms.classProgress.students" :key="student.student_id">
-                <td><strong>{{ student.name }}</strong></td>
-                <td>{{ student.email }}</td>
-                <td>{{ student.read_count }} / {{ student.total_modules }}</td>
-                <td>
+                <td class="title-cell"><strong>{{ student.name }}</strong></td>
+                <td data-label="Email">{{ student.email }}</td>
+                <td data-label="Materi Dibaca">{{ student.read_count }} / {{ student.total_modules }}</td>
+                <td data-label="Progres" class="lms-progress-cell">
                   <div class="action-row">
                     <div class="progress-track">
                       <div class="progress-fill" :style="{ width: `${student.progress_percentage}%` }" />
@@ -646,8 +950,11 @@ async function handleDeleteAnnouncement(item) {
   </div>
 
   <!-- Dialog: Buat Kelas -->
-  <AppDialog :open="createClassOpen" title="Buat Kelas Baru" @close="createClassOpen = false">
-    <form id="lms-create-class-form" class="lms-form-grid" @submit.prevent="handleCreateClass">
+  <AppDialog :open="createClassOpen" title="Buat Kelas Baru" @close="closeCreateClassDialog">
+    <p v-if="dialogError" class="notice warning" role="alert">
+      {{ dialogError }}
+    </p>
+    <form id="lms-create-class-form" class="lms-form-grid" novalidate @submit.prevent="handleCreateClass">
       <label class="field">
         <span class="field-label">Nama kelas</span>
         <MotionField>
@@ -662,16 +969,24 @@ async function handleDeleteAnnouncement(item) {
       </label>
     </form>
     <template #footer>
-      <button type="button" class="btn" @click="createClassOpen = false">Batal</button>
-      <button type="button" class="btn primary" @click="submitDialogForm('lms-create-class-form', handleCreateClass)">
-        Simpan kelas
+      <button type="button" class="btn" @click="closeCreateClassDialog">Batal</button>
+      <button
+        type="button"
+        class="btn primary"
+        :disabled="creatingClass"
+        @click="submitDialogForm(handleCreateClass)"
+      >
+        {{ creatingClass ? "Menyimpan..." : "Simpan kelas" }}
       </button>
     </template>
   </AppDialog>
 
   <!-- Dialog: Edit Kelas -->
-  <AppDialog :open="editClassOpen" title="Edit Informasi Kelas" @close="editClassOpen = false">
-    <form id="lms-edit-class-form" class="lms-form-grid" @submit.prevent="handleUpdateClass({ regenerateCode: false })">
+  <AppDialog :open="editClassOpen" title="Edit Informasi Kelas" @close="closeEditClassDialog">
+    <p v-if="dialogError" class="notice warning" role="alert">
+      {{ dialogError }}
+    </p>
+    <form id="lms-edit-class-form" class="lms-form-grid" novalidate @submit.prevent="handleUpdateClass({ regenerateCode: false })">
       <label class="field">
         <span class="field-label">Nama kelas</span>
         <MotionField>
@@ -686,31 +1001,54 @@ async function handleDeleteAnnouncement(item) {
       </label>
     </form>
     <template #footer>
-      <button type="button" class="btn soft" @click="submitDialogForm('lms-edit-class-form', () => handleUpdateClass({ regenerateCode: true }))">
+      <button type="button" class="btn" @click="closeEditClassDialog">Batal</button>
+      <button
+        type="button"
+        class="btn soft"
+        :disabled="updatingClass"
+        @click="submitDialogForm(() => handleUpdateClass({ regenerateCode: true }))"
+      >
         Buat ulang kode kelas
       </button>
-      <button type="button" class="btn primary" @click="submitDialogForm('lms-edit-class-form', () => handleUpdateClass({ regenerateCode: false }))">
-        Simpan perubahan
+      <button
+        type="button"
+        class="btn primary"
+        :disabled="updatingClass"
+        @click="submitDialogForm(() => handleUpdateClass({ regenerateCode: false }))"
+      >
+        {{ updatingClass ? "Menyimpan..." : "Simpan perubahan" }}
       </button>
     </template>
   </AppDialog>
 
   <!-- Dialog: Upload PDF -->
-  <AppDialog :open="uploadDialogOpen" title="Upload Materi PDF" @close="uploadDialogOpen = false">
-    <form id="lms-upload-pdf-form" class="lms-form-grid" @submit.prevent="handleUploadModule">
-      <div class="lms-file-picker">
+  <AppDialog :open="uploadDialogOpen" title="Upload Materi PDF" @close="closeUploadDialog">
+    <p v-if="dialogError" class="notice warning" role="alert">
+      {{ dialogError }}
+    </p>
+    <form id="lms-upload-pdf-form" class="lms-form-grid" novalidate @submit.prevent="handleUploadModule">
+      <div
+        class="lms-file-picker"
+        :class="{ dragging: isDraggingPdf }"
+        @dragenter.prevent="onPdfDragOver"
+        @dragover.prevent="onPdfDragOver"
+        @dragleave.prevent="onPdfDragLeave"
+        @drop.prevent="onPdfDrop"
+      >
         <div class="lms-file-picker-head">
           <Icon name="upload" />
           <div>
-            <strong>Pilih file materi PDF</strong>
-            <small>Format PDF, maksimal 20 MiB</small>
+            <strong>Pilih atau seret file materi PDF</strong>
+            <small>Format PDF (.pdf), maksimal 20 MiB</small>
           </div>
         </div>
         <label class="field">
           <span class="sr-only">File PDF (maksimal 20 MiB)</span>
           <input ref="uploadInput" type="file" accept="application/pdf,.pdf" @change="onFileChange" />
         </label>
-        <span v-if="selectedPdfFile" class="lms-item-meta">Dipilih: {{ selectedPdfFile.name }}</span>
+        <span v-if="selectedPdfFile" class="lms-item-meta">
+          Dipilih: {{ selectedPdfFile.name }} ({{ selectedPdfSizeLabel }})
+        </span>
       </div>
       <SoftSelect
         v-model="moduleVisibilityInput"
@@ -719,12 +1057,12 @@ async function handleDeleteAnnouncement(item) {
       />
     </form>
     <template #footer>
-      <button type="button" class="btn" @click="uploadDialogOpen = false">Batal</button>
+      <button type="button" class="btn" @click="closeUploadDialog">Batal</button>
       <button
         type="button"
         class="btn primary"
         :disabled="uploadingModule || !selectedPdfFile"
-        @click="submitDialogForm('lms-upload-pdf-form', handleUploadModule)"
+        @click="submitDialogForm(handleUploadModule)"
       >
         <Icon name="upload" />
         {{ uploadingModule ? "Mengunggah..." : "Upload PDF" }}
@@ -733,8 +1071,11 @@ async function handleDeleteAnnouncement(item) {
   </AppDialog>
 
   <!-- Dialog: Kirim Pengumuman -->
-  <AppDialog :open="announcementDialogOpen" title="Kirim Pengumuman Kelas" @close="announcementDialogOpen = false">
-    <form id="lms-announcement-form" class="lms-form-grid" @submit.prevent="handleSendAnnouncement">
+  <AppDialog :open="announcementDialogOpen" title="Kirim Pengumuman Kelas" @close="closeAnnouncementDialog">
+    <p v-if="dialogError" class="notice warning" role="alert">
+      {{ dialogError }}
+    </p>
+    <form id="lms-announcement-form" class="lms-form-grid" novalidate @submit.prevent="handleSendAnnouncement">
       <label class="field">
         <span class="field-label">Judul pengumuman</span>
         <MotionField>
@@ -749,12 +1090,12 @@ async function handleDeleteAnnouncement(item) {
       </label>
     </form>
     <template #footer>
-      <button type="button" class="btn" @click="announcementDialogOpen = false">Batal</button>
+      <button type="button" class="btn" @click="closeAnnouncementDialog">Batal</button>
       <button
         type="button"
         class="btn primary"
         :disabled="sendingAnnouncement"
-        @click="submitDialogForm('lms-announcement-form', handleSendAnnouncement)"
+        @click="submitDialogForm(handleSendAnnouncement)"
       >
         <Icon name="send" />
         {{ sendingAnnouncement ? "Mengirim..." : "Kirim pengumuman" }}

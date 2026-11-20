@@ -21,13 +21,16 @@ use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 
 class QuizGenerationService
 {
-    public function request(User $actor, Module $module, int $questionCount = 5): QuizGeneration
+    public function request(User $actor, Module $module, int $questionCount = 5, ?string $customTitle = null): QuizGeneration
     {
         if ($questionCount < 1 || $questionCount > 50) {
             throw ValidationException::withMessages(['question_count' => ['Choose between 1 and 50 questions.']]);
         }
+        $normalizedTitle = is_string($customTitle) && trim($customTitle) !== ''
+            ? mb_substr(trim($customTitle), 0, 255)
+            : null;
 
-        return DB::transaction(function () use ($actor, $module, $questionCount): QuizGeneration {
+        return DB::transaction(function () use ($actor, $module, $questionCount, $normalizedTitle): QuizGeneration {
             $schoolClass = SchoolClass::query()->lockForUpdate()->findOrFail($module->class_id);
             $freshModule = Module::query()->lockForUpdate()->findOrFail($module->id);
             if ($freshModule->class_id !== $schoolClass->id) {
@@ -47,7 +50,7 @@ class QuizGenerationService
 
             // The job and tracking row share the application DB and commit together.
             // Bus::dispatch dispatches immediately; a PendingDispatch destructor would be too late.
-            Bus::dispatch((new GenerateQuiz($generation->id))->onConnection('quiz-generation')
+            Bus::dispatch((new GenerateQuiz($generation->id, $normalizedTitle))->onConnection('quiz-generation')
                 ->onQueue('quiz-generation')->beforeCommit());
             $this->logAfterCommit('quiz_generation.queued', $generation);
 

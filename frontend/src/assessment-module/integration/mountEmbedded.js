@@ -8,7 +8,8 @@ import {
   apiClient,
   getStoredSession,
   getStoredToken,
-  setApiBaseUrl,
+  releaseCombinedShell,
+  retainCombinedShell,
   setStoredSession,
   setStoredToken,
   setUnauthorizedHandler,
@@ -115,6 +116,8 @@ async function ensureAssessmentSession({ user, aisToken, mappedRole, onUnauthori
   throw new Error("Sesi assessment tidak dapat divalidasi.");
 }
 
+const activeUnauthorizedHandlers = new Map();
+
 export async function mountAssessmentApp(containerEl, options = {}) {
   const {
     user,
@@ -132,50 +135,81 @@ export async function mountAssessmentApp(containerEl, options = {}) {
     throw new Error("Peran akun tidak memiliki akses ke ruang assessment.");
   }
 
-  globalThis.__AIS_COMBINED_SHELL__ = true;
-  if (apiBaseUrl) {
-    setApiBaseUrl(apiBaseUrl);
-  }
-  setUnauthorizedHandler(() => {
+  const mountToken = Symbol("assessment-mount");
+  let released = false;
+  let authStoreRef = null;
+
+  const handleUnauthorized = () => {
     clearAssessmentAuthStorage();
+    if (authStoreRef) {
+      authStoreRef.token = null;
+      authStoreRef.user = null;
+      authStoreRef.apiConnected = false;
+    }
     onUnauthorized?.();
-  });
+  };
 
-  const sessionState = await ensureAssessmentSession({
-    user,
-    aisToken,
-    mappedRole,
-    onUnauthorized,
-  });
-
-  const pinia = createPinia();
-  const router = createAssessmentRouter({ memory: true, combined: true });
-  const app = createApp(App);
-
-  app.use(pinia);
-  app.use(router);
-  app.provide("assessmentCombinedShell", true);
-  app.provide("assessmentMotionRoot", containerEl);
-  app.provide("assessmentPortalTarget", containerEl);
-
-  const authStore = useAuthStore(pinia);
-  const assessmentStore = useAssessmentStore(pinia);
-  const lmsStore = useLmsStore(pinia);
-
-  authStore.token = sessionState.token;
-  authStore.user = sessionState.user;
-  authStore.authMethod = "ais-sso";
-  authStore.apiConnected = sessionState.apiConnected;
-  assessmentStore.setRole(mappedRole === "student" ? "student" : "teacher");
-
-  if (sessionState.apiConnected && mappedRole !== "admin") {
-    assessmentStore.syncFromApi().catch(() => {});
-    lmsStore.loadNotifications().catch(() => {});
+  function releaseMountResources() {
+    if (released) return;
+    released = true;
+    activeUnauthorizedHandlers.delete(mountToken);
+    const remainingHandlers = [...activeUnauthorizedHandlers.values()];
+    setUnauthorizedHandler(remainingHandlers.at(-1) || null);
+    releaseCombinedShell(mountToken);
   }
 
-  const targetPath = normalizeAssessmentSubpath(initialSubpath, mappedRole);
-  await router.replace(targetPath);
-  await router.isReady();
+  retainCombinedShell(mountToken, apiBaseUrl);
+  activeUnauthorizedHandlers.set(mountToken, handleUnauthorized);
+  setUnauthorizedHandler(handleUnauthorized);
+
+  let sessionState;
+  let pinia;
+  let router;
+  let app;
+  let authStore;
+  let lmsStore;
+
+  try {
+    sessionState = await ensureAssessmentSession({
+      user,
+      aisToken,
+      mappedRole,
+      onUnauthorized,
+    });
+
+    pinia = createPinia();
+    router = createAssessmentRouter({ memory: true, combined: true });
+    app = createApp(App);
+
+    app.use(pinia);
+    app.use(router);
+    app.provide("assessmentCombinedShell", true);
+    app.provide("assessmentMotionRoot", containerEl);
+    app.provide("assessmentPortalTarget", containerEl);
+
+    authStore = useAuthStore(pinia);
+    authStoreRef = authStore;
+    const assessmentStore = useAssessmentStore(pinia);
+    lmsStore = useLmsStore(pinia);
+
+    authStore.token = sessionState.token;
+    authStore.user = sessionState.user;
+    authStore.authMethod = "ais-sso";
+    authStore.apiConnected = sessionState.apiConnected;
+    assessmentStore.setRole(mappedRole === "student" ? "student" : "teacher");
+
+    if (sessionState.apiConnected && mappedRole !== "admin") {
+      assessmentStore.syncFromApi().catch(() => {});
+      lmsStore.loadNotifications().catch(() => {});
+    }
+
+    const targetPath = normalizeAssessmentSubpath(initialSubpath, mappedRole);
+    await router.replace(targetPath);
+    await router.isReady();
+  } catch (err) {
+    releaseMountResources();
+    throw err;
+  }
 
   let disposed = false;
   let syncingFromHost = false;
@@ -229,10 +263,8 @@ export async function mountAssessmentApp(containerEl, options = {}) {
       disposed = true;
       stopRouteWatch();
       stopUnreadWatch();
-      setUnauthorizedHandler(null);
-      setApiBaseUrl("");
       app.unmount();
-      delete globalThis.__AIS_COMBINED_SHELL__;
+      releaseMountResources();
     },
   };
 }

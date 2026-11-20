@@ -129,3 +129,22 @@ it("removes teleported popups and global listeners when unmounted", async () => 
   expect(removeDocument.mock.calls.map(([name]) => name)).toEqual(expect.arrayContaining(['pointerdown', 'focusin', 'examnia:soft-field-open']));
   expect(removeWindow.mock.calls.map(([name]) => name)).toEqual(expect.arrayContaining(['scroll', 'resize', 'blur']));
 });
+it("teleports popup inside an enclosing <dialog> so top-layer modals keep options interactive", async () => {
+  const Host = defineComponent({
+    components: { SoftSelect },
+    setup: () => ({ options }),
+    template: '<dialog open><SoftSelect label="Visibilitas" model-value="" :options="options" /></dialog>',
+  });
+  const wrapper = mount(Host, { attachTo: document.body });
+  wrappers.push(wrapper);
+  const dialogEl = wrapper.element;
+  const trigger = wrapper.get('[role="combobox"]');
+  await trigger.trigger('click');
+  await flushPromises();
+  const list = dialogEl.querySelector('[role="listbox"]');
+  expect(list).not.toBeNull();
+  expect(list.parentElement).toBe(dialogEl);
+  list.querySelector('[data-value="B"]').click();
+  await flushPromises();
+  expect(dialogEl.querySelector('[role="listbox"]')).toBeNull();
+});

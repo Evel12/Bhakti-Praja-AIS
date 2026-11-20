@@ -6,21 +6,49 @@ use App\Models\Classroom;
 use App\Models\ClassStudent;
 use App\Models\Schedule;
 use App\Models\TeachingLoad;
+use App\Services\AisAssessmentRosterBridge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ClassroomController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
+
+    private function normalizeLevelValues(string $level): array
+    {
+        $upper = strtoupper(trim($level));
+
+        return match ($upper) {
+            '10', 'X' => ['10', 'X'],
+            '11', 'XI' => ['11', 'XI'],
+            '12', 'XII' => ['12', 'XII'],
+            default => [$level],
+        };
+    }
+
+    private function hasChildren(int $classroomId): bool
+    {
+        return ClassStudent::where('classroom_id', $classroomId)->exists()
+            || Schedule::where('classroom_id', $classroomId)->exists()
+            || TeachingLoad::where('classroom_id', $classroomId)->exists();
+    }
+
     public function index(Request $request)
     {
         $query = Classroom::with(['studyProgram', 'academicYear', 'homeroomTeacher'])->orderBy('id');
 
         if ($search = trim((string) $request->query('search', ''))) {
-            $query->where(function ($q) use ($search) {
+            $levels = $this->normalizeLevelValues($search);
+            $query->where(function ($q) use ($search, $levels) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('level', 'like', "%{$search}%");
+                    ->orWhere('level', 'like', "%{$search}%")
+                    ->orWhereIn('level', $levels);
             });
+        }
+
+        if ($request->filled('level')) {
+            $query->whereIn('level', $this->normalizeLevelValues((string) $request->query('level')));
         }
 
         if ($request->filled('study_program_id')) {
@@ -80,8 +108,10 @@ class ClassroomController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => ['name' => ['Nama kelas sudah ada pada tahun ajaran ini.']]], 422);
         }
 
+        $status = $request->filled('status') ? $request->input('status') : 'active';
+
         $item = Classroom::create($request->only(['name', 'level', 'study_program_id', 'academic_year_id', 'homeroom_teacher_id']) + [
-            'status' => $request->input('status', 'active'),
+            'status' => $status,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Kelas berhasil dibuat.', 'data' => $item->load(['studyProgram', 'academicYear', 'homeroomTeacher'])], 201);
@@ -109,14 +139,26 @@ class ClassroomController extends Controller
         }
 
         $name = $request->input('name', $item->name);
-        $yearId = $request->input('academic_year_id', $item->academic_year_id);
+        $yearId = (int) $request->input('academic_year_id', $item->academic_year_id);
+
+        if ($yearId !== (int) $item->academic_year_id && $this->hasChildren($item->id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tahun ajaran kelas tidak dapat diubah karena masih memiliki siswa, jadwal, atau beban mengajar.',
+                'errors' => ['academic_year_id' => ['Tahun ajaran kelas tidak dapat diubah karena masih memiliki data terkait.']],
+            ], 422);
+        }
 
         if (Classroom::where('name', $name)->where('academic_year_id', $yearId)->where('id', '!=', $item->id)->exists()) {
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => ['name' => ['Nama kelas sudah ada pada tahun ajaran ini.']]], 422);
         }
 
-        $item->fill($request->only(['name', 'level', 'study_program_id', 'academic_year_id', 'homeroom_teacher_id', 'status']));
+        $status = $request->filled('status') ? $request->input('status') : $item->status;
+        $item->fill($request->only(['name', 'level', 'study_program_id', 'academic_year_id', 'homeroom_teacher_id']));
+        $item->status = $status;
         $item->save();
+
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom((int) $item->id);
 
         return response()->json(['success' => true, 'message' => 'Kelas berhasil diperbarui.', 'data' => $item->load(['studyProgram', 'academicYear', 'homeroomTeacher'])]);
     }
@@ -129,11 +171,7 @@ class ClassroomController extends Controller
             return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);
         }
 
-        if (
-            ClassStudent::where('classroom_id', $item->id)->exists()
-            || Schedule::where('classroom_id', $item->id)->exists()
-            || TeachingLoad::where('classroom_id', $item->id)->exists()
-        ) {
+        if ($this->hasChildren($item->id)) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak dapat dihapus karena masih memiliki siswa, jadwal, atau beban mengajar.'], 422);
         }
 

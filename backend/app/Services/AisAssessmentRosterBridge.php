@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ClassStudent;
 use App\Models\TeachingLoad;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -16,6 +17,11 @@ class AisAssessmentRosterBridge
         }
 
         $load = TeachingLoad::with(['teacher.user', 'subject', 'classroom'])->find($teachingLoadId);
+        $this->syncTeachingLoadModel($load, $teachingLoadId);
+    }
+
+    private function syncTeachingLoadModel(?TeachingLoad $load, int $teachingLoadId): void
+    {
         if (! $load || $load->status !== 'active') {
             $this->deactivateTeachingLoad($teachingLoadId);
 
@@ -26,7 +32,16 @@ class AisAssessmentRosterBridge
         $classroom = $load->classroom;
         $subject = $load->subject;
 
-        if (! $teacher || $teacher->status !== 'active' || ! $teacher->user_id || ! $classroom || $classroom->status !== 'active' || ! $subject) {
+        if (
+            ! $teacher
+            || $teacher->status !== 'active'
+            || ! $teacher->user_id
+            || $teacher->user?->status !== 'active'
+            || ! $classroom
+            || $classroom->status !== 'active'
+            || ! $subject
+            || $subject->status !== 'active'
+        ) {
             $this->deactivateTeachingLoad($teachingLoadId);
 
             return;
@@ -82,17 +97,53 @@ class AisAssessmentRosterBridge
 
     public function syncClassroom(int $classroomId): void
     {
+        $this->syncLoadsWhere('classroom_id', $classroomId);
+    }
+
+    public function syncTeacher(int $teacherId): void
+    {
+        $this->syncLoadsWhere('teacher_id', $teacherId);
+    }
+
+    public function syncSubject(int $subjectId): void
+    {
+        $this->syncLoadsWhere('subject_id', $subjectId);
+    }
+
+    public function syncStudent(int $studentId): void
+    {
         if (! $this->hasAssessmentTables()) {
             return;
         }
 
-        $loadIds = TeachingLoad::query()
-            ->where('classroom_id', $classroomId)
+        $classroomIds = ClassStudent::query()
+            ->where('student_id', $studentId)
             ->where('status', 'active')
-            ->pluck('id');
+            ->distinct()
+            ->pluck('classroom_id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
 
-        foreach ($loadIds as $loadId) {
-            $this->syncTeachingLoad((int) $loadId);
+        if ($classroomIds === []) {
+            return;
+        }
+
+        $this->syncLoadsWhere('classroom_id', $classroomIds);
+    }
+
+    private function syncLoadsWhere(string $column, int|array $ids): void
+    {
+        if (! $this->hasAssessmentTables()) {
+            return;
+        }
+
+        $query = TeachingLoad::with(['teacher.user', 'subject', 'classroom'])
+            ->where('status', 'active');
+
+        is_array($ids) ? $query->whereIn($column, $ids) : $query->where($column, $ids);
+
+        foreach ($query->get() as $load) {
+            $this->syncTeachingLoadModel($load, (int) $load->id);
         }
     }
 
@@ -193,6 +244,9 @@ class AisAssessmentRosterBridge
     {
         return Schema::hasTable('classes')
             && Schema::hasTable('class_members')
-            && Schema::hasColumn('classes', 'ais_teaching_load_id');
+            && Schema::hasColumn('classes', 'ais_teaching_load_id')
+            && Schema::hasColumn('classes', 'ais_classroom_id')
+            && Schema::hasColumn('classes', 'ais_subject_id')
+            && Schema::hasColumn('classes', 'sync_source');
     }
 }

@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use App\Models\Teacher;
 use App\Models\TeachingLoad;
+use App\Services\AisAssessmentRosterBridge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
     public function index(Request $request)
     {
         $query = Teacher::with('user')->orderBy('id');
@@ -69,8 +71,9 @@ class TeacherController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
+        $status = $request->filled('status') ? $request->input('status') : 'active';
         $item = Teacher::create($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id']) + [
-            'status' => $request->input('status', 'active'),
+            'status' => $status,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Guru berhasil dibuat.', 'data' => $item], 201);
@@ -97,8 +100,14 @@ class TeacherController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
-        $item->fill($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id', 'status']));
+        $status = $request->filled('status') ? $request->input('status') : $item->status;
+        $item->fill($request->only(['teacher_number', 'name', 'email', 'phone', 'user_id']));
+        $item->status = $status;
         $item->save();
+
+        if ($item->wasChanged(['status', 'user_id'])) {
+            ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncTeacher((int) $item->id);
+        }
 
         return response()->json(['success' => true, 'message' => 'Guru berhasil diperbarui.', 'data' => $item]);
     }

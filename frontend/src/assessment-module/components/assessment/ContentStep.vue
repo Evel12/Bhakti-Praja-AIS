@@ -10,6 +10,9 @@ const { field, issue } = useAssessmentFields(() => props.issues);
 defineEmits(["add", "bank", "ai", "remove", "select"]);
 const navRef = ref();
 const question = computed(() => props.draft.questions[props.index]);
+const unreviewedAiCount = computed(
+  () => props.draft.questions.filter((q) => q.source === "ai" && !q.reviewed).length,
+);
 watch(
   () => props.index,
   () => {
@@ -50,18 +53,21 @@ watch(
       </button>
     </div>
     <FieldError :issue="issue('questions')" />
+    <p v-if="unreviewedAiCount" class="notice warning" role="status">
+      {{ unreviewedAiCount }} soal AI perlu direview terlebih dahulu. Buka tiap soal bertanda <strong>!</strong> lalu centang kotak konfirmasi sebelum menerbitkan.
+    </p>
     <div class="question-layout">
       <nav ref="navRef" class="question-nav" aria-label="Daftar soal">
         <button
           v-for="(q, i) in draft.questions"
           :key="q.id"
           type="button"
-          :class="{ active: index === i }"
+          :class="{ active: index === i, 'needs-review': q.source === 'ai' && !q.reviewed }"
           :aria-label="'Soal ' + (i + 1) + (issues.some((error) => error.questionId === q.id) ? ', perlu diperbaiki' : '')"
           @click="$emit('select', i)"
         >
-          Soal {{ i + 1 }}
-          <span v-if="q.source === 'ai' && !q.reviewed">!</span>
+          <span>Soal {{ i + 1 }}</span>
+          <span v-if="q.source === 'ai' && !q.reviewed" class="question-nav-flag" title="Perlu review AI">!</span>
         </button>
       </nav>
       <div v-if="question">

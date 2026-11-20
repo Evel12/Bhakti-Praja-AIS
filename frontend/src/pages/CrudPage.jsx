@@ -295,6 +295,7 @@ export default function CrudPage({
   const [programFilter, setProgramFilter] = useState('')
   const [yearFilter, setYearFilter] = useState('')
   const [promotion, setPromotion] = useState(null)
+  const [promotionError, setPromotionError] = useState('')
   const [dayFilter, setDayFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -353,6 +354,7 @@ export default function CrudPage({
     setStatusFilter('')
     setRoleFilter(resource === 'users' ? routeParams.get('role') || '' : '')
     setLevelFilter(''); setProgramFilter(''); setYearFilter('')
+    setPromotion(null); setPromotionError(''); setModal(null); setError('')
     if (resource === 'users' && routeParams.get('create') === '1') openCreate()
     setDayFilter('')
     setSearch('')
@@ -395,7 +397,7 @@ export default function CrudPage({
     const previous = document.activeElement
     dialogRef.current?.focus()
     const keydown = (event) => {
-      if (event.key === 'Escape' && !saving) setModal(null)
+      if (event.key === 'Escape' && !saving) { setModal(null); setError('') }
       if (event.key === 'Tab') {
         const nodes = [...dialogRef.current.querySelectorAll('button:not(:disabled), input, select, textarea')]
         const first = nodes[0], last = nodes[nodes.length - 1]
@@ -447,8 +449,19 @@ export default function CrudPage({
   }
 
   function openDetail(item) {
+    setError('')
     setForm({ ...item, subject_ids: item.subjects?.map((s) => s.id) || [], student_ids: item.students?.map((s) => s.id) || [] })
     setModal({ mode: 'detail', id: item.id })
+  }
+
+  function closeModal() {
+    setModal(null)
+    setError('')
+  }
+
+  function closePromotion() {
+    setPromotion(null)
+    setPromotionError('')
   }
 
   function firstErrorMessage(errors) {
@@ -519,11 +532,11 @@ export default function CrudPage({
 
   async function advanceStudent() {
     if (!promotion) return
-    setSaving(true); setError('')
+    setSaving(true); setPromotionError('')
     try {
       await promoteStudent(promotion.id, { academic_year_id: promotion.year, semester_id: promotion.semester || null, classroom_id: promotion.classroom })
-      setPromotion(null); showToast('success', 'Siswa berhasil dinaikkan dan ditempatkan di kelas baru.'); await load()
-    } catch (err) { setError(err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat().join(' ') || 'Gagal menaikkan kelas siswa.') }
+      closePromotion(); showToast('success', 'Siswa berhasil dinaikkan dan ditempatkan di kelas baru.'); await load()
+    } catch (err) { setPromotionError(err.response?.data?.message || Object.values(err.response?.data?.errors || {}).flat().join(' ') || 'Gagal menaikkan kelas siswa.') }
     finally { setSaving(false) }
   }
 
@@ -535,7 +548,8 @@ export default function CrudPage({
     const set = (v) => setForm({ ...form, [field]: v })
 
     if (field === 'level') {
-      return <><select id={field} value={value} onChange={(e) => set(e.target.value)} className={base}>
+      const normalized = gradeNumber(value) ? String(gradeNumber(value)) : value
+      return <><select id={field} value={normalized} onChange={(e) => set(e.target.value)} className={base}>
         <option value="">Pilih tingkat</option>
         <option value="10">X (Sepuluh)</option><option value="11">XI (Sebelas)</option><option value="12">XII (Dua Belas)</option>
       </select>{err && <FieldError text={err} />}</>
@@ -646,7 +660,7 @@ export default function CrudPage({
     <div>
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-slate-500">DATA MASTER / ADMINISTRASI</p>
+          <p className="text-sm font-semibold text-slate-500">ADMINISTRASI</p>
           <h1 className="mt-1 text-3xl font-bold text-slate-900">{title}</h1>
           <p className="mt-2 text-sm text-slate-500">Kelola data {singular.toLowerCase()}.</p>
         </div>
@@ -669,7 +683,7 @@ export default function CrudPage({
         </div>
       )}
 
-      {error && !modal && (
+      {error && !modal && !promotion && (
         <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
           <button onClick={() => setError('')}><X size={16} /></button>
@@ -765,7 +779,7 @@ export default function CrudPage({
           <div className="p-12 text-center">
             <p className="font-semibold text-slate-700">Belum ada data</p>
             <p className="mt-1 text-sm text-slate-400">
-              {search || statusFilter ? 'Coba ubah kata kunci atau filter.' : 'Tambahkan data menggunakan tombol di atas.'}
+              {search || statusFilter || levelFilter || programFilter || yearFilter || roleFilter || dayFilter ? 'Coba ubah kata kunci atau filter.' : 'Tambahkan data menggunakan tombol di atas.'}
             </p>
           </div>
         ) : (
@@ -809,7 +823,7 @@ export default function CrudPage({
                               {item.status === 'active' ? 'Nonaktif' : 'Aktif'}
                             </button>
                           )}
-                          {resource === 'students' && item.level && gradeNumber(item.level) < 12 && <button onClick={() => { const years = lookups['academic-years'] || []; const currentYear = years.find(current => String(current.id) === String(item.academic_year_id)); const next = years.filter(y => new Date(y.start_date) > new Date(currentYear?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date))[0]; const targetLevel = gradeNumber(item.level) + 1; const targets = (lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(next?.id) && gradeNumber(c.level) === targetLevel && String(c.study_program_id) === String(item.study_program_id)); const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === String(next?.id)); setPromotion({ ...item, targetLevel, year: next?.id || '', semester: sem?.id || '', classroom: targets.length === 1 ? targets[0].id : '' }) }} className="rounded-lg border border-teal-200 px-2 py-1 text-xs font-semibold text-teal-800">Naik kelas</button>}
+                          {resource === 'students' && item.level && gradeNumber(item.level) < 12 && <button onClick={() => { const years = lookups['academic-years'] || []; const currentYear = years.find(current => String(current.id) === String(item.academic_year_id)); const next = years.filter(y => new Date(y.start_date) > new Date(currentYear?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date))[0]; const targetLevel = gradeNumber(item.level) + 1; const targets = (lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(next?.id) && gradeNumber(c.level) === targetLevel && String(c.study_program_id) === String(item.study_program_id)); const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === String(next?.id)); setPromotionError(''); setPromotion({ ...item, targetLevel, year: next?.id || '', semester: sem?.id || '', classroom: targets.length === 1 ? targets[0].id : '' }) }} className="rounded-lg border border-teal-200 px-2 py-1 text-xs font-semibold text-teal-800">Naik kelas</button>}
                           <button onClick={() => remove(item.id)} title="Hapus" className="rounded-lg p-2 text-red-500 hover:bg-red-50">
                             <Trash2 size={16} />
                           </button>
@@ -857,7 +871,7 @@ export default function CrudPage({
                   {modal.mode === 'detail' ? 'Informasi akademik yang tersimpan.' : 'Lengkapi informasi di bawah, lalu simpan perubahan.'}
                 </p>
               </div>
-              <button aria-label="Tutup formulir" disabled={saving} onClick={() => setModal(null)} className="rounded-lg p-2 hover:bg-slate-100">
+              <button aria-label="Tutup formulir" disabled={saving} onClick={closeModal} className="rounded-lg p-2 hover:bg-slate-100">
                 <X size={18} />
               </button>
             </div>
@@ -873,7 +887,7 @@ export default function CrudPage({
                   </div>
                 ))}
                 <div className="flex justify-end sm:col-span-2">
-                  <button onClick={() => setModal(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold">Tutup</button>
+                  <button onClick={closeModal} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold">Tutup</button>
                 </div>
               </dl>
             ) : (
@@ -886,7 +900,7 @@ export default function CrudPage({
                   </div>
                 ))}
                 <div className="flex justify-end gap-3 border-t border-slate-200 pt-5 sm:col-span-2">
-                  <button type="button" disabled={saving} onClick={() => setModal(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold">
+                  <button type="button" disabled={saving} onClick={closeModal} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold">
                     Batal
                   </button>
                   <button type="submit" disabled={saving} className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
@@ -898,7 +912,7 @@ export default function CrudPage({
           </div>
         </div>
       )}
-      {promotion && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4"><div role="dialog" aria-modal="true" aria-label="Naikkan kelas siswa" className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6"><h2 className="text-xl font-bold">Naikkan {promotion.name}</h2><p className="text-sm text-slate-600">Kelas sekarang: {gradeLabel(promotion.level)} · {promotion.class_name}. Pilih rombel tingkat {gradeLabel(promotion.targetLevel)} yang sudah dibuat.</p>{!promotion.year && <p role="alert" className="text-sm text-amber-800">Belum ada tahun ajaran setelah {promotion.academic_year_name}. Buat tahun ajaran baru terlebih dahulu.</p>}<select aria-label="Tahun ajaran berikutnya" className="w-full rounded-xl border p-3" value={promotion.year} onChange={e => { const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === e.target.value); setPromotion({ ...promotion, year: e.target.value, semester: sem?.id || '', classroom: '' }) }}><option value="">Pilih tahun ajaran</option>{(lookups['academic-years'] || []).filter(y => new Date(y.start_date) > new Date(lookups['academic-years']?.find(current => String(current.id) === String(promotion.academic_year_id))?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date)).map(y => <option key={y.id} value={y.id}>{y.name}</option>)}</select><select aria-label="Semester tujuan" className="w-full rounded-xl border p-3" value={promotion.semester} onChange={e => setPromotion({ ...promotion, semester: e.target.value })}><option value="">Tanpa semester</option>{(lookups.semesters || []).filter(x => String(x.academic_year_id) === String(promotion.year)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select><select aria-label="Kelas tujuan" className="w-full rounded-xl border p-3" value={promotion.classroom} onChange={e => setPromotion({ ...promotion, classroom: e.target.value })}><option value="">Pilih kelas tujuan</option>{(lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>{promotion.year && !(lookups.classrooms || []).some(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)) && <p role="alert" className="text-sm text-amber-800">Belum ada kelas tingkat {gradeLabel(promotion.targetLevel)} untuk konsentrasi ini pada tahun ajaran tersebut. Buat di Administrasi → Kelas.</p>}<div className="flex justify-end gap-3"><button disabled={saving} onClick={() => setPromotion(null)} className="rounded-xl border px-4 py-2">Batal</button><button disabled={saving || !promotion.year || !promotion.classroom} onClick={advanceStudent} className="rounded-xl bg-slate-900 px-4 py-2 text-white disabled:opacity-40">{saving ? 'Memproses...' : 'Naikkan kelas'}</button></div></div></div>}
+      {promotion && <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-4"><div role="dialog" aria-modal="true" aria-label="Naikkan kelas siswa" className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6"><h2 className="text-xl font-bold">Naikkan {promotion.name}</h2><p className="text-sm text-slate-600">Kelas sekarang: {gradeLabel(promotion.level)} · {promotion.class_name}. Pilih rombel tingkat {gradeLabel(promotion.targetLevel)} yang sudah dibuat.</p>{promotionError && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{promotionError}</p>}{!promotion.year && <p role="alert" className="text-sm text-amber-800">Belum ada tahun ajaran setelah {promotion.academic_year_name}. Buat tahun ajaran baru terlebih dahulu.</p>}<select aria-label="Tahun ajaran berikutnya" className="w-full rounded-xl border p-3" value={promotion.year} onChange={e => { const sem = (lookups.semesters || []).find(x => String(x.academic_year_id) === e.target.value); setPromotion({ ...promotion, year: e.target.value, semester: sem?.id || '', classroom: '' }) }}><option value="">Pilih tahun ajaran</option>{(lookups['academic-years'] || []).filter(y => new Date(y.start_date) > new Date(lookups['academic-years']?.find(current => String(current.id) === String(promotion.academic_year_id))?.start_date || 0)).sort((a,b) => new Date(a.start_date)-new Date(b.start_date)).map(y => <option key={y.id} value={y.id}>{y.name}</option>)}</select><select aria-label="Semester tujuan" className="w-full rounded-xl border p-3" value={promotion.semester} onChange={e => setPromotion({ ...promotion, semester: e.target.value })}><option value="">Tanpa semester</option>{(lookups.semesters || []).filter(x => String(x.academic_year_id) === String(promotion.year)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}</select><select aria-label="Kelas tujuan" className="w-full rounded-xl border p-3" value={promotion.classroom} onChange={e => setPromotion({ ...promotion, classroom: e.target.value })}><option value="">Pilih kelas tujuan</option>{(lookups.classrooms || []).filter(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>{promotion.year && !(lookups.classrooms || []).some(c => String(c.academic_year_id) === String(promotion.year) && gradeNumber(c.level) === promotion.targetLevel && String(c.study_program_id) === String(promotion.study_program_id)) && <p role="alert" className="text-sm text-amber-800">Belum ada kelas tingkat {gradeLabel(promotion.targetLevel)} untuk konsentrasi ini pada tahun ajaran tersebut. Buat di Administrasi → Kelas.</p>}<div className="flex justify-end gap-3"><button disabled={saving} onClick={closePromotion} className="rounded-xl border px-4 py-2">Batal</button><button disabled={saving || !promotion.year || !promotion.classroom} onClick={advanceStudent} className="rounded-xl bg-slate-900 px-4 py-2 text-white disabled:opacity-40">{saving ? 'Memproses...' : 'Naikkan kelas'}</button></div></div></div>}
     </div>
   )
 }

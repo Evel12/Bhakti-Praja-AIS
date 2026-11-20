@@ -25,6 +25,28 @@ import { formatQuizGenerationError } from "../utils/quizGenerationErrors.js";
 import { useUiStore } from "./uiStore.js";
 import { useLmsStore } from "./lmsStore.js";
 
+const SEED_ASSESSMENT_IDS = new Set([
+  "as-network",
+  "as-database",
+  "as-midterm",
+  "as-security",
+  "as-sql",
+  "as-programming",
+]);
+const SEED_BANK_IDS = new Set([
+  "q-router",
+  "q-dns",
+  "q-https",
+  "q-pk",
+  "q-join",
+  "q-os",
+]);
+
+function isSeedAttemptId(id) {
+  const s = String(id || "");
+  return s.startsWith("attempt-seed-") || s.startsWith("task-seed-");
+}
+
 function hasLiveBackendToken() {
   const token = apiClient.getToken();
   return Boolean(token && !String(token).startsWith("local-"));
@@ -63,7 +85,18 @@ function mapBackendQuizToFrontend(backendQuiz, classItem, existingAssessment = n
   base.backendQuizId = backendQuiz.id;
   base.backendClassId = backendQuiz.class_id || classItem?.id || 1;
   base.title = backendQuiz.title || base.title;
-  base.type = backendQuiz.assessment_type === "assignment" ? "Tugas" : "Kuis";
+  if (typeof backendQuiz.description === "string") {
+    base.description = backendQuiz.description;
+  }
+  base.type =
+    backendQuiz.assessment_type === "assignment"
+      ? "Tugas"
+      : backendQuiz.assessment_type === "exam"
+        ? "Ujian"
+        : "Kuis";
+  if (backendQuiz.questions_count != null) {
+    base.questionCount = Number(backendQuiz.questions_count);
+  }
 
   const mappedClass = parseLmsClassName(classItem?.name, existingAssessment || {});
   base.course = backendQuiz.course_name || mappedClass.course;
@@ -230,6 +263,19 @@ export const useAssessmentStore = defineStore("assessment", () => {
       const lmsStore = useLmsStore();
       lmsStore.classes = classes;
 
+      // Strip offline demo seed fixtures whenever connected to a live backend.
+      transaction((data) => {
+        data.assessments = data.assessments.filter(
+          (item) => !SEED_ASSESSMENT_IDS.has(item.id) || item.backendQuizId != null,
+        );
+        data.bank = data.bank.filter(
+          (item) => !SEED_BANK_IDS.has(item.id) || item.backendQuestionId != null,
+        );
+        data.attempts = data.attempts.filter(
+          (item) => !isSeedAttemptId(item.id) || item.backendAttemptId != null,
+        );
+      });
+
       if (activeRole.value === "teacher") {
         try {
           const bankRes = await apiClient.listQuestionBank();
@@ -260,7 +306,16 @@ export const useAssessmentStore = defineStore("assessment", () => {
         }
       }
 
-      if (!classes.length) return true;
+      const seenBackendQuizIds = new Set();
+
+      if (!classes.length) {
+        transaction((data) => {
+          data.assessments = data.assessments.filter((item) => item.backendQuizId == null);
+          data.attempts = data.attempts.filter((item) => item.backendAttemptId == null);
+        });
+        lastSyncedAt.value = new Date().toISOString();
+        return true;
+      }
 
       for (const schoolClass of classes) {
         const quizzesRes = await apiClient.listClassQuizzes(schoolClass.id);
@@ -273,6 +328,7 @@ export const useAssessmentStore = defineStore("assessment", () => {
               : [];
 
         for (const quizSummary of quizzes) {
+          seenBackendQuizIds.add(Number(quizSummary.id));
           let detailedQuiz = quizSummary;
           if (activeRole.value === "teacher") {
             try {
@@ -327,6 +383,12 @@ export const useAssessmentStore = defineStore("assessment", () => {
           }
         }
       }
+
+      transaction((data) => {
+        data.assessments = data.assessments.filter(
+          (item) => item.backendQuizId == null || seenBackendQuizIds.has(Number(item.backendQuizId)),
+        );
+      });
 
       if (activeRole.value === "student") {
         try {
@@ -568,8 +630,23 @@ export const useAssessmentStore = defineStore("assessment", () => {
           draft?.title?.trim() || "",
         );
         if (genJob?.id) {
+          let lastStatus = genJob.status || "queued";
+          let consecutiveTransientErrors = 0;
           for (let attempt = 0; attempt < 65; attempt += 1) {
-            const statusRes = await apiClient.getQuizGeneration(genJob.id);
+            let statusRes;
+            try {
+              statusRes = await apiClient.getQuizGeneration(genJob.id);
+              consecutiveTransientErrors = 0;
+            } catch (pollErr) {
+              const isTransient = pollErr?.status === 0 || (pollErr?.status >= 500 && pollErr?.status < 600);
+              consecutiveTransientErrors += 1;
+              if (!isTransient || consecutiveTransientErrors >= 3 || attempt >= 64) {
+                throw pollErr;
+              }
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+              continue;
+            }
+            if (statusRes?.status) lastStatus = statusRes.status;
             if (statusRes?.status === "completed" && statusRes?.quiz_id) {
               const generatedQuiz = await apiClient.getQuiz(statusRes.quiz_id);
               const questions = Array.isArray(generatedQuiz?.questions)
@@ -598,7 +675,9 @@ export const useAssessmentStore = defineStore("assessment", () => {
             }
           }
           throw new Error(
-            "Proses generate AI memakan waktu lebih lama dari batas tunggu. Cek kembali daftar kuis beberapa saat lagi.",
+            lastStatus === "queued"
+              ? "Permintaan generate AI masih menunggu di antrean (queued). Pastikan queue worker assessment-backend berjalan (composer run serve atau composer run worker)."
+              : "Proses generate AI memakan waktu lebih lama dari batas tunggu. Cek kembali daftar kuis beberapa saat lagi.",
           );
         }
       }

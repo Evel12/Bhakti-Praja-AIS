@@ -3,7 +3,9 @@ import { computed, inject, nextTick, onMounted, onBeforeUnmount, ref, useId, wat
 import Icon from "./Icon.vue";
 import { animateSheet } from "../../motion/presence.js";
 
-const portalTarget = inject("assessmentPortalTarget", "body");
+const injectedPortalTarget = inject("assessmentPortalTarget", "body");
+const dialogTarget = ref(null);
+const portalTarget = computed(() => dialogTarget.value || injectedPortalTarget || "body");
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -17,7 +19,17 @@ const root = ref(), trigger = ref(), popup = ref(), backdrop = ref();
 const open = ref(false), activeIndex = ref(-1), position = ref({}), isSheet = ref(false);
 const selected = computed(() => props.options.find(option => option.value === props.modelValue));
 const optionId = index => `${id}-option-${index}`;
-let search = "", searchedAt = 0, openWidth = 0;
+let search = "", searchedAt = 0, openWidth = 0, boundDialog = null;
+
+function syncDialogTarget() {
+  const nextDialog = root.value?.closest?.("dialog") ?? null;
+  if (nextDialog !== boundDialog) {
+    boundDialog?.removeEventListener("close", dismiss);
+    nextDialog?.addEventListener("close", dismiss);
+    boundDialog = nextDialog;
+  }
+  dialogTarget.value = nextDialog;
+}
 
 function detectSheet() {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 768px)").matches;
@@ -51,6 +63,7 @@ function place() {
 }
 async function show(index) {
   if (props.disabled || !props.options.some(option => !option.disabled)) return;
+  syncDialogTarget();
   document.dispatchEvent(new CustomEvent("examnia:soft-field-open", { detail: id }));
   const selectedIndex = props.options.findIndex(option => option.value === props.modelValue && !option.disabled);
   activeIndex.value = index ?? (selectedIndex >= 0 ? selectedIndex : props.options.findIndex(option => !option.disabled));
@@ -62,7 +75,17 @@ async function show(index) {
   if (isSheet.value && popup.value) animateSheet(popup.value, { direction: "enter", preset: "smooth" });
 }
 function revealActive() {
-  if (open.value) document.getElementById(optionId(activeIndex.value))?.scrollIntoView?.({ block: "nearest" });
+  if (!open.value || !popup.value) return;
+  const optionEl = document.getElementById(optionId(activeIndex.value));
+  if (!optionEl) return;
+  const list = popup.value;
+  const optionTop = optionEl.offsetTop;
+  const optionBottom = optionTop + optionEl.offsetHeight;
+  if (optionTop < list.scrollTop) {
+    list.scrollTop = optionTop;
+  } else if (optionBottom > list.scrollTop + list.clientHeight) {
+    list.scrollTop = optionBottom - list.clientHeight;
+  }
 }
 function activate(index) {
   activeIndex.value = index;
@@ -136,6 +159,7 @@ watch(() => props.options, () => {
   }
 });
 onMounted(() => {
+  syncDialogTarget();
   document.addEventListener("pointerdown", outside, true);
   document.addEventListener("focusin", outside);
   document.addEventListener("examnia:soft-field-open", otherOpened);
@@ -145,6 +169,8 @@ onMounted(() => {
 });
 onBeforeUnmount(() => {
   open.value = false;
+  boundDialog?.removeEventListener("close", dismiss);
+  boundDialog = null;
   document.removeEventListener("pointerdown", outside, true);
   document.removeEventListener("focusin", outside);
   document.removeEventListener("examnia:soft-field-open", otherOpened);

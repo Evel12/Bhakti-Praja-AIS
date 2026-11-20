@@ -8,6 +8,9 @@ class GenerateQuizRequest extends AuthenticatedRequest
 {
     public function rules(): array
     {
-        return ['question_count' => ['sometimes', 'required', 'integer', 'between:1,50']];
+        return [
+            'question_count' => ['sometimes', 'required', 'integer', 'between:1,50'],
+            'title' => ['nullable', 'string', 'max:255'],
+        ];
     }
 }

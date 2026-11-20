@@ -23,7 +23,8 @@ const index = ref(0),
   confirm = ref(false),
   mapOpen = ref(false),
   uploading = ref(false),
-  submissionError = ref(false);
+  submissionError = ref(false),
+  syncingQuestions = ref(false);
 let slideMotion;
 const at = computed(() =>
     store.db.attempts.find(
@@ -48,6 +49,10 @@ const locked = computed(
 const answeredCount = computed(() => a.value?.questions.filter((question) => at.value?.answers[question.id] !== undefined).length ?? 0);
 const unansweredCount = computed(() => (a.value?.questions.length ?? 0) - answeredCount.value);
 const flaggedCount = computed(() => a.value?.questions.filter((question) => at.value?.flags.includes(question.id)).length ?? 0);
+const progressRatio = computed(() => {
+  const total = a.value?.questions.length ?? 0;
+  return total > 0 ? Math.min(1, Math.max(0, answeredCount.value / total)) : 0;
+});
 const timeWarning = computed(() => remaining.value > 0 && remaining.value <= 60000
   ? "Sisa waktu kurang dari satu menit. Cek jawaban sebelum waktu habis."
   : remaining.value > 0 && remaining.value <= 300000
@@ -74,8 +79,17 @@ onMounted(() => {
     router.replace("/review/" + at.value.id);
   else if (a.value?.state === "closed" && a.value.type !== "Tugas")
     submit(true);
-  else if (at.value?.id)
-    store.syncAttemptSession(at.value.id).catch(() => {});
+  else if (at.value?.id) {
+    if (!a.value?.questions?.length && a.value?.type !== "Tugas") {
+      syncingQuestions.value = true;
+    }
+    store
+      .syncAttemptSession(at.value.id)
+      .catch(() => {})
+      .finally(() => {
+        syncingQuestions.value = false;
+      });
+  }
 });
 onBeforeUnmount(() => {
   slideMotion?.stop?.();
@@ -199,13 +213,18 @@ async function upload(e) {
     <div v-else class="exam-grid">
       <div class="exam-status-bar" role="region" aria-label="Status pengerjaan">
         <div class="exam-progress-copy">
-          <span class="question-count"
-            >Soal {{ index + 1 }} dari {{ a.questions.length }}</span
-          ><span class="save-status" role="status" :class="{ error: store.storageError }">{{
-            store.storageError ? "Belum tersimpan" : "Jawaban tersimpan"
-          }}</span>
+          <div class="exam-progress-top">
+            <span class="question-count"
+              >Soal {{ a.questions.length ? index + 1 : 0 }} dari {{ a.questions.length }}</span
+            ><span class="save-status" role="status" :class="{ error: store.storageError }">{{
+              store.storageError ? "Belum tersimpan" : "Jawaban tersimpan"
+            }}</span>
+          </div>
+          <div class="exam-progress-track" aria-hidden="true">
+            <div class="exam-progress-fill" :style="{ transform: `scaleX(${progressRatio})` }" />
+          </div>
         </div>
-        <div class="exam-clock">
+        <div class="exam-clock" :class="{ 'is-warning': remaining <= 300000 }">
           <span class="timer-label">Sisa waktu</span>
           <p class="timer" :class="{ warning: remaining <= 300000 }" aria-label="Sisa waktu pengerjaan">{{ display }}</p>
         </div>
@@ -221,8 +240,13 @@ async function upload(e) {
         <p class="sr-only exam-time-warning" role="status" aria-live="polite" aria-atomic="true">{{ timeWarning }}</p>
       </div>
       <section class="panel exam-question-panel">
-        <template v-if="q"
+        <AppLoading v-if="syncingQuestions && !q" label="Memuat soal kuis…" />
+        <template v-else-if="q"
           ><div ref="questionStage" class="exam-question-stage">
+            <div class="exam-question-meta">
+              <span class="exam-question-pill">Soal {{ index + 1 }}</span>
+              <span v-if="at.flags.includes(q.id)" class="exam-flag-pill">Ditandai ragu</span>
+            </div>
             <h2 ref="questionTitle" class="exam-question" tabindex="-1">{{ q.text }}</h2>
             <fieldset :disabled="locked">
               <legend class="sr-only">Pilih jawaban soal {{ index + 1 }}</legend>
@@ -236,14 +260,14 @@ async function upload(e) {
                   :name="'answer-' + q.id"
                   :value="n"
                   @change="answer(n)"
-                /><span>{{ String.fromCharCode(65 + n) }}.</span
-                ><span>{{ option }}</span></label
+                /><span class="answer-letter" aria-hidden="true">{{ String.fromCharCode(65 + n) }}</span
+                ><span class="answer-text">{{ option }}</span></label
               >
             </fieldset>
           </div>
           <div class="exam-bottom">
             <button
-              class="btn"
+              class="btn exam-flag-btn"
               :disabled="locked"
               :aria-pressed="at.flags.includes(q.id)"
               @click="store.run(() => attemptStore.flag(at.id, q.id))"
@@ -272,9 +296,13 @@ async function upload(e) {
             </div>
           </div></template
         >
+        <p v-else class="empty">Soal belum tersedia untuk sesi ini.</p>
       </section>
       <aside class="panel exam-navigation" aria-label="Navigasi soal">
-        <h2>Daftar soal</h2>
+        <div class="exam-nav-head">
+          <h2>Daftar soal</h2>
+          <span class="exam-nav-count">{{ answeredCount }}/{{ a.questions.length }}</span>
+        </div>
         <div class="number-grid">
           <button
             v-for="(question, n) in a.questions"
@@ -282,6 +310,7 @@ async function upload(e) {
             :class="{
               current: index === n,
               answered: at.answers[question.id] !== undefined,
+              flagged: at.flags.includes(question.id),
             }"
             :aria-current="index === n ? 'step' : undefined"
             :aria-label="
@@ -299,8 +328,9 @@ async function upload(e) {
           </button>
         </div>
         <p class="number-legend">
-          {{ answeredCount }} /
-          {{ a.questions.length }} terjawab<br />Hijau: terjawab · Titik: ragu
+          <span class="legend-item"><i class="legend-swatch is-answered" />Terjawab</span>
+          <span class="legend-item"><i class="legend-swatch is-current" />Aktif</span>
+          <span class="legend-item"><i class="legend-swatch is-flagged" />Ragu</span>
         </p>
         <button
           class="btn primary block"

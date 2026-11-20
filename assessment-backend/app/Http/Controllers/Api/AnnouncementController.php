@@ -76,6 +76,7 @@ class AnnouncementController extends Controller
             'class_id' => $announcement->class_id,
             'author_id' => $announcement->author_id,
             'author_name' => $announcement->author?->name,
+            'teacher_name' => $announcement->author?->name,
             'title' => $announcement->title,
             'content' => $announcement->content,
             'is_pinned' => (bool) $announcement->is_pinned,

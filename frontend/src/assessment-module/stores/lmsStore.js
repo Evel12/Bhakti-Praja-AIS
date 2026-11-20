@@ -44,6 +44,7 @@ export const useLmsStore = defineStore("lms", () => {
   const loading = ref(false);
   const detailLoading = ref(false);
   const error = ref("");
+  let selectClassSeq = 0;
 
   const currentClass = computed(
     () =>
@@ -88,6 +89,16 @@ export const useLmsStore = defineStore("lms", () => {
         activeClassId.value = null;
         activeClass.value = null;
         modules.value = [];
+        moduleProgress.value = {
+          read_count: 0,
+          total_modules: 0,
+          progress_percentage: 0,
+        };
+        classProgress.value = {
+          total_public_modules: 0,
+          modules: [],
+          students: [],
+        };
         assignments.value = [];
         announcements.value = [];
         quizzes.value = [];
@@ -103,23 +114,27 @@ export const useLmsStore = defineStore("lms", () => {
 
   async function selectClass(classId) {
     if (!classId || !hasLiveApiSession()) return null;
+    const seq = ++selectClassSeq;
+    const previousClassId = activeClassId.value;
     activeClassId.value = Number(classId);
     detailLoading.value = true;
     resetError();
     try {
-      const [classRes, modRes, assignRes, annRes, quizRes] = await Promise.all([
+      const [classRes, modRes, assignRes, annRes, quizRes, progressRes] = await Promise.all([
         apiClient.getClass(classId),
         apiClient.listModules(classId),
         apiClient.listClassAssignments(classId),
         apiClient.listClassAnnouncements(classId),
         apiClient.listClassQuizzes(classId),
+        apiClient.getClassProgress(classId),
       ]);
+
+      if (seq !== selectClassSeq) {
+        return activeClass.value;
+      }
 
       activeClass.value = classRes || null;
       modules.value = Array.isArray(modRes?.items) ? modRes.items : [];
-      if (modRes?.progress) {
-        moduleProgress.value = modRes.progress;
-      }
       assignments.value = Array.isArray(assignRes?.items) ? assignRes.items : [];
       announcements.value = Array.isArray(annRes?.items) ? annRes.items : [];
       quizzes.value = Array.isArray(quizRes?.data)
@@ -128,14 +143,24 @@ export const useLmsStore = defineStore("lms", () => {
           ? quizRes.items
           : [];
 
-      const progressRes = await apiClient.getClassProgress(classId);
       if (progressRes?.students) {
         classProgress.value = progressRes;
+        if (modRes?.progress) {
+          moduleProgress.value = modRes.progress;
+        }
       } else if (progressRes) {
         moduleProgress.value = {
           read_count: progressRes.read_count ?? 0,
           total_modules: progressRes.total_public_modules ?? 0,
           progress_percentage: progressRes.progress_percentage ?? 0,
+        };
+      } else if (modRes?.progress) {
+        moduleProgress.value = modRes.progress;
+      } else {
+        moduleProgress.value = {
+          read_count: 0,
+          total_modules: 0,
+          progress_percentage: 0,
         };
       }
 
@@ -146,10 +171,16 @@ export const useLmsStore = defineStore("lms", () => {
 
       return activeClass.value;
     } catch (err) {
+      if (seq !== selectClassSeq) {
+        return null;
+      }
+      activeClassId.value = previousClassId;
       error.value = extractErrorMessage(err, "Gagal memuat detail kelas.");
       throw err;
     } finally {
-      detailLoading.value = false;
+      if (seq === selectClassSeq) {
+        detailLoading.value = false;
+      }
     }
   }
 
@@ -226,9 +257,19 @@ export const useLmsStore = defineStore("lms", () => {
         fileName,
         visibility,
       });
-      if (Number(activeClassId.value) === Number(classId)) {
+      const isCurrentClass = Number(activeClassId.value) === Number(classId);
+      if (isCurrentClass) {
         const modRes = await apiClient.listModules(classId);
         modules.value = Array.isArray(modRes?.items) ? modRes.items : [];
+        await loadClassProgress(classId).catch(() => {});
+      }
+      classes.value = classes.value.map((c) => {
+        if (Number(c.id) !== Number(classId)) return c;
+        const nextCount = isCurrentClass ? modules.value.length : (Number(c.modules_count) || 0) + 1;
+        return { ...c, modules_count: nextCount };
+      });
+      if (isCurrentClass && activeClass.value && Number(activeClass.value.id) === Number(classId)) {
+        activeClass.value = { ...activeClass.value, modules_count: modules.value.length };
       }
       return created;
     } catch (err) {
@@ -245,7 +286,7 @@ export const useLmsStore = defineStore("lms", () => {
         Number(m.id) === Number(moduleId) ? { ...m, visibility: updated.visibility } : m,
       );
       if (activeClassId.value) {
-        await loadClassProgress(activeClassId.value);
+        await loadClassProgress(activeClassId.value).catch(() => {});
       }
       return updated;
     } catch (err) {
@@ -257,10 +298,25 @@ export const useLmsStore = defineStore("lms", () => {
   async function deleteModule(moduleId) {
     resetError();
     try {
+      const target = modules.value.find((m) => Number(m.id) === Number(moduleId));
+      const targetClassId = target?.class_id ?? activeClassId.value;
       await apiClient.deleteModule(moduleId);
       modules.value = modules.value.filter((m) => Number(m.id) !== Number(moduleId));
+      if (targetClassId) {
+        const isCurrentClass = Number(activeClassId.value) === Number(targetClassId);
+        classes.value = classes.value.map((c) => {
+          if (Number(c.id) !== Number(targetClassId)) return c;
+          const nextCount = isCurrentClass
+            ? modules.value.length
+            : Math.max(0, (Number(c.modules_count) || 0) - 1);
+          return { ...c, modules_count: nextCount };
+        });
+        if (isCurrentClass && activeClass.value && Number(activeClass.value.id) === Number(targetClassId)) {
+          activeClass.value = { ...activeClass.value, modules_count: modules.value.length };
+        }
+      }
       if (activeClassId.value) {
-        await loadClassProgress(activeClassId.value);
+        await loadClassProgress(activeClassId.value).catch(() => {});
       }
     } catch (err) {
       error.value = extractErrorMessage(err, "Gagal menghapus materi PDF.");
@@ -280,7 +336,9 @@ export const useLmsStore = defineStore("lms", () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        window.URL.revokeObjectURL(objectUrl);
+        setTimeout(() => {
+          window.URL.revokeObjectURL?.(objectUrl);
+        }, 1500);
       }
       return { blob, fileName };
     } catch (err) {
@@ -465,20 +523,43 @@ export const useLmsStore = defineStore("lms", () => {
 
   async function pollQuizGeneration(generationId, { maxAttempts = 65, pollWaitMs = 2000 } = {}) {
     resetError();
+    let consecutiveTransientErrors = 0;
+    const maxTransientErrors = 3;
+
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-      const job = await apiClient.getQuizGeneration(generationId);
+      let job;
+      try {
+        job = await apiClient.getQuizGeneration(generationId);
+        consecutiveTransientErrors = 0;
+      } catch (err) {
+        const isTransient = err?.status === 0 || (err?.status >= 500 && err?.status < 600);
+        consecutiveTransientErrors += 1;
+        if (!isTransient || consecutiveTransientErrors >= maxTransientErrors || attempt >= maxAttempts - 1) {
+          error.value = extractErrorMessage(err, "Gagal memantau status generate soal AI.");
+          throw err;
+        }
+        await waitMs(pollWaitMs);
+        continue;
+      }
+
       generationJob.value = job;
       if (job?.status === "completed") {
         if (activeClassId.value) {
-          const quizRes = await apiClient.listClassQuizzes(activeClassId.value);
-          quizzes.value = Array.isArray(quizRes?.data)
-            ? quizRes.data
-            : Array.isArray(quizRes?.items)
-              ? quizRes.items
-              : [];
+          try {
+            const quizRes = await apiClient.listClassQuizzes(activeClassId.value);
+            quizzes.value = Array.isArray(quizRes)
+              ? quizRes
+              : Array.isArray(quizRes?.data)
+                ? quizRes.data
+                : Array.isArray(quizRes?.items)
+                  ? quizRes.items
+                  : [];
+          } catch {
+            // Best-effort refresh of class quizzes after completion
+          }
         }
         if (job.quiz_id) {
-          await loadQuizDetail(job.quiz_id);
+          await loadQuizDetail(job.quiz_id).catch(() => {});
         }
         useAssessmentStore().syncFromApi().catch(() => {});
         return job;

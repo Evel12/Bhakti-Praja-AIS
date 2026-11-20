@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\TeachingLoad;
+use App\Services\AisAssessmentRosterBridge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class SubjectController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
     public function index(Request $request)
     {
         $query = Subject::with('studyProgram')->orderBy('id');
@@ -69,8 +71,9 @@ class SubjectController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
+        $status = $request->filled('status') ? $request->input('status') : 'active';
         $item = Subject::create($request->only(['study_program_id', 'code', 'name', 'credit_hours']) + [
-            'status' => $request->input('status', 'active'),
+            'status' => $status,
             'credit_hours' => $request->input('credit_hours'),
         ]);
 
@@ -97,8 +100,14 @@ class SubjectController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
-        $item->fill($request->only(['study_program_id', 'code', 'name', 'credit_hours', 'status']));
+        $status = $request->filled('status') ? $request->input('status') : $item->status;
+        $item->fill($request->only(['study_program_id', 'code', 'name', 'credit_hours']));
+        $item->status = $status;
         $item->save();
+
+        if ($item->wasChanged(['name', 'status'])) {
+            ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncSubject((int) $item->id);
+        }
 
         return response()->json(['success' => true, 'message' => 'Mata pelajaran berhasil diperbarui.', 'data' => $item->load('studyProgram')]);
     }

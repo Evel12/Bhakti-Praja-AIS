@@ -61,6 +61,34 @@ class ClassStudentController extends Controller
         return $query->exists();
     }
 
+    private function hasDuplicatePlacement(int $studentId, int $yearId, int $classroomId, ?int $semesterId, ?int $excludeId = null): bool
+    {
+        $query = ClassStudent::where('student_id', $studentId)
+            ->where('academic_year_id', $yearId)
+            ->where('classroom_id', $classroomId)
+            ->where(function ($q) use ($semesterId) {
+                $semesterId ? $q->where('semester_id', $semesterId) : $q->whereNull('semester_id');
+            });
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return $query->exists();
+    }
+
+    private function formatPlacement(ClassStudent $item, bool $loadRelations = false): array
+    {
+        if ($loadRelations) {
+            $item->load(['classroom', 'student', 'academicYear', 'semester']);
+        }
+
+        $data = $item->toArray();
+        $data['class_id'] = $item->classroom_id;
+
+        return $data;
+    }
+
     public function index(Request $request)
     {
         $query = ClassStudent::with(['classroom', 'student', 'academicYear', 'semester'])->orderBy('id');
@@ -87,12 +115,7 @@ class ClassStudentController extends Controller
         $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
         $page = $query->paginate($perPage);
 
-        $items = collect($page->items())->map(function ($i) {
-            $data = $i->toArray();
-            $data['class_id'] = $i->classroom_id;
-
-            return $data;
-        })->values();
+        $items = collect($page->items())->map(fn (ClassStudent $i) => $this->formatPlacement($i))->values();
 
         return response()->json([
             'success' => true,
@@ -109,10 +132,7 @@ class ClassStudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Penempatan tidak ditemukan.'], 404);
         }
 
-        $data = $item->toArray();
-        $data['class_id'] = $item->classroom_id;
-
-        return response()->json(['success' => true, 'data' => $data]);
+        return response()->json(['success' => true, 'data' => $this->formatPlacement($item)]);
     }
 
     public function store(Request $request)
@@ -151,21 +171,20 @@ class ClassStudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => ['semester_id' => [$error]]], 422);
         }
 
-        $status = $request->input('status', 'active');
+        $status = $request->filled('status') ? $request->input('status') : 'active';
+        $studentId = (int) $request->input('student_id');
 
-        if ($status === 'active' && $this->hasActiveConflict((int) $request->input('student_id'), $yearId, $semesterId)) {
+        if ($status === 'active' && $this->hasActiveConflict($studentId, $yearId, $semesterId)) {
             return response()->json(['success' => false, 'message' => 'Siswa sudah memiliki penempatan aktif pada tahun/semester ini.', 'errors' => ['student_id' => ['Siswa sudah memiliki penempatan aktif pada tahun/semester ini. Pindahkan/nonaktifkan dulu.']]], 422);
         }
 
-        if (ClassStudent::where('student_id', $request->input('student_id'))->where('academic_year_id', $yearId)->where('classroom_id', $classroomId)->where(function ($q) use ($semesterId) {
-            $semesterId ? $q->where('semester_id', $semesterId) : $q->whereNull('semester_id');
-        })->exists()) {
+        if ($this->hasDuplicatePlacement($studentId, $yearId, $classroomId, $semesterId)) {
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => ['classroom_id' => ['Siswa sudah terdaftar di kelas ini pada periode tersebut.']]], 422);
         }
 
         $item = ClassStudent::create([
             'classroom_id' => $classroomId,
-            'student_id' => $request->input('student_id'),
+            'student_id' => $studentId,
             'academic_year_id' => $yearId,
             'semester_id' => $semesterId,
             'status' => $status,
@@ -174,7 +193,7 @@ class ClassStudentController extends Controller
 
         ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom((int) $item->classroom_id);
 
-        return response()->json(['success' => true, 'message' => 'Penempatan berhasil dibuat.', 'data' => $item->load(['classroom', 'student'])], 201);
+        return response()->json(['success' => true, 'message' => 'Penempatan berhasil dibuat.', 'data' => $this->formatPlacement($item, true)], 201);
     }
 
     public function update(Request $request, string $id)
@@ -199,14 +218,15 @@ class ClassStudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
+        $oldClassroomId = (int) $item->classroom_id;
         $studentId = (int) $request->input('student_id', $item->student_id);
         $yearId = (int) $request->input('academic_year_id', $item->academic_year_id);
         $semesterId = $request->has('semester_id')
             ? ($request->input('semester_id') ? (int) $request->input('semester_id') : null)
             : $item->semester_id;
-        $status = $request->input('status', $item->status);
+        $status = $request->filled('status') ? $request->input('status') : $item->status;
 
-        $classroomId = $this->resolveClassroomId($request, $item->classroom_id);
+        $classroomId = $this->resolveClassroomId($request, $oldClassroomId);
         if (\App\Models\Classroom::findOrFail($classroomId)->academic_year_id != $yearId) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak termasuk tahun ajaran tersebut.', 'errors' => ['classroom_id' => ['Pilih kelas pada tahun ajaran yang sama.']]], 422);
         }
@@ -219,16 +239,15 @@ class ClassStudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Siswa sudah memiliki penempatan aktif lain pada periode ini.', 'errors' => ['student_id' => ['Konflik penempatan aktif.']]], 422);
         }
 
+        if ($this->hasDuplicatePlacement($studentId, $yearId, $classroomId, $semesterId, $item->id)) {
+            return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => ['classroom_id' => ['Siswa sudah terdaftar di kelas ini pada periode tersebut.']]], 422);
+        }
+
         $item->student_id = $studentId;
+        $item->classroom_id = $classroomId;
         $item->academic_year_id = $yearId;
         $item->semester_id = $semesterId;
         $item->status = $status;
-
-        $newClassroom = $this->resolveClassroomId($request, $item->classroom_id);
-
-        if ($newClassroom) {
-            $item->classroom_id = $newClassroom;
-        }
 
         if ($request->has('assigned_at')) {
             $item->assigned_at = $request->input('assigned_at');
@@ -236,9 +255,13 @@ class ClassStudentController extends Controller
 
         $item->save();
 
-        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom((int) $item->classroom_id);
+        $bridge = $this->rosterBridge ?? app(AisAssessmentRosterBridge::class);
+        if ($oldClassroomId !== $classroomId) {
+            $bridge->syncClassroom($oldClassroomId);
+        }
+        $bridge->syncClassroom($classroomId);
 
-        return response()->json(['success' => true, 'message' => 'Penempatan berhasil diperbarui.', 'data' => $item->load(['classroom', 'student'])]);
+        return response()->json(['success' => true, 'message' => 'Penempatan berhasil diperbarui.', 'data' => $this->formatPlacement($item, true)]);
     }
 
     public function destroy(string $id)

@@ -14,6 +14,8 @@ use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
+    public function __construct(private readonly ?AisAssessmentRosterBridge $rosterBridge = null) {}
+
     private function normalizeLevelValues(string $level): array
     {
         $upper = strtoupper(trim($level));
@@ -141,8 +143,9 @@ class StudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
+        $status = $request->filled('status') ? $request->input('status') : 'active';
         $item = Student::create($request->only(['student_number', 'name', 'gender', 'birth_date', 'address', 'user_id']) + [
-            'status' => $request->input('status', 'active'),
+            'status' => $status,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Siswa berhasil dibuat.', 'data' => $this->format($item)], 201);
@@ -170,8 +173,14 @@ class StudentController extends Controller
             return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
         }
 
-        $item->fill($request->only(['student_number', 'name', 'gender', 'birth_date', 'address', 'user_id', 'status']));
+        $status = $request->filled('status') ? $request->input('status') : $item->status;
+        $item->fill($request->only(['student_number', 'name', 'gender', 'birth_date', 'address', 'user_id']));
+        $item->status = $status;
         $item->save();
+
+        if ($item->wasChanged(['status', 'user_id'])) {
+            ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncStudent((int) $item->id);
+        }
 
         return response()->json(['success' => true, 'message' => 'Siswa berhasil diperbarui.', 'data' => $this->format($item)]);
     }
@@ -253,7 +262,7 @@ class StudentController extends Controller
             ]);
         });
 
-        app(AisAssessmentRosterBridge::class)->syncClassroom($classroomId);
+        ($this->rosterBridge ?? app(AisAssessmentRosterBridge::class))->syncClassroom($classroomId);
 
         return response()->json([
             'success' => true,

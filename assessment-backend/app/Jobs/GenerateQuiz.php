@@ -20,7 +20,10 @@ class GenerateQuiz implements ShouldQueue
 
     public bool $failOnTimeout = true;
 
-    public function __construct(public readonly int $generationId) {}
+    public function __construct(
+        public readonly int $generationId,
+        public readonly ?string $customTitle = null,
+    ) {}
 
     public function backoff(): array
     {
@@ -36,7 +39,11 @@ class GenerateQuiz implements ShouldQueue
             }
             // Network I/O must never keep the module/class/generation transaction open.
             $output = $client->generate($generation->module, $generation->question_count, $generation->id);
-            $generations->complete($generation->id, $validator->validate($output, $generation->question_count));
+            $draft = $validator->validate($output, $generation->question_count);
+            if (isset($this->customTitle) && is_string($this->customTitle) && trim($this->customTitle) !== '') {
+                $draft['title'] = mb_substr(trim($this->customTitle), 0, 255);
+            }
+            $generations->complete($generation->id, $draft);
         } catch (Throwable $exception) {
             $safe = $exception instanceof QuizGenerationException
                 ? $exception : new QuizGenerationException('generation_failed', true);

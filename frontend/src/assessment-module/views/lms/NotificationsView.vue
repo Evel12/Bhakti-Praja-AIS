@@ -101,10 +101,12 @@ async function handleMarkAllRead() {
                   {{ item.is_read ? "Dibaca" : "Baru" }}
                 </span>
               </div>
-              <p class="lms-item-desc">{{ item.message }}</p>
+              <p class="lms-item-desc">{{ item.body || item.message || "" }}</p>
               <p class="lms-item-meta">
-                <span v-if="item.class_name">{{ item.class_name }} · </span>
-                <span>{{ item.created_at ? date(item.created_at) : "" }}</span>
+                <span v-if="item.class_name || item.class_id">
+                  {{ item.class_name || `Kelas #${item.class_id}` }}<template v-if="item.created_at"> · </template>
+                </span>
+                <span v-if="item.created_at">{{ date(item.created_at) }}</span>
               </p>
             </div>
             <button

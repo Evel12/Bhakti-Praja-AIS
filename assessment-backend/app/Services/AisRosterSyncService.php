@@ -21,14 +21,30 @@ class AisRosterSyncService
             ];
         }
 
-        $query = DB::table('teaching_loads as tl')
+        $hasUserStatusColumn = Schema::hasColumn('users', 'status');
+
+        $baseQuery = DB::table('teaching_loads as tl')
             ->join('teachers as t', 't.id', '=', 'tl.teacher_id')
             ->join('subjects as s', 's.id', '=', 'tl.subject_id')
             ->join('classrooms as c', 'c.id', '=', 'tl.classroom_id')
+            ->join('users as tu', 'tu.id', '=', 't.user_id')
             ->where('tl.status', 'active')
             ->where('t.status', 'active')
             ->where('c.status', 'active')
             ->whereNotNull('t.user_id')
+            ->whereIn('tu.role', [Role::Teacher->value, Role::Admin->value])
+            ->when($hasUserStatusColumn, static function ($q): void {
+                $q->where(static fn ($sub) => $sub->where('tu.status', 'active')->orWhereNull('tu.status'));
+            });
+
+        $allActiveLoadIds = (clone $baseQuery)
+            ->pluck('tl.id')
+            ->map(static fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $query = (clone $baseQuery)
             ->select([
                 'tl.id as teaching_load_id',
                 'tl.classroom_id',
@@ -49,7 +65,7 @@ class AisRosterSyncService
         $membershipsSynced = 0;
         $activeLoadIds = [];
 
-        DB::transaction(function () use ($loads, $teacherUserId, &$classesSynced, &$membershipsSynced, &$activeLoadIds): void {
+        DB::transaction(function () use ($loads, $teacherUserId, $hasUserStatusColumn, $allActiveLoadIds, &$classesSynced, &$membershipsSynced, &$activeLoadIds): void {
             foreach ($loads as $load) {
                 $teacher = User::query()->find($load->teacher_user_id);
                 if (! $teacher || ! $teacher->isActive()) {
@@ -71,6 +87,10 @@ class AisRosterSyncService
                     $schoolClass = new SchoolClass;
                 }
 
+                if (! $schoolClass->class_code) {
+                    $schoolClass->class_code = SchoolClass::generateUniqueClassCode();
+                }
+
                 $schoolClass->forceFill([
                     'teacher_id' => $teacher->id,
                     'name' => $className,
@@ -89,10 +109,8 @@ class AisRosterSyncService
                     ->where('cs.academic_year_id', $load->academic_year_id)
                     ->where('cs.status', 'active')
                     ->where('st.status', 'active')
-                    ->where(function ($q): void {
-                        if (Schema::hasColumn('users', 'status')) {
-                            $q->where('u.status', 'active')->orWhereNull('u.status');
-                        }
+                    ->when($hasUserStatusColumn, static function ($q): void {
+                        $q->where(static fn ($sub) => $sub->where('u.status', 'active')->orWhereNull('u.status'));
                     })
                     ->where(function ($q) use ($load): void {
                         $q->whereNull('cs.semester_id')
@@ -113,10 +131,10 @@ class AisRosterSyncService
             if ($teacherUserId !== null) {
                 $staleClassesQuery->where('teacher_id', $teacherUserId);
             }
-            if ($activeLoadIds !== []) {
-                $staleClassesQuery->where(function ($q) use ($activeLoadIds): void {
+            if ($allActiveLoadIds !== []) {
+                $staleClassesQuery->where(function ($q) use ($allActiveLoadIds): void {
                     $q->whereNull('ais_teaching_load_id')
-                        ->orWhereNotIn('ais_teaching_load_id', $activeLoadIds);
+                        ->orWhereNotIn('ais_teaching_load_id', $allActiveLoadIds);
                 });
             }
             foreach ($staleClassesQuery->get() as $staleClass) {

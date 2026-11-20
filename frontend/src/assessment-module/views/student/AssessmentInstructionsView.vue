@@ -14,7 +14,7 @@ const a = computed(() =>
   store.db.assessments.find(
     (x) =>
       x.id === route.params.id &&
-      x.className === "Kelas A" &&
+      (x.backendQuizId != null || x.className === "Kelas A") &&
       !["draft", "archived"].includes(x.state),
   ),
 );

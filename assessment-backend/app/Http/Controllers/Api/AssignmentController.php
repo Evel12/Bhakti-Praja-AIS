@@ -9,6 +9,7 @@ use App\Models\Assignment;
 use App\Models\SchoolClass;
 use App\Services\LmsNotificationService;
 use App\Support\ApiResponse;
+use App\Support\QuizValidationRules;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class AssignmentController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
-            'deadline' => ['sometimes', 'nullable', 'date'],
+            'deadline' => QuizValidationRules::deadline(),
             'status' => ['sometimes', 'string', 'in:draft,published,closed'],
         ]);
 
@@ -60,13 +61,7 @@ class AssignmentController extends Controller
         ]);
 
         if ($status === 'published') {
-            $this->notifications->notifyClassStudents(
-                $schoolClass,
-                NotificationType::AssignmentPublished,
-                "Tugas baru: {$assignment->title}",
-                "Tugas \"{$assignment->title}\" telah dipublish di kelas {$schoolClass->name}.",
-                ['assignment_id' => $assignment->id],
-            );
+            $this->notifyAssignmentPublished($assignment, $schoolClass);
         }
 
         return ApiResponse::success($this->serialize($assignment), 'Assignment created.', 201);
@@ -79,9 +74,11 @@ class AssignmentController extends Controller
         $validated = $request->validate([
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
-            'deadline' => ['sometimes', 'nullable', 'date'],
+            'deadline' => QuizValidationRules::deadline(),
             'status' => ['sometimes', 'string', 'in:draft,published,closed'],
         ]);
+
+        $previousStatus = $assignment->status;
 
         if (array_key_exists('title', $validated)) {
             $assignment->title = trim((string) $validated['title']);
@@ -100,6 +97,10 @@ class AssignmentController extends Controller
         }
         $assignment->save();
 
+        if ($previousStatus === 'draft' && $assignment->status === 'published') {
+            $this->notifyAssignmentPublished($assignment, $assignment->schoolClass);
+        }
+
         return ApiResponse::success($this->serialize($assignment), 'Assignment updated.');
     }
 
@@ -107,17 +108,14 @@ class AssignmentController extends Controller
     {
         Gate::authorize('update', $assignment);
 
+        $wasPublished = $assignment->status === 'published';
         $assignment->status = 'published';
         $assignment->published_at = $assignment->published_at ?? now();
         $assignment->save();
 
-        $this->notifications->notifyClassStudents(
-            $assignment->schoolClass,
-            NotificationType::AssignmentPublished,
-            "Tugas baru: {$assignment->title}",
-            "Tugas \"{$assignment->title}\" telah dipublish di kelas {$assignment->schoolClass->name}.",
-            ['assignment_id' => $assignment->id],
-        );
+        if (! $wasPublished) {
+            $this->notifyAssignmentPublished($assignment, $assignment->schoolClass);
+        }
 
         return ApiResponse::success($this->serialize($assignment), 'Assignment published.');
     }
@@ -128,6 +126,17 @@ class AssignmentController extends Controller
         $assignment->delete();
 
         return ApiResponse::success(message: 'Assignment deleted.');
+    }
+
+    private function notifyAssignmentPublished(Assignment $assignment, SchoolClass $schoolClass): void
+    {
+        $this->notifications->notifyClassStudents(
+            $schoolClass,
+            NotificationType::AssignmentPublished,
+            "Tugas baru: {$assignment->title}",
+            "Tugas \"{$assignment->title}\" telah dipublish di kelas {$schoolClass->name}.",
+            ['assignment_id' => $assignment->id],
+        );
     }
 
     private function serialize(Assignment $assignment): array

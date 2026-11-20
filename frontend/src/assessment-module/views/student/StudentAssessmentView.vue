@@ -16,7 +16,7 @@ const now = useAssessmentClock(() => [
     .map((attempt) => ({ state: "published", closeAt: attempt.expiresAt })),
 ]);
 const entries = computed(() => store.db.assessments
-  .filter((assessment) => !["draft", "archived"].includes(assessment.state) && assessment.className === "Kelas A")
+  .filter((assessment) => !["draft", "archived"].includes(assessment.state) && (assessment.backendQuizId != null || assessment.className === "Kelas A"))
   .map((assessment) => {
     const attempt = store.db.attempts.find((item) => item.assessmentId === assessment.id && item.studentId === STUDENT_ID);
     return {

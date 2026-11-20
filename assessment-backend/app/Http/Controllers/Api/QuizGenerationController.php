@@ -18,7 +18,13 @@ class QuizGenerationController extends Controller
 
     public function store(GenerateQuizRequest $request, Module $module): JsonResponse
     {
-        $generation = $this->generations->request($request->user(), $module, $request->integer('question_count', 5));
+        $validated = $request->validated();
+        $generation = $this->generations->request(
+            $request->user(),
+            $module,
+            (int) ($validated['question_count'] ?? 5),
+            isset($validated['title']) ? (string) $validated['title'] : null,
+        );
 
         return ApiResponse::success(new QuizGenerationResource($generation), 'Quiz generation queued.', 202);
     }

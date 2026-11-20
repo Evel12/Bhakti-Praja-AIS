@@ -199,4 +199,266 @@ class BackendFeatureFixesTest extends TestCase
         $this->assertCount(1, $res['data']['items']);
         $this->assertSame('Tugas Terbit', $res['data']['items'][0]['title']);
     }
+
+    public function test_classroom_update_syncs_shared_classes_rejects_year_change_with_children_and_guards_null_status(): void
+    {
+        ['headers' => $h] = $this->adminHeaders();
+        $this->createSharedAssessmentBridgeTables();
+
+        $teacherUser = User::factory()->create(['role_id' => Role::where('name', 'guru')->value('id'), 'status' => 'active']);
+        $studentUser = User::factory()->create(['role_id' => Role::where('name', 'murid')->value('id'), 'status' => 'active']);
+        $teacher = Teacher::create(['user_id' => $teacherUser->id, 'teacher_number' => 'T-CLS', 'name' => 'Guru Kelas', 'status' => 'active']);
+        $student = Student::create(['user_id' => $studentUser->id, 'student_number' => 'S-CLS', 'name' => 'Murid Kelas', 'status' => 'active']);
+
+        $dept = Department::create(['code' => 'PPLG-C', 'name' => 'PPLG', 'status' => 'active']);
+        $prog = StudyProgram::create(['department_id' => $dept->id, 'code' => 'RPL-C', 'name' => 'RPL', 'status' => 'active']);
+        $year1 = AcademicYear::create(['name' => '2026/2027', 'start_date' => '2026-07-01', 'end_date' => '2027-06-30', 'is_active' => true]);
+        $year2 = AcademicYear::create(['name' => '2027/2028', 'start_date' => '2027-07-01', 'end_date' => '2028-06-30', 'is_active' => false]);
+        $semester = Semester::create(['academic_year_id' => $year1->id, 'name' => 'Ganjil', 'is_active' => true]);
+        $subject = Subject::create(['study_program_id' => $prog->id, 'code' => 'BD-C', 'name' => 'Basis Data', 'status' => 'active']);
+
+        // Store with explicit status: null defaults cleanly to active instead of 409 SQL failure
+        $classroom = $this->postJson('/api/classrooms', [
+            'name' => 'XII RPL 1',
+            'level' => 'XII',
+            'study_program_id' => $prog->id,
+            'academic_year_id' => $year1->id,
+            'homeroom_teacher_id' => $teacher->id,
+            'status' => null,
+        ], $h)->assertCreated()->assertJsonPath('data.status', 'active')->json('data');
+
+        // Update with explicit status: null preserves current status cleanly
+        $this->putJson('/api/classrooms/'.$classroom['id'], [
+            'name' => 'XII RPL 1',
+            'status' => null,
+        ], $h)->assertOk()->assertJsonPath('data.status', 'active');
+
+        $this->postJson('/api/class-students', [
+            'student_id' => $student->id,
+            'classroom_id' => $classroom['id'],
+            'academic_year_id' => $year1->id,
+            'semester_id' => $semester->id,
+            'status' => 'active',
+        ], $h)->assertCreated();
+
+        $load = $this->postJson('/api/teaching-loads', [
+            'teacher_id' => $teacher->id,
+            'subject_id' => $subject->id,
+            'classroom_id' => $classroom['id'],
+            'semester_id' => $semester->id,
+            'weekly_hours' => 4,
+            'status' => 'active',
+        ], $h)->assertCreated()->json('data');
+
+        $assessmentClass = DB::table('classes')->where('ais_teaching_load_id', $load['id'])->first();
+        $this->assertNotNull($assessmentClass);
+        $this->assertSame('Basis Data · XII RPL 1', $assessmentClass->name);
+        $this->assertDatabaseHas('class_members', ['class_id' => $assessmentClass->id, 'student_id' => $studentUser->id]);
+
+        // Reject changing academic_year_id when children exist
+        $this->putJson('/api/classrooms/'.$classroom['id'], [
+            'academic_year_id' => $year2->id,
+        ], $h)->assertUnprocessable();
+        $this->assertSame($year1->id, (int) Classroom::findOrFail($classroom['id'])->academic_year_id);
+
+        // Renaming classroom updates shared assessment class name
+        $this->putJson('/api/classrooms/'.$classroom['id'], [
+            'name' => 'XII RPL 2',
+        ], $h)->assertOk();
+        $this->assertSame('Basis Data · XII RPL 2', DB::table('classes')->where('id', $assessmentClass->id)->value('name'));
+
+        // Deactivating classroom clears class_members, and reactivating restores them
+        $this->putJson('/api/classrooms/'.$classroom['id'], ['status' => 'inactive'], $h)->assertOk();
+        $this->assertDatabaseMissing('class_members', ['class_id' => $assessmentClass->id, 'student_id' => $studentUser->id]);
+
+        $this->putJson('/api/classrooms/'.$classroom['id'], ['status' => 'active'], $h)->assertOk();
+        $this->assertDatabaseHas('class_members', ['class_id' => $assessmentClass->id, 'student_id' => $studentUser->id]);
+    }
+
+    public function test_class_student_update_syncs_old_and_new_classrooms_rejects_duplicates_and_returns_class_id(): void
+    {
+        ['headers' => $h] = $this->adminHeaders();
+        $this->createSharedAssessmentBridgeTables();
+
+        $teacherUser = User::factory()->create(['role_id' => Role::where('name', 'guru')->value('id'), 'status' => 'active']);
+        $studentUser1 = User::factory()->create(['role_id' => Role::where('name', 'murid')->value('id'), 'status' => 'active']);
+        $studentUser2 = User::factory()->create(['role_id' => Role::where('name', 'murid')->value('id'), 'status' => 'active']);
+
+        $teacher = Teacher::create(['user_id' => $teacherUser->id, 'teacher_number' => 'T-CS', 'name' => 'Guru CS', 'status' => 'active']);
+        $student1 = Student::create(['user_id' => $studentUser1->id, 'student_number' => 'S-CS1', 'name' => 'Murid Satu', 'status' => 'active']);
+        $student2 = Student::create(['user_id' => $studentUser2->id, 'student_number' => 'S-CS2', 'name' => 'Murid Dua', 'status' => 'active']);
+
+        $dept = Department::create(['code' => 'PPLG-CS', 'name' => 'PPLG', 'status' => 'active']);
+        $prog = StudyProgram::create(['department_id' => $dept->id, 'code' => 'RPL-CS', 'name' => 'RPL', 'status' => 'active']);
+        $year = AcademicYear::create(['name' => '2026/2027', 'start_date' => '2026-07-01', 'end_date' => '2027-06-30', 'is_active' => true]);
+        $semester = Semester::create(['academic_year_id' => $year->id, 'name' => 'Ganjil', 'is_active' => true]);
+        $cls1 = Classroom::create(['name' => 'XI RPL 1', 'level' => 'XI', 'study_program_id' => $prog->id, 'academic_year_id' => $year->id, 'status' => 'active']);
+        $cls2 = Classroom::create(['name' => 'XI RPL 2', 'level' => 'XI', 'study_program_id' => $prog->id, 'academic_year_id' => $year->id, 'status' => 'active']);
+        $subj1 = Subject::create(['study_program_id' => $prog->id, 'code' => 'PBO-1', 'name' => 'PBO', 'status' => 'active']);
+        $subj2 = Subject::create(['study_program_id' => $prog->id, 'code' => 'PWEB-1', 'name' => 'Pemrograman Web', 'status' => 'active']);
+
+        $load1 = $this->postJson('/api/teaching-loads', [
+            'teacher_id' => $teacher->id, 'subject_id' => $subj1->id, 'classroom_id' => $cls1->id,
+            'semester_id' => $semester->id, 'weekly_hours' => 4, 'status' => 'active',
+        ], $h)->assertCreated()->json('data');
+
+        $load2 = $this->postJson('/api/teaching-loads', [
+            'teacher_id' => $teacher->id, 'subject_id' => $subj2->id, 'classroom_id' => $cls2->id,
+            'semester_id' => $semester->id, 'weekly_hours' => 4, 'status' => 'active',
+        ], $h)->assertCreated()->json('data');
+
+        $class1Id = DB::table('classes')->where('ais_teaching_load_id', $load1['id'])->value('id');
+        $class2Id = DB::table('classes')->where('ais_teaching_load_id', $load2['id'])->value('id');
+
+        // store() guards status: null and returns class_id + eager relations
+        $placement1 = $this->postJson('/api/class-students', [
+            'student_id' => $student1->id,
+            'classroom_id' => $cls1->id,
+            'academic_year_id' => $year->id,
+            'semester_id' => $semester->id,
+            'status' => null,
+        ], $h)->assertCreated()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.class_id', $cls1->id)
+            ->assertJsonPath('data.classroom.id', $cls1->id)
+            ->assertJsonPath('data.student.id', $student1->id)
+            ->assertJsonPath('data.academic_year.id', $year->id)
+            ->assertJsonPath('data.semester.id', $semester->id)
+            ->json('data');
+
+        $this->assertDatabaseHas('class_members', ['class_id' => $class1Id, 'student_id' => $studentUser1->id]);
+
+        // update() moves student from cls1 to cls2 -> syncs BOTH old and new classrooms, guards status: null, returns class_id + relations
+        $this->putJson('/api/class-students/'.$placement1['id'], [
+            'classroom_id' => $cls2->id,
+            'status' => null,
+        ], $h)->assertOk()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.class_id', $cls2->id)
+            ->assertJsonPath('data.classroom.id', $cls2->id)
+            ->assertJsonPath('data.student.id', $student1->id)
+            ->assertJsonPath('data.academic_year.id', $year->id)
+            ->assertJsonPath('data.semester.id', $semester->id);
+
+        $this->assertDatabaseMissing('class_members', ['class_id' => $class1Id, 'student_id' => $studentUser1->id]);
+        $this->assertDatabaseHas('class_members', ['class_id' => $class2Id, 'student_id' => $studentUser1->id]);
+
+        // Composite duplicate check on update() returns 422 instead of 409 (including nullable semester_id)
+        $inactiveNullA = ClassStudent::create([
+            'student_id' => $student2->id, 'classroom_id' => $cls1->id,
+            'academic_year_id' => $year->id, 'semester_id' => null, 'status' => 'inactive',
+        ]);
+        $inactiveNullB = ClassStudent::create([
+            'student_id' => $student2->id, 'classroom_id' => $cls2->id,
+            'academic_year_id' => $year->id, 'semester_id' => null, 'status' => 'inactive',
+        ]);
+
+        $this->putJson('/api/class-students/'.$inactiveNullB->id, [
+            'classroom_id' => $cls1->id,
+        ], $h)->assertUnprocessable()->assertJsonPath('errors.classroom_id.0', 'Siswa sudah terdaftar di kelas ini pada periode tersebut.');
+        $this->assertSame($cls1->id, (int) $inactiveNullA->fresh()->classroom_id);
+    }
+
+    public function test_teaching_load_filters_and_upstream_roster_sync(): void
+    {
+        ['headers' => $h] = $this->adminHeaders();
+        $this->createSharedAssessmentBridgeTables();
+
+        $teacherUser1 = User::factory()->create(['role_id' => Role::where('name', 'guru')->value('id'), 'status' => 'active']);
+        $teacherUser2 = User::factory()->create(['role_id' => Role::where('name', 'guru')->value('id'), 'status' => 'active']);
+        $studentUser = User::factory()->create(['role_id' => Role::where('name', 'murid')->value('id'), 'status' => 'active']);
+
+        $teacher1 = Teacher::create(['user_id' => $teacherUser1->id, 'teacher_number' => 'T-F1', 'name' => 'Guru Satu', 'status' => 'active']);
+        $teacher2 = Teacher::create(['user_id' => $teacherUser2->id, 'teacher_number' => 'T-F2', 'name' => 'Guru Dua', 'status' => 'active']);
+        $student = Student::create(['user_id' => $studentUser->id, 'student_number' => 'S-F1', 'name' => 'Murid Filter', 'status' => 'active']);
+
+        $dept = Department::create(['code' => 'PPLG-F', 'name' => 'PPLG', 'status' => 'active']);
+        $prog = StudyProgram::create(['department_id' => $dept->id, 'code' => 'RPL-F', 'name' => 'RPL', 'status' => 'active']);
+        $year = AcademicYear::create(['name' => '2026/2027', 'start_date' => '2026-07-01', 'end_date' => '2027-06-30', 'is_active' => true]);
+        $semester = Semester::create(['academic_year_id' => $year->id, 'name' => 'Ganjil', 'is_active' => true]);
+        $cls1 = Classroom::create(['name' => 'X RPL 1', 'level' => '10', 'study_program_id' => $prog->id, 'academic_year_id' => $year->id, 'status' => 'active']);
+        $cls2 = Classroom::create(['name' => 'X RPL 2', 'level' => '10', 'study_program_id' => $prog->id, 'academic_year_id' => $year->id, 'status' => 'active']);
+        $subj1 = Subject::create(['study_program_id' => $prog->id, 'code' => 'INF-1', 'name' => 'Informatika', 'status' => 'active']);
+        $subj2 = Subject::create(['study_program_id' => $prog->id, 'code' => 'MTK-1', 'name' => 'Matematika', 'status' => 'active']);
+
+        $this->postJson('/api/class-students', [
+            'student_id' => $student->id,
+            'classroom_id' => $cls1->id,
+            'academic_year_id' => $year->id,
+            'semester_id' => $semester->id,
+        ], $h)->assertCreated();
+
+        $load1 = $this->postJson('/api/teaching-loads', [
+            'teacher_id' => $teacher1->id, 'subject_id' => $subj1->id, 'classroom_id' => $cls1->id,
+            'semester_id' => $semester->id, 'weekly_hours' => 4, 'status' => 'active',
+        ], $h)->assertCreated()->json('data');
+
+        $this->postJson('/api/teaching-loads', [
+            'teacher_id' => $teacher2->id, 'subject_id' => $subj2->id, 'classroom_id' => $cls2->id,
+            'semester_id' => $semester->id, 'weekly_hours' => 3, 'status' => 'active',
+        ], $h)->assertCreated();
+
+        $this->getJson('/api/teaching-loads?classroom_id='.$cls1->id, $h)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $load1['id']);
+
+        $this->getJson('/api/teaching-loads?subject_id='.$subj2->id, $h)
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.subject_id', $subj2->id);
+
+        $classId = DB::table('classes')->where('ais_teaching_load_id', $load1['id'])->value('id');
+        $this->assertDatabaseHas('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+
+        // Subject rename & status update propagates to shared assessment tables
+        $this->putJson('/api/subjects/'.$subj1->id, ['name' => 'Informatika Terapan'], $h)->assertOk();
+        $this->assertSame('Informatika Terapan · X RPL 1', DB::table('classes')->where('id', $classId)->value('name'));
+        $this->putJson('/api/subjects/'.$subj1->id, ['status' => 'inactive'], $h)->assertOk();
+        $this->assertDatabaseMissing('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+        $this->putJson('/api/subjects/'.$subj1->id, ['status' => 'active'], $h)->assertOk();
+        $this->assertDatabaseHas('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+
+        // Student deactivation removes from class_members, reactivation restores
+        $this->putJson('/api/students/'.$student->id, ['status' => 'inactive'], $h)->assertOk();
+        $this->assertDatabaseMissing('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+        $this->putJson('/api/students/'.$student->id, ['status' => 'active'], $h)->assertOk();
+        $this->assertDatabaseHas('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+
+        // Teacher deactivation clears class_members, reactivation restores
+        $this->putJson('/api/teachers/'.$teacher1->id, ['status' => 'inactive'], $h)->assertOk();
+        $this->assertDatabaseMissing('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+        $this->putJson('/api/teachers/'.$teacher1->id, ['status' => 'active'], $h)->assertOk();
+        $this->assertDatabaseHas('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+
+        // Inactive teacher user deactivates assessment class members on syncTeachingLoad
+        $teacherUser1->update(['status' => 'inactive']);
+        app(\App\Services\AisAssessmentRosterBridge::class)->syncTeachingLoad($load1['id']);
+        $this->assertDatabaseMissing('class_members', ['class_id' => $classId, 'student_id' => $studentUser->id]);
+    }
+
+    private function createSharedAssessmentBridgeTables(): void
+    {
+        if (! Schema::hasTable('classes')) {
+            Schema::create('classes', function (Blueprint $table): void {
+                $table->id();
+                $table->unsignedBigInteger('teacher_id');
+                $table->string('name');
+                $table->string('class_code', 16)->nullable();
+                $table->unsignedBigInteger('ais_teaching_load_id')->nullable()->unique();
+                $table->unsignedBigInteger('ais_classroom_id')->nullable();
+                $table->unsignedBigInteger('ais_subject_id')->nullable();
+                $table->string('sync_source', 20)->default('manual');
+                $table->timestamps();
+            });
+        }
+        if (! Schema::hasTable('class_members')) {
+            Schema::create('class_members', function (Blueprint $table): void {
+                $table->id();
+                $table->unsignedBigInteger('class_id');
+                $table->unsignedBigInteger('student_id');
+                $table->timestamps();
+            });
+        }
+    }
 }

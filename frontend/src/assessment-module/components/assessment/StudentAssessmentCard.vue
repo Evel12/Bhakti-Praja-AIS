@@ -41,7 +41,7 @@ const action = computed(() => {
           <li><Icon name="file" class="sm" /><span>Maks. 2 MB</span></li>
         </template>
         <template v-else>
-          <li><Icon name="help" class="sm" /><span>{{ entry.assessment.questions.length }} soal</span></li>
+          <li><Icon name="help" class="sm" /><span>{{ entry.assessment.questions.length || entry.assessment.questionCount || 0 }} soal</span></li>
           <li><Icon name="clock" class="sm" /><span>{{ entry.assessment.duration }} menit</span></li>
         </template>
       </ul>

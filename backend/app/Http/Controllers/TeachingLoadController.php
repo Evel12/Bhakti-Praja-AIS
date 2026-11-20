@@ -21,8 +21,10 @@ class TeachingLoadController extends Controller
                 ->orWhereHas('subject', fn ($s) => $s->where('name', 'like', "%{$search}%"))
                 ->orWhereHas('classroom', fn ($c) => $c->where('name', 'like', "%{$search}%")));
         }
-        foreach (['teacher_id', 'semester_id', 'status'] as $field) {
-            if ($request->filled($field)) $query->where($field, $request->query($field));
+        foreach (['teacher_id', 'subject_id', 'classroom_id', 'semester_id', 'status'] as $field) {
+            if ($request->filled($field)) {
+                $query->where($field, $request->query($field));
+            }
         }
         $page = $query->paginate(max(1, min(100, (int) $request->query('per_page', 15))));
         return response()->json(['success' => true, 'data' => $page->items(), 'meta' => [

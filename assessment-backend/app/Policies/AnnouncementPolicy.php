@@ -20,6 +20,10 @@ class AnnouncementPolicy
 
     public function delete(User $user, Announcement $announcement): bool
     {
+        if (! $announcement->schoolClass) {
+            return false;
+        }
+
         return (new SchoolClassPolicy)->update($user, $announcement->schoolClass);
     }
 }

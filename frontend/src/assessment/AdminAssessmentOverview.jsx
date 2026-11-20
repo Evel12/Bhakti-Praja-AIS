@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Download, RefreshCw, ArrowLeftRight } from 'lucide-react'
 import api, { getToken } from '../api'
-import { apiClient, getStoredSession, getStoredToken } from '@assessment/services/apiClient.js'
+import {
+  apiClient,
+  getStoredSession,
+  getStoredToken,
+  releaseCombinedShell,
+  retainCombinedShell,
+} from '@assessment/services/apiClient.js'
 
 function resolveAssessmentApiBase() {
   const env = typeof import.meta !== 'undefined' ? import.meta.env : undefined
@@ -57,6 +63,18 @@ export default function AdminAssessmentOverview({ user }) {
     return () => { active = false }
   }, [page, sourceType])
 
+  async function runWithAssessmentShell(task) {
+    const shellToken = Symbol('admin-assessment-sync')
+    const base = resolveAssessmentApiBase()
+    retainCombinedShell(shellToken, base)
+    if (base) apiClient.setBaseUrl?.(base)
+    try {
+      return await task()
+    } finally {
+      releaseCombinedShell(shellToken)
+    }
+  }
+
   async function ensureAssessmentSession() {
     const base = resolveAssessmentApiBase()
     if (base) apiClient.setBaseUrl?.(base)
@@ -67,22 +85,17 @@ export default function AdminAssessmentOverview({ user }) {
     }
     const aisToken = getToken()
     if (!aisToken) throw new Error('Token AIS tidak tersedia.')
-    globalThis.__AIS_COMBINED_SHELL__ = true
-    try {
-      const exchanged = await apiClient.exchangeAisSession({
-        ais_token: aisToken,
-        device_name: 'ais-admin-sync',
+    const exchanged = await apiClient.exchangeAisSession({
+      ais_token: aisToken,
+      device_name: 'ais-admin-sync',
+    })
+    if (exchanged?.token && exchanged?.user) {
+      apiClient.setToken(exchanged.token)
+      apiClient.setSession({
+        user: { ...exchanged.user, aisRole: user.role },
+        authMethod: 'ais-sso',
+        apiConnected: true,
       })
-      if (exchanged?.token && exchanged?.user) {
-        apiClient.setToken(exchanged.token)
-        apiClient.setSession({
-          user: { ...exchanged.user, aisRole: user.role },
-          authMethod: 'ais-sso',
-          apiConnected: true,
-        })
-      }
-    } finally {
-      delete globalThis.__AIS_COMBINED_SHELL__
     }
   }
 
@@ -91,8 +104,10 @@ export default function AdminAssessmentOverview({ user }) {
     setError('')
     setNotice('')
     try {
-      await ensureAssessmentSession()
-      const res = await apiClient.syncAisRoster()
+      const res = await runWithAssessmentShell(async () => {
+        await ensureAssessmentSession()
+        return apiClient.syncAisRoster()
+      })
       if (res?.synced === false) {
         setError('Tabel AIS belum tersedia di database layanan assessment.')
       } else {
@@ -112,8 +127,10 @@ export default function AdminAssessmentOverview({ user }) {
     setError('')
     setNotice('')
     try {
-      await ensureAssessmentSession()
-      const res = await apiClient.exportAisGrades()
+      const res = await runWithAssessmentShell(async () => {
+        await ensureAssessmentSession()
+        return apiClient.exportAisGrades()
+      })
       setNotice(`Ekspor nilai selesai: ${res?.exported_count ?? 0} nilai dirilis diperbarui ke AIS.`)
       await loadGrades(1, sourceType)
       setPage(1)

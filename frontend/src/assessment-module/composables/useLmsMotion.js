@@ -1,4 +1,4 @@
-import { onBeforeUnmount, onMounted, watch } from "vue";
+import { onBeforeUnmount, watch } from "vue";
 import { motionEngine } from "../motion/engine.js";
 import { observeMotionPolicy, safeTokens } from "../motion/policy.js";
 
@@ -10,22 +10,31 @@ export function useTabContentMotion(targetRef, source) {
   let handle = null;
   let stopPolicy = null;
 
-  function stop() {
+  function stop(target = targetRef.value) {
     handle?.cancel();
     handle = null;
-    if (targetRef.value) {
-      motionEngine.reset(targetRef.value);
+    if (target) {
+      motionEngine.reset(target);
     }
   }
 
-  onMounted(() => {
-    if (targetRef.value) {
-      stopPolicy = observeMotionPolicy(targetRef.value, stop);
-    }
-  });
+  watch(
+    targetRef,
+    (el, prevEl) => {
+      if (el === prevEl) return;
+      stopPolicy?.();
+      stopPolicy = null;
+      stop(prevEl);
+      if (el) {
+        stopPolicy = observeMotionPolicy(el, () => stop(el));
+      }
+    },
+    { flush: "post", immediate: true },
+  );
 
   onBeforeUnmount(() => {
     stopPolicy?.();
+    stopPolicy = null;
     stop();
   });
 
@@ -51,7 +60,7 @@ export function useTabContentMotion(targetRef, source) {
     { flush: "post" },
   );
 
-  return { stop };
+  return { stop: () => stop() };
 }
 
 /**
@@ -63,50 +72,55 @@ export function useProgressBarMotion(barRef, ratioSource) {
   let latestRatio = 0;
 
   const clampRatio = (value) => Math.max(0, Math.min(1, Number(value) || 0));
-  const readSource = () =>
-    typeof ratioSource === "function" ? ratioSource() : ratioSource?.value;
 
   function applyStatic(el, ratio = latestRatio) {
     if (el) el.style.transform = `scaleX(${clampRatio(ratio)})`;
   }
 
-  function stop(sync = false) {
+  function stop(sync = false, target = barRef.value) {
     handle?.cancel();
     handle = null;
-    if (barRef.value) {
-      motionEngine.reset(barRef.value);
-      if (sync) applyStatic(barRef.value);
+    if (target) {
+      motionEngine.reset(target);
+      if (sync) applyStatic(target);
     }
   }
 
-  onMounted(() => {
-    latestRatio = clampRatio(readSource());
-    if (barRef.value) {
-      applyStatic(barRef.value, latestRatio);
-      stopPolicy = observeMotionPolicy(barRef.value, () => stop(true));
-    }
-  });
-
   onBeforeUnmount(() => {
     stopPolicy?.();
+    stopPolicy = null;
     stop(false);
   });
 
   watch(
-    ratioSource,
-    (nextRatio, prevRatio) => {
-      const el = barRef.value;
+    [barRef, ratioSource],
+    ([el, nextRatio], prevTuple) => {
+      const [prevEl, prevRatio] = prevTuple || [];
       const toScale = clampRatio(nextRatio);
       const fromScale = clampRatio(prevRatio);
       latestRatio = toScale;
+
+      if (el !== prevEl) {
+        stopPolicy?.();
+        stopPolicy = null;
+        stop(false, prevEl);
+        if (el) {
+          applyStatic(el, toScale);
+          stopPolicy = observeMotionPolicy(el, () => stop(true, el));
+        }
+        return;
+      }
+
       if (!el) return;
+
       const tokens = safeTokens(el);
-      if (!tokens || tokens.mode === "off" || el.ownerDocument?.hidden) {
-        stop(false);
+      if (!tokens || tokens.mode !== "full" || el.ownerDocument?.hidden || toScale === fromScale) {
+        stop(false, el);
         applyStatic(el, toScale);
         return;
       }
-      stop(false);
+
+      stop(false, el);
       // Clear static inline scaleX so motionEngine captures an empty base transform before retain:true.
       el.style.transform = "";
       handle = motionEngine.animate(
@@ -120,8 +134,8 @@ export function useProgressBarMotion(barRef, ratioSource) {
         },
       );
     },
-    { flush: "post" },
+    { flush: "post", immediate: true },
   );
 
-  return { stop };
+  return { stop: (sync = false) => stop(typeof sync === "boolean" ? sync : false) };
 }

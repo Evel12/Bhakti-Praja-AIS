@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import PageTitle from "../../components/ui/PageTitle.vue";
 import Icon from "../../components/ui/Icon.vue";
 import SoftSelect from "../../components/ui/SoftSelect.vue";
@@ -19,6 +19,9 @@ const ui = useUiStore();
 
 const joinCode = ref("");
 const joining = ref(false);
+const leavingClass = ref(false);
+const downloadingIds = reactive({});
+const markingReadIds = reactive({});
 const activeTab = ref("modules");
 const tabBody = ref(null);
 const progressBar = ref(null);
@@ -58,10 +61,13 @@ function notifyError(msg) {
 }
 
 onMounted(() => {
-  lms.loadClasses().catch(() => {});
+  lms.loadClasses().catch((err) => {
+    notifyError(lms.error || err?.message || "Gagal memuat daftar kelas.");
+  });
 });
 
 async function handleJoinClass() {
+  if (joining.value) return;
   const code = joinCode.value.trim();
   if (!code) {
     notifyError("Masukkan kode kelas terlebih dahulu.");
@@ -71,9 +77,10 @@ async function handleJoinClass() {
   try {
     const joined = await lms.joinClass(code);
     joinCode.value = "";
-    notifySuccess(`Berhasil bergabung ke kelas "${joined.name}".`);
+    const className = joined?.name || lms.currentClass?.name || "kelas baru";
+    notifySuccess(`Berhasil bergabung ke kelas "${className}".`);
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal bergabung ke kelas.");
+    notifyError(lms.error || err?.message || "Gagal bergabung ke kelas.");
   } finally {
     joining.value = false;
   }
@@ -82,33 +89,49 @@ async function handleJoinClass() {
 async function handleSelectClass(classId) {
   leaveConfirmId.value = null;
   errorBanner.value = "";
-  await lms.selectClass(classId);
+  try {
+    await lms.selectClass(classId);
+  } catch (err) {
+    notifyError(lms.error || err?.message || "Gagal memuat detail kelas.");
+  }
 }
 
 async function handleLeaveClass(classId) {
+  if (leavingClass.value) return;
+  leavingClass.value = true;
   try {
     await lms.leaveClass(classId);
     leaveConfirmId.value = null;
     notifySuccess("Anda telah keluar dari kelas tersebut.");
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal keluar dari kelas.");
+    notifyError(lms.error || err?.message || "Gagal keluar dari kelas.");
+  } finally {
+    leavingClass.value = false;
   }
 }
 
 async function handleDownload(mod) {
+  if (!mod?.id || downloadingIds[mod.id]) return;
+  downloadingIds[mod.id] = true;
   try {
     await lms.downloadModule(mod.id);
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal mengunduh materi PDF.");
+    notifyError(lms.error || err?.message || "Gagal mengunduh materi PDF.");
+  } finally {
+    delete downloadingIds[mod.id];
   }
 }
 
 async function handleMarkRead(mod) {
+  if (!mod?.id || mod.is_read || markingReadIds[mod.id]) return;
+  markingReadIds[mod.id] = true;
   try {
     await lms.markModuleRead(mod.id);
     notifySuccess(`Materi "${mod.file_name}" ditandai sudah dibaca.`);
   } catch (err) {
-    notifyError(lms.error || err.message || "Gagal memperbarui progres baca.");
+    notifyError(lms.error || err?.message || "Gagal memperbarui progres baca.");
+  } finally {
+    delete markingReadIds[mod.id];
   }
 }
 </script>
@@ -122,9 +145,23 @@ async function handleMarkRead(mod) {
     </p>
 
     <MotionPresence>
-      <p v-if="errorBanner" class="notice warning" role="alert">
-        {{ errorBanner }}
-      </p>
+      <div
+        v-if="errorBanner"
+        class="notice warning"
+        role="alert"
+        style="display: flex; align-items: center; justify-content: space-between; gap: 12px;"
+      >
+        <span>{{ errorBanner }}</span>
+        <button
+          type="button"
+          class="btn small"
+          aria-label="Tutup pesan kesalahan"
+          @click="errorBanner = ''"
+        >
+          <Icon name="x" />
+          Tutup
+        </button>
+      </div>
     </MotionPresence>
 
     <section class="panel" aria-label="Gabung kelas dengan kode">
@@ -178,11 +215,12 @@ async function handleMarkRead(mod) {
               <button
                 type="button"
                 class="btn small primary"
+                :disabled="leavingClass"
                 @click="handleLeaveClass(lms.currentClass.id)"
               >
-                Konfirmasi keluar
+                {{ leavingClass ? "Memproses..." : "Konfirmasi keluar" }}
               </button>
-              <button type="button" class="btn small" @click="leaveConfirmId = null">
+              <button type="button" class="btn small" :disabled="leavingClass" @click="leaveConfirmId = null">
                 Batal
               </button>
             </div>
@@ -207,6 +245,7 @@ async function handleMarkRead(mod) {
           <div
             ref="progressBar"
             class="lms-progress-fill"
+            :style="{ transform: `scaleX(${progressRatio})` }"
           />
         </div>
       </div>
@@ -258,18 +297,23 @@ async function handleMarkRead(mod) {
               </p>
             </div>
             <div class="lms-item-foot">
-              <button type="button" class="btn small soft" @click="handleDownload(mod)">
+              <button
+                type="button"
+                class="btn small soft"
+                :disabled="Boolean(downloadingIds[mod.id])"
+                @click="handleDownload(mod)"
+              >
                 <Icon name="download" />
-                Unduh PDF
+                {{ downloadingIds[mod.id] ? "Mengunduh..." : "Unduh PDF" }}
               </button>
               <button
                 type="button"
                 class="btn small primary"
-                :disabled="mod.is_read"
+                :disabled="mod.is_read || Boolean(markingReadIds[mod.id])"
                 @click="handleMarkRead(mod)"
               >
                 <Icon name="checkCircle" />
-                {{ mod.is_read ? "Sudah dibaca" : "Tandai dibaca" }}
+                {{ mod.is_read ? "Sudah dibaca" : markingReadIds[mod.id] ? "Menyimpan..." : "Tandai dibaca" }}
               </button>
             </div>
           </article>
@@ -289,10 +333,10 @@ async function handleMarkRead(mod) {
             <div>
               <div class="lms-item-head">
                 <h3 class="lms-item-title">{{ item.title }}</h3>
-                <span class="lms-pill">Skor: {{ item.total_score }}</span>
+                <span class="lms-pill">{{ item.published_at ? date(item.published_at) : "Tugas" }}</span>
               </div>
               <p class="lms-item-meta">
-                <span v-if="item.due_date">Deadline: {{ date(item.due_date) }}</span>
+                <span v-if="item.deadline">Deadline: {{ date(item.deadline) }}</span>
                 <span v-else>Tanpa deadline</span>
               </p>
               <p v-if="item.description" class="lms-item-desc">{{ item.description }}</p>
@@ -319,7 +363,7 @@ async function handleMarkRead(mod) {
               <p class="lms-item-desc">{{ ann.content }}</p>
             </div>
             <div class="lms-item-foot">
-              <span class="lms-item-meta">{{ ann.teacher_name || "Guru" }}</span>
+              <span class="lms-item-meta">{{ ann.author_name || ann.teacher_name || "Guru" }}</span>
             </div>
           </article>
         </MotionList>

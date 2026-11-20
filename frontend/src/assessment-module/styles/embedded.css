@@ -18,6 +18,14 @@
   margin-top: 0;
 }
 .assessment-root .exam-shell {
+  width: 100%;
+  max-width: none;
   min-height: 100dvh;
   background: var(--canvas);
+}
+.assessment-root .exam-shell .content {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding: 0 32px 44px;
 }

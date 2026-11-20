@@ -20,6 +20,9 @@ export class ApiError extends Error {
 
 let runtimeBaseUrl = ''
 let unauthorizedHandler = null
+const combinedShellHolders = new Map()
+let externalCombinedShell = false
+let preShellBaseUrl = ''
 
 export function setApiBaseUrl(url) {
   runtimeBaseUrl = String(url || '').trim().replace(/\/+$/, '')
@@ -29,19 +32,134 @@ export function setUnauthorizedHandler(handler) {
   unauthorizedHandler = typeof handler === 'function' ? handler : null
 }
 
-export function getApiBaseUrl() {
-  if (runtimeBaseUrl) return runtimeBaseUrl
-  const env = typeof import.meta !== 'undefined' ? import.meta.env : undefined
-  const assessmentConfigured = env ? env.VITE_ASSESSMENT_API_BASE_URL : ''
-  if (assessmentConfigured) {
-    return String(assessmentConfigured).trim().replace(/\/+$/, '')
+export function retainCombinedShell(holderId, baseUrl = '') {
+  if (!combinedShellHolders.size) {
+    externalCombinedShell = Boolean(globalThis.__AIS_COMBINED_SHELL__)
+    preShellBaseUrl = runtimeBaseUrl
   }
-  if (globalThis.__AIS_COMBINED_SHELL__) {
+  const normalizedBase = String(baseUrl || '').trim().replace(/\/+$/, '')
+  combinedShellHolders.set(holderId, normalizedBase)
+  globalThis.__AIS_COMBINED_SHELL__ = true
+  if (normalizedBase) {
+    setApiBaseUrl(normalizedBase)
+  }
+}
+
+export function releaseCombinedShell(holderId) {
+  if (!combinedShellHolders.has(holderId)) return
+  combinedShellHolders.delete(holderId)
+  if (!combinedShellHolders.size) {
+    setApiBaseUrl(preShellBaseUrl)
+    preShellBaseUrl = ''
+    if (!externalCombinedShell) {
+      delete globalThis.__AIS_COMBINED_SHELL__
+    }
+    externalCombinedShell = false
+    return
+  }
+  globalThis.__AIS_COMBINED_SHELL__ = true
+  const remainingBases = [...combinedShellHolders.values()].filter(Boolean)
+  setApiBaseUrl(remainingBases.length ? remainingBases[remainingBases.length - 1] : preShellBaseUrl)
+}
+
+export function resolveApiBaseUrl({
+  runtimeUrl = runtimeBaseUrl,
+  env = typeof import.meta !== 'undefined' ? import.meta.env : undefined,
+  combinedShell = globalThis.__AIS_COMBINED_SHELL__,
+} = {}) {
+  const normalizedRuntime = String(runtimeUrl || '').trim().replace(/\/+$/, '')
+  if (normalizedRuntime) return normalizedRuntime
+
+  const assessmentConfigured = env?.VITE_ASSESSMENT_API_BASE_URL
+    ? String(env.VITE_ASSESSMENT_API_BASE_URL).trim().replace(/\/+$/, '')
+    : ''
+  if (assessmentConfigured) {
+    return assessmentConfigured
+  }
+
+  if (combinedShell) {
     return '/assessment-api'
   }
-  const configured = env ? env.VITE_API_BASE_URL : ''
-  const defaultBase = env?.PROD ? '/api' : 'http://127.0.0.1:8000/api'
-  return (configured || defaultBase).replace(/\/+$/, '')
+
+  const defaultBase = env?.PROD ? '/assessment-api' : 'http://127.0.0.1:8002/api'
+  return defaultBase.replace(/\/+$/, '')
+}
+
+export function getApiBaseUrl() {
+  return resolveApiBaseUrl()
+}
+
+function isPhpSizeWarning(text) {
+  return /POST Content-Length\b[\s\S]*?exceeds\s+the\s+limit/i.test(text)
+}
+
+function buildPayloadTooLargeError(text = '') {
+  const limitMatch = text.match(/exceeds\s+the\s+limit\s+of\s+(\d+)\s+bytes/i)
+  const limitBytes = limitMatch ? Number(limitMatch[1]) : 0
+  const limitMb =
+    Number.isFinite(limitBytes) && limitBytes > 0
+      ? Math.round((limitBytes / (1024 * 1024)) * 10) / 10
+      : null
+  const sizeDetail = limitMb ? `${limitMb} MB (batas PHP server)` : '20 MB / batas PHP server'
+  return new ApiError(
+    `Ukuran file melebihi batas unggahan server (${sizeDetail}). Perkecil ukuran file sebelum mengunggah kembali.`,
+    {
+      status: 413,
+      code: 'PAYLOAD_TOO_LARGE',
+    },
+  )
+}
+
+function buildHtmlResponseError(status, contextLabel = 'JSON') {
+  if (status >= 500) {
+    return new ApiError(
+      `Server API Assessment (:8002) mengembalikan halaman error HTML (${status}). Periksa layanan :8002 dan log error PHP.`,
+      {
+        status,
+        code: 'INVALID_API_RESPONSE',
+      },
+    )
+  }
+  return new ApiError(
+    `Server API Assessment mengembalikan HTML alih-alih ${contextLabel}${status ? ` (${status})` : ''}. Periksa VITE_ASSESSMENT_API_BASE_URL atau konfigurasi proxy /assessment-api.`,
+    {
+      status: status || 502,
+      code: 'INVALID_API_RESPONSE',
+    },
+  )
+}
+
+function parseJsonErrorPayload(text, status, fallbackMessage) {
+  if (!text) return null
+  try {
+    return JSON.parse(text)
+  } catch {
+    return { message: fallbackMessage, status }
+  }
+}
+
+async function readBlobPrefixText(blob, maxBytes = 512) {
+  if (!blob) return ''
+  const slice = typeof blob.slice === 'function' ? blob.slice(0, maxBytes) : blob
+  if (typeof slice.text === 'function') {
+    return slice.text()
+  }
+  if (typeof slice.arrayBuffer === 'function') {
+    return new TextDecoder().decode(await slice.arrayBuffer())
+  }
+  return ''
+}
+
+function parseDownloadFileName(disposition, fallbackName) {
+  const match = String(disposition || '').match(/filename\*?=(?:UTF-8''|")?([^";\n]+)/i)
+  if (!match?.[1]) return fallbackName
+  const raw = match[1].replace(/"/g, '').trim()
+  if (!raw) return fallbackName
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
 }
 
 export function getStoredToken() {
@@ -109,17 +227,26 @@ export async function apiRequest(path, { method = 'GET', body = null, token = ge
 
   let payload = null
   const text = await response.text()
-  if (text) {
-    if (/^\s*</.test(text)) {
-      throw new ApiError('Server API mengembalikan HTML alih-alih JSON. Periksa VITE_API_BASE_URL.', {
-        status: response.status || 502,
-        code: 'INVALID_API_RESPONSE',
-      })
-    }
+
+  if (response.status === 413 || (text && isPhpSizeWarning(text))) {
+    throw buildPayloadTooLargeError(text)
+  }
+
+  if (text && /^\s*</.test(text)) {
+    throw buildHtmlResponseError(response.status, 'JSON')
+  }
+
+  if (text && text.trim()) {
     try {
       payload = JSON.parse(text)
     } catch {
-      payload = null
+      throw new ApiError(
+        `Respons server API Assessment tidak valid (bukan JSON${response.status ? `, status ${response.status}` : ''}). Periksa layanan :8002 dan log error PHP.`,
+        {
+          status: response.status || 502,
+          code: 'INVALID_API_RESPONSE',
+        },
+      )
     }
   }
 
@@ -147,6 +274,7 @@ export async function apiRequest(path, { method = 'GET', body = null, token = ge
 
 export const apiClient = {
   getBaseUrl: getApiBaseUrl,
+  setBaseUrl: setApiBaseUrl,
   getToken: getStoredToken,
   setToken: setStoredToken,
   getSession: getStoredSession,
@@ -276,7 +404,9 @@ export const apiClient = {
   async downloadModule(moduleId) {
     const url = `${getApiBaseUrl()}/modules/${moduleId}/download`
     const token = getStoredToken()
-    const headers = {}
+    const headers = {
+      Accept: 'application/pdf, application/json',
+    }
     if (token) {
       headers.Authorization = `Bearer ${token}`
     }
@@ -293,23 +423,85 @@ export const apiClient = {
     }
 
     if (!response.ok) {
-      let payload = null
-      try {
-        payload = await response.json()
-      } catch {
-        payload = null
+      if (response.status === 401) {
+        setStoredToken(null)
+        if (unauthorizedHandler) {
+          unauthorizedHandler()
+        }
       }
+
+      const errorText = typeof response.text === 'function' ? await response.text().catch(() => '') : ''
+      if (errorText && /^\s*</.test(errorText)) {
+        throw buildHtmlResponseError(response.status, 'file PDF')
+      }
+
+      let payload = null
+      if (errorText && errorText.trim()) {
+        payload = parseJsonErrorPayload(errorText, response.status, `Gagal mengunduh materi (${response.status}).`)
+      } else if (typeof response.json === 'function') {
+        try {
+          payload = await response.json()
+        } catch {
+          payload = null
+        }
+      }
+
+      const code = payload?.error?.code || (response.status === 401 ? 'UNAUTHENTICATED' : 'API_ERROR')
       throw new ApiError(payload?.message || `Gagal mengunduh materi (${response.status}).`, {
         status: response.status,
-        code: payload?.error?.code || 'API_ERROR',
+        code,
+        details: payload?.error?.details || {},
+      })
+    }
+
+    const headerContentType = String(response.headers?.get?.('Content-Type') || '').toLowerCase()
+    if (headerContentType.includes('text/html')) {
+      throw buildHtmlResponseError(response.status || 502, 'file PDF')
+    }
+    if (headerContentType.includes('application/json')) {
+      const jsonText = typeof response.text === 'function' ? await response.text().catch(() => '') : ''
+      let payload = jsonText ? parseJsonErrorPayload(jsonText, response.status, null) : null
+      if (!payload && typeof response.json === 'function') {
+        payload = await response.json().catch(() => null)
+      }
+      throw new ApiError(payload?.message || 'Server mengembalikan respons JSON alih-alih file PDF.', {
+        status: response.status || 502,
+        code: payload?.error?.code || 'INVALID_API_RESPONSE',
+        details: payload?.error?.details || {},
+      })
+    }
+
+    const blob = await response.blob()
+    const blobType = String(blob?.type || '').toLowerCase()
+    if (blobType.includes('text/html')) {
+      throw buildHtmlResponseError(response.status || 502, 'file PDF')
+    }
+    if (blobType.includes('application/json')) {
+      const jsonText = typeof blob?.text === 'function' ? await blob.text().catch(() => '') : ''
+      const payload = jsonText ? parseJsonErrorPayload(jsonText, response.status, null) : null
+      throw new ApiError(payload?.message || 'Server mengembalikan payload JSON alih-alih file PDF.', {
+        status: response.status || 502,
+        code: payload?.error?.code || 'INVALID_API_RESPONSE',
+        details: payload?.error?.details || {},
+      })
+    }
+
+    const head = (await readBlobPrefixText(blob)).trimStart()
+    if (head.startsWith('<')) {
+      throw buildHtmlResponseError(response.status || 502, 'file PDF')
+    }
+    if (head.startsWith('{')) {
+      const jsonText = typeof blob?.text === 'function' ? await blob.text().catch(() => head) : head
+      const payload = parseJsonErrorPayload(jsonText, response.status, null)
+      throw new ApiError(payload?.message || 'Server mengembalikan payload JSON alih-alih file PDF.', {
+        status: response.status || 502,
+        code: payload?.error?.code || 'INVALID_API_RESPONSE',
         details: payload?.error?.details || {},
       })
     }
 
     const disposition = response.headers?.get?.('Content-Disposition') || ''
-    const match = disposition.match(/filename\*?=(?:UTF-8''|")?([^";\n]+)/i)
-    const fileName = match ? decodeURIComponent(match[1].replace(/"/g, '').trim()) : `modul-${moduleId}.pdf`
-    const blob = await response.blob()
+    const fileName = parseDownloadFileName(disposition, `modul-${moduleId}.pdf`)
     return { blob, fileName }
   },
 

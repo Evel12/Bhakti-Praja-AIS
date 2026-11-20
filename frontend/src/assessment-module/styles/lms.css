@@ -98,7 +98,7 @@
 
 .lms-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 14px;
 }
 
@@ -118,6 +118,14 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
+}
+
+.lms-item-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .lms-item-title {
@@ -188,23 +196,26 @@
   gap: 16px;
 }
 
-.lms-form-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  align-items: end;
-}
-
-.lms-form-row .field {
-  display: grid;
-  gap: 7px;
-}
-
-.lms-form-row .field-label {
-  margin-bottom: 0;
-  min-height: 1.25em;
+.lms-error-banner {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+}
+
+.lms-error-banner > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lms-banner-dismiss {
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.dialog-surface .notice.warning {
+  margin: 0 0 14px;
 }
 
 .lms-dialog-actions {
@@ -222,6 +233,12 @@
   border: 1.5px dashed #bdced4;
   border-radius: 16px;
   background: #f1f7f9;
+}
+
+.lms-file-picker.dragging {
+  border-color: #2d7a93;
+  background: #e1f2f7;
+  box-shadow: 0 0 0 3px #c3e5f1;
 }
 
 .lms-file-picker-head {
@@ -301,9 +318,13 @@
 
 .lms-ai-composer {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) 120px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(210px, 1.4fr) 108px minmax(170px, 1fr) auto;
   gap: 12px;
   align-items: end;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f5f9fa;
 }
 
 .lms-ai-composer .soft-field,
@@ -483,11 +504,15 @@
     min-height: 44px;
     padding: 8px 14px;
   }
-  .lms-form-row {
-    grid-template-columns: 1fr;
-  }
   .lms-notif-item {
     flex-direction: column;
     padding: 14px 16px;
+  }
+}
+
+@container (width < 600px) {
+  .mobile-cards td.lms-progress-cell > .action-row {
+    width: auto;
+    flex-wrap: nowrap;
   }
 }
